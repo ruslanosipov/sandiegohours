@@ -257,8 +257,8 @@ export function isHappyHourActive(happyHourTimes: string, now: Date = new Date()
       const times = session.split(" - ");
       if (times.length !== 2) continue;
       
-      const startMinutes = parseTimeToMinutes(times[0].trim());
-      const endMinutes = parseTimeToMinutes(times[1].trim());
+      const startMinutes = parseFlexibleTime(times[0].trim());
+      const endMinutes = parseFlexibleTime(times[1].trim());
       
       // Handle midnight span
       if (endMinutes < startMinutes) {
@@ -313,8 +313,8 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
       const sessions = timeRange.split(", ");
       const times = sessions[0].split(" - ");
       if (times.length === 2) {
-        startTimeToday = parseTimeToMinutes(times[0].trim());
-        endTimeToday = parseTimeToMinutes(times[1].trim());
+        startTimeToday = parseFlexibleTime(times[0].trim());
+        endTimeToday = parseFlexibleTime(times[1].trim());
       }
       break;
     }
@@ -353,4 +353,103 @@ export function getHappyHourStatusLabel(status: HappyHourStatus): { text: string
     default:
       return { text: "", colorClass: "" };
   }
+}
+
+/**
+ * Normalize time format to "HH:MM AM/PM" standard
+ * Handles various inconsistent formats like "3pm", "3:00pm", "3:00 pm", "15:00"
+ */
+export function normalizeTimeFormat(timeStr: string): string {
+  if (!timeStr) return '';
+  
+  let normalized = timeStr.trim();
+  
+  // Remove extra whitespace
+  normalized = normalized.replace(/\s+/g, ' ');
+  
+  // Check for 24-hour format (HH:MM without AM/PM)
+  const twentyFourHourMatch = normalized.match(/^(\d{1,2}):(\d{2})$/);
+  if (twentyFourHourMatch) {
+    let hours = parseInt(twentyFourHourMatch[1], 10);
+    const minutes = twentyFourHourMatch[2];
+    
+    if (hours >= 0 && hours <= 23) {
+      const period = hours >= 12 ? 'PM' : 'AM';
+      if (hours === 0) hours = 12;
+      else if (hours > 12) hours -= 12;
+      return `${hours}:${minutes} ${period}`;
+    }
+  }
+  
+  // Handle formats with AM/PM
+  // Match patterns like "3pm", "3:00pm", "3:00 pm", "3:00  PM", "3 PM", "3PM"
+  const ampmMatch = normalized.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm|AM|PM|a\.m\.|p\.m\.|A\.M\.|P\.M\.)/i);
+  
+  if (ampmMatch) {
+    let hours = parseInt(ampmMatch[1], 10);
+    const minutes = ampmMatch[2] || '00';
+    const period = ampmMatch[3].toUpperCase().replace(/\./g, '').replace('M', 'M');
+    
+    // Normalize period
+    const normalizedPeriod = period.startsWith('A') ? 'AM' : 'PM';
+    
+    return `${hours}:${minutes.padStart(2, '0')} ${normalizedPeriod}`;
+  }
+  
+  // If already in standard format, return as-is
+  return normalized;
+}
+
+/**
+ * Parse time with flexible format, normalizing first
+ */
+export function parseFlexibleTime(timeStr: string): number {
+  const normalized = normalizeTimeFormat(timeStr);
+  return parseTimeToMinutes(normalized);
+}
+
+/**
+ * Normalize an entire happy hour times string
+ * Converts "Monday: 3pm-6pm | Tuesday: 4:00PM-7:00PM" to consistent format
+ */
+export function normalizeHappyHourTimes(happyHourString: string): string {
+  if (!happyHourString || happyHourString.trim() === "") {
+    return "";
+  }
+
+  const dayEntries = happyHourString.split(" | ");
+  const normalizedEntries: string[] = [];
+
+  for (const entry of dayEntries) {
+    const [dayName, timeRange] = entry.split(": ");
+    if (!dayName || !timeRange) {
+      normalizedEntries.push(entry);
+      continue;
+    }
+
+    if (timeRange.toLowerCase() === "closed") {
+      normalizedEntries.push(`${dayName}: Closed`);
+      continue;
+    }
+
+    // Handle multiple sessions separated by comma
+    const sessions = timeRange.split(", ");
+    const normalizedSessions: string[] = [];
+
+    for (const session of sessions) {
+      const times = session.split(" - ");
+      if (times.length !== 2) {
+        normalizedSessions.push(session);
+        continue;
+      }
+
+      const startTime = normalizeTimeFormat(times[0].trim());
+      const endTime = normalizeTimeFormat(times[1].trim());
+      normalizedSessions.push(`${startTime} - ${endTime}`);
+    }
+
+    normalizedEntries.push(`${dayName}: ${normalizedSessions.join(", ")}`);
+  }
+
+  return normalizedEntries.join(" | ");
 }
