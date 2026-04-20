@@ -10,6 +10,9 @@ export interface HappyHourPlace {
   price_level: string;
   source: string;
   freshness_date: string;
+  latitude?: string;
+  longitude?: string;
+  distance?: number; // in miles, calculated at runtime
 }
 
 export interface ParsedHappyHour {

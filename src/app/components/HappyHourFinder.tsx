@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { HappyHourPlace } from "@/types/happy-hour";
 import { parseHappyHourTimes, hasHappyHour, formatPriceLevel } from "@/lib/happy-hour-utils";
+import { sortByDistance, formatDistance } from "@/lib/distance-utils";
 
 interface HappyHourFinderProps {
   restaurants: HappyHourPlace[];
@@ -38,9 +39,57 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const [selectedTime, setSelectedTime] = useState<string>(currentTime);
   const [showOnlyHappyHour, setShowOnlyHappyHour] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<'name' | 'distance'>('name');
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
 
-  const filteredRestaurants = useMemo(() => {
-    return restaurants.filter((restaurant) => {
+  const handleGetLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocationLoading(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setSortBy('distance');
+        setLocationLoading(false);
+      },
+      (err) => {
+        let message = 'Unable to retrieve your location';
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            message = 'Location access denied';
+            break;
+          case err.POSITION_UNAVAILABLE:
+            message = 'Location information unavailable';
+            break;
+          case err.TIMEOUT:
+            message = 'Location request timed out';
+            break;
+        }
+        setLocationError(message);
+        setLocationLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }, []);
+
+  const handleClearLocation = useCallback(() => {
+    setUserLocation(null);
+    setSortBy('name');
+    setLocationError(null);
+  }, []);
+
+  const sortedAndFilteredRestaurants = useMemo(() => {
+    let filtered = restaurants.filter((restaurant) => {
       const hasHH = hasHappyHour(restaurant);
 
       if (searchQuery) {
@@ -62,10 +111,17 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
 
       return !showOnlyHappyHour;
     });
-  }, [restaurants, selectedDay, selectedTime, showOnlyHappyHour, searchQuery]);
+
+    // Sort by distance if user location is available and sortBy is 'distance'
+    if (sortBy === 'distance' && userLocation) {
+      filtered = sortByDistance(filtered, userLocation.lat, userLocation.lng);
+    }
+
+    return filtered;
+  }, [restaurants, selectedDay, selectedTime, showOnlyHappyHour, searchQuery, sortBy, userLocation]);
 
   const happyHourCount = restaurants.filter((r) => hasHappyHour(r)).length;
-  const activeCount = filteredRestaurants.filter((r) =>
+  const activeCount = sortedAndFilteredRestaurants.filter((r) =>
     hasHappyHour(r) && r.happy_hour_times.toLowerCase().includes(selectedDay.toLowerCase())
   ).length;
 
@@ -154,15 +210,71 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         </div>
       </div>
 
-      {/* Results count */}
-      <div className="text-sm text-gray-600">
-        Showing {filteredRestaurants.length} {filteredRestaurants.length === 1 ? "place" : "places"}
-        {searchQuery && ` for "${searchQuery}"`}
+      {/* Results count and location */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="text-sm text-gray-600">
+          Showing {sortedAndFilteredRestaurants.length} {sortedAndFilteredRestaurants.length === 1 ? "place" : "places"}
+          {searchQuery && ` for "${searchQuery}"`}
+        </div>
+        
+        <div className="flex items-center gap-3">
+          {/* Sort dropdown */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="sort-select" className="text-sm text-gray-600">Sort by:</label>
+            <select
+              id="sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'name' | 'distance')}
+              className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="name">Name</option>
+              <option value="distance" disabled={!userLocation}>Distance</option>
+            </select>
+          </div>
+
+          {/* Location button */}
+          {!userLocation ? (
+            <button
+              onClick={handleGetLocation}
+              disabled={locationLoading}
+              className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-md hover:bg-purple-200 disabled:opacity-50 flex items-center gap-1"
+            >
+              {locationLoading ? (
+                <>
+                  <span className="animate-spin">⏳</span> Getting location...
+                </>
+              ) : (
+                <>
+                  📍 Use my location
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-green-600 flex items-center gap-1">
+                📍 Location active
+              </span>
+              <button
+                onClick={handleClearLocation}
+                className="text-sm text-gray-500 hover:text-gray-700"
+                title="Clear location"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+      
+      {locationError && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md">
+          {locationError}
+        </div>
+      )}
 
       {/* Restaurant Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredRestaurants.map((restaurant, index) => {
+        {sortedAndFilteredRestaurants.map((restaurant, index) => {
           const isActive = hasHappyHour(restaurant) && restaurant.happy_hour_times.toLowerCase().includes(selectedDay.toLowerCase());
           const hasHH = hasHappyHour(restaurant);
           const source = formatSource(restaurant.source);
@@ -200,6 +312,14 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                       <span className="mx-1">·</span>
                       <span className="text-gray-500">
                         {formatPriceLevel(restaurant.price_level)}
+                      </span>
+                    </>
+                  )}
+                  {restaurant.distance !== undefined && restaurant.distance !== Infinity && (
+                    <>
+                      <span className="mx-1">·</span>
+                      <span className="text-green-600 font-medium">
+                        {formatDistance(restaurant.distance)}
                       </span>
                     </>
                   )}
@@ -274,7 +394,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         })}
       </div>
 
-      {filteredRestaurants.length === 0 && (
+      {sortedAndFilteredRestaurants.length === 0 && (
         <div className="text-center py-12 text-gray-500">
           <p className="text-lg">No places found.</p>
           <p className="mt-2">Try changing your search or filters</p>
