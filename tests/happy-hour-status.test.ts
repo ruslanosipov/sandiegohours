@@ -114,12 +114,12 @@ describe('Happy Hour Status - getHappyHourStatus', () => {
     expect(getHappyHourStatus(times, now)).toBe(HappyHourStatus.PASSED_TODAY);
   });
 
-  it('returns LATER_TODAY when happy hour is on a different day', () => {
-    // Monday 4 PM, happy hour is Tuesday
+  it('returns NO_HAPPY_HOUR when today has no happy hour scheduled', () => {
+    // Monday 4 PM, happy hour is Tuesday (not today)
     const now = new Date('2026-04-20T16:00:00'); // Monday 4 PM
     const times = 'Tuesday: 3:00 PM - 6:00 PM';
     
-    expect(getHappyHourStatus(times, now)).toBe(HappyHourStatus.LATER_TODAY);
+    expect(getHappyHourStatus(times, now)).toBe(HappyHourStatus.NO_HAPPY_HOUR);
   });
 
   it('returns ACTIVE correctly across midnight', () => {

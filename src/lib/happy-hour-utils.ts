@@ -231,21 +231,22 @@ export function isHappyHourActive(happyHourTimes: string, now: Date = new Date()
     return false;
   }
 
-  const currentDay = DAYS[now.getDay()];
+  const currentDayIndex = now.getDay();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   
   // Parse each day entry (format: "Monday: 3:00 PM - 6:00 PM | Tuesday: ...")
   const dayEntries = happyHourTimes.split(" | ");
   
   for (const entry of dayEntries) {
-    const dayMatch = entry.match(/^([^:]+):\s*(.+)$/);
+    const dayMatch = entry.match(/^([^:]+):\s*(.+)$/i);
     if (!dayMatch) continue;
     
     const dayName = dayMatch[1].trim();
     const timeRange = dayMatch[2].trim();
     
-    // Skip if not the current day
-    if (dayName !== currentDay) continue;
+    // Case insensitive day matching
+    const entryDayIndex = DAYS.findIndex(d => d.toLowerCase() === dayName.toLowerCase());
+    if (entryDayIndex !== currentDayIndex) continue;
     
     // Skip if marked as closed
     if (timeRange.toLowerCase() === "closed") continue;
@@ -303,52 +304,71 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
     return HappyHourStatus.ACTIVE;
   }
 
-  const currentDay = DAYS[now.getDay()];
+  const currentDayIndex = now.getDay();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   
-  // Check if there's a happy hour later today or passed today
+  // Check today's status
   const dayEntries = happyHourTimes.split(" | ");
   
-  let hasHappyHourToday = false;
-  let startTimeToday: number | null = null;
-  let endTimeToday: number | null = null;
+  let todayStatus: 'closed' | 'later' | 'passed' | 'none' = 'none';
   
   for (const entry of dayEntries) {
-    const dayMatch = entry.match(/^([^:]+):\s*(.+)$/);
+    const dayMatch = entry.match(/^([^:]+):\s*(.+)$/i);
     if (!dayMatch) continue;
     
     const dayName = dayMatch[1].trim();
     const timeRange = dayMatch[2].trim();
     
-    if (dayName === currentDay && timeRange.toLowerCase() !== "closed") {
-      hasHappyHourToday = true;
-      
-      // Get the first session's times
-      const sessions = timeRange.split(", ");
-      const times = sessions[0].split(" - ");
-      if (times.length === 2) {
-        startTimeToday = parseFlexibleTime(times[0].trim());
-        endTimeToday = parseFlexibleTime(times[1].trim());
+    // Case insensitive day matching
+    const entryDayIndex = DAYS.findIndex(d => d.toLowerCase() === dayName.toLowerCase());
+    
+    if (entryDayIndex === currentDayIndex) {
+      if (timeRange.toLowerCase() === "closed") {
+        todayStatus = 'closed';
+      } else {
+        // Parse times with AM/PM inheritance
+        const sessions = timeRange.split(", ");
+        const times = sessions[0].split(" - ");
+        if (times.length === 2) {
+          let startTime = times[0].trim();
+          const endTimeRaw = times[1].trim();
+          
+          // Inherit AM/PM if needed
+          const startHasAmPm = /(am|pm|AM|PM)/i.test(startTime);
+          const endHasAmPm = /(am|pm|AM|PM)/i.test(endTimeRaw);
+          if (!startHasAmPm && endHasAmPm) {
+            const endAmPm = endTimeRaw.match(/(am|pm|AM|PM)/i)?.[0] || '';
+            startTime = `${startTime} ${endAmPm}`;
+          }
+          
+          const startMinutes = parseFlexibleTime(startTime);
+          const endMinutes = parseFlexibleTime(endTimeRaw);
+          
+          if (currentMinutes < startMinutes) {
+            todayStatus = 'later';
+          } else if (currentMinutes > endMinutes) {
+            todayStatus = 'passed';
+          }
+        }
       }
       break;
     }
   }
   
-  if (!hasHappyHourToday) {
-    // Happy hour on a different day - treat as later
+  // Map status to enum
+  if (todayStatus === 'closed' || todayStatus === 'none') {
+    return HappyHourStatus.NO_HAPPY_HOUR;
+  }
+  
+  if (todayStatus === 'later') {
     return HappyHourStatus.LATER_TODAY;
   }
   
-  if (startTimeToday !== null && currentMinutes < startTimeToday) {
-    return HappyHourStatus.LATER_TODAY;
-  }
-  
-  if (endTimeToday !== null && currentMinutes > endTimeToday) {
+  if (todayStatus === 'passed') {
     return HappyHourStatus.PASSED_TODAY;
   }
   
-  // Default to later today if we can't determine
-  return HappyHourStatus.LATER_TODAY;
+  return HappyHourStatus.NO_HAPPY_HOUR;
 }
 
 /**
