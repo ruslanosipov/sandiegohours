@@ -19,7 +19,7 @@ USER_AGENTS = [
 # OpenRouter API for free AI models
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_HEADERS = {
-    "Authorization": "Bearer sk-or-v1-demo",  # Replace with actual key
+    "Authorization": "Bearer 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",
     "HTTP-Referer": "https://happy-hour-finder.local",
     "X-Title": "Happy Hour Finder",
     "Content-Type": "application/json"
@@ -171,7 +171,7 @@ def scrape_all():
         
         if hh_text:
             place['happy_hour_times'] = hh_text
-            place['source'] = 'google_maps_api+website_ai'
+            place['source'] = 'Website'
             place['freshness_date'] = datetime.now().strftime('%Y-%m-%d')
             updated.append(name)
             print(f"  [FOUND] {hh_text[:80]}...")
