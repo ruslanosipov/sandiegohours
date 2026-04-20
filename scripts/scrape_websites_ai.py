@@ -32,23 +32,48 @@ def get_headers():
         "Accept-Language": "en-US,en;q=0.5",
     }
 
-def fetch_website_text(url: str) -> str:
-    """Fetch and extract text from website"""
+def fetch_website_text(url: str, paths: list = None) -> str:
+    """Fetch and extract text from website, optionally checking multiple paths"""
     if not url:
         return ""
     
+    all_text = []
+    
+    # Always try main page first
     try:
         resp = requests.get(url, headers=get_headers(), timeout=10)
         resp.raise_for_status()
-        # Simple text extraction - remove scripts and styles
-        text = re.sub(r'<script[^>]*>.*?</script>', '', resp.text, flags=re.DOTALL)
-        text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
-        text = re.sub(r'<[^>]+>', ' ', text)
-        text = re.sub(r'\s+', ' ', text).strip()
-        return text[:4000]  # Limit for API
+        text = extract_text_from_html(resp.text)
+        if "happy hour" in text.lower():
+            return text[:6000]
+        all_text.append(text[:2000])
     except Exception as e:
         print(f"    Error fetching {url}: {e}")
-        return ""
+    
+    # Try additional paths if provided and main page didn't have happy hour
+    if paths:
+        base_url = url.rstrip('/')
+        for path in paths:
+            try:
+                full_url = f"{base_url}/{path.lstrip('/')}"
+                resp = requests.get(full_url, headers=get_headers(), timeout=10)
+                text = extract_text_from_html(resp.text)
+                if "happy hour" in text.lower():
+                    return text[:6000]
+                all_text.append(text[:1000])
+                time.sleep(0.5)  # Be polite
+            except:
+                continue
+    
+    return " ".join(all_text)[:4000]
+
+def extract_text_from_html(html: str) -> str:
+    """Extract clean text from HTML"""
+    text = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL)
+    text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+    text = re.sub(r'<[^>]+>', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
 def parse_with_ai(text: str, restaurant_name: str) -> dict:
     """Use AI to parse happy hour info from website text"""
@@ -121,7 +146,10 @@ def format_schedule(schedule: dict) -> str:
 def scrape_restaurant(name: str, url: str) -> tuple:
     """Scrape a single restaurant's website for happy hour info"""
     print(f"  Fetching website...")
-    text = fetch_website_text(url)
+    
+    # Check common menu/happy hour pages
+    menu_paths = ['menu', 'happy-hour', 'specials', 'drinks', 'bar']
+    text = fetch_website_text(url, menu_paths)
     
     if not text:
         return None, "no_website"
