@@ -104,8 +104,9 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         <h2 className="text-lg font-semibold mb-4">Filter by Time</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Day</label>
+            <label htmlFor="day-select" className="block text-sm font-medium text-gray-700 mb-1">Day</label>
             <select
+              id="day-select"
               value={selectedDay}
               onChange={(e) => setSelectedDay(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -118,8 +119,9 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+            <label htmlFor="time-select" className="block text-sm font-medium text-gray-700 mb-1">Time</label>
             <select
+              id="time-select"
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -138,8 +140,9 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
             </select>
           </div>
           <div className="flex items-end">
-            <label className="flex items-center space-x-2 cursor-pointer">
+            <label htmlFor="hh-only-toggle" className="flex items-center space-x-2 cursor-pointer">
               <input
+                id="hh-only-toggle"
                 type="checkbox"
                 checked={showOnlyHappyHour}
                 onChange={(e) => setShowOnlyHappyHour(e.target.checked)}
