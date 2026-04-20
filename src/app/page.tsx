@@ -36,7 +36,7 @@ export default async function Home() {
     <main className="min-h-screen bg-gray-50">
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-12">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2">92116 Happy Hour Finder</h1>
+          <h1 className="text-4xl font-bold mb-2">San Diego Happy Hours</h1>
           <p className="text-lg opacity-90">Find the best happy hours in Normal Heights, North Park & surrounding areas</p>
         </div>
       </div>

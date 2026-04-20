@@ -29,20 +29,15 @@ function formatDate(dateStr: string): string {
 }
 
 export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
-  const [selectedDay, setSelectedDay] = useState<string>("");
-  const [selectedTime, setSelectedTime] = useState<string>("");
-  const [showOnlyHappyHour, setShowOnlyHappyHour] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
   const now = new Date();
   const currentDay = DAYS[now.getDay()];
   const currentHour = now.getHours();
   const currentTime = `${currentHour.toString().padStart(2, "0")}:00`;
 
-  React.useEffect(() => {
-    if (!selectedDay) setSelectedDay(currentDay);
-    if (!selectedTime) setSelectedTime(currentTime);
-  }, []);
+  const [selectedDay, setSelectedDay] = useState<string>(currentDay);
+  const [selectedTime, setSelectedTime] = useState<string>(currentTime);
+  const [showOnlyHappyHour, setShowOnlyHappyHour] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredRestaurants = useMemo(() => {
     return restaurants.filter((restaurant) => {
@@ -216,11 +211,11 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                     }`}
                   >
                     <strong>Happy Hour:</strong>
-                    <div className="mt-1 space-y-1">
+                    <div className="mt-1 space-y-0.5">
                       {restaurant.happy_hour_times.split(" | ").map((line, i) => (
-                        <p key={i} className="leading-relaxed">
+                        <span key={i} className="block leading-snug">
                           {line}
-                        </p>
+                        </span>
                       ))}
                     </div>
                   </div>
