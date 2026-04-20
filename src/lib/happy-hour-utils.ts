@@ -252,7 +252,9 @@ export function isHappyHourActive(happyHourTimes: string, now: Date = new Date()
     if (timeRange.toLowerCase() === "closed") continue;
     
     // Parse time ranges (handle multiple sessions: "3:00 PM - 6:00 PM, 10:00 PM - 12:00 AM")
-    const sessions = timeRange.split(", ");
+    // Also handle en-dash (–) and other dash variants
+    const normalizedRange = timeRange.replace(/[\u2013\u2014]/g, '-');
+    const sessions = normalizedRange.split(", ");
     
     for (const session of sessions) {
       const times = session.split(" - ");
@@ -327,7 +329,9 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
         todayStatus = 'closed';
       } else {
         // Parse times with AM/PM inheritance
-        const sessions = timeRange.split(", ");
+        // Normalize dashes first
+        const normalizedRange = timeRange.replace(/[\u2013\u2014]/g, '-');
+        const sessions = normalizedRange.split(", ");
         const times = sessions[0].split(" - ");
         if (times.length === 2) {
           let startTime = times[0].trim();
@@ -398,8 +402,14 @@ export function normalizeTimeFormat(timeStr: string): string {
   
   let normalized = timeStr.trim();
   
+  // Replace narrow non-breaking spaces (\u202f) and other special whitespace with regular spaces
+  normalized = normalized.replace(/[\u202f\u00a0\u2000-\u200b]/g, ' ');
+  
+  // Replace en-dash (–) and em-dash (—) with regular hyphen
+  normalized = normalized.replace(/[\u2013\u2014]/g, '-');
+  
   // Remove extra whitespace
-  normalized = normalized.replace(/\s+/g, ' ');
+  normalized = normalized.replace(/\s+/g, ' ').trim();
   
   // Check for 24-hour format (HH:MM without AM/PM)
   const twentyFourHourMatch = normalized.match(/^(\d{1,2}):(\d{2})$/);
