@@ -15,8 +15,11 @@ export function parseHappyHourTimes(happyHourString: string): ParsedHappyHour[] 
     return [];
   }
 
+  // Preprocess to fix missing spaces between days
+  const processedString = preprocessHappyHourString(happyHourString);
+
   const result: ParsedHappyHour[] = [];
-  const dayEntries = happyHourString.split(" | ");
+  const dayEntries = processedString.split(" | ");
 
   for (const entry of dayEntries) {
     const [day, timeRange] = entry.split(": ");
@@ -232,11 +235,14 @@ export function isHappyHourActive(happyHourTimes: string, now: Date = new Date()
     return false;
   }
 
+  // Preprocess to fix missing spaces between days
+  const processedTimes = preprocessHappyHourString(happyHourTimes);
+  
   const currentDayIndex = now.getDay();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   
   // Parse each day entry (format: "Monday: 3:00 PM - 6:00 PM | Tuesday: ...")
-  const dayEntries = happyHourTimes.split(" | ");
+  const dayEntries = processedTimes.split(" | ");
   
   for (const entry of dayEntries) {
     const dayMatch = entry.match(/^([^:]+):\s*(.+)$/i);
@@ -302,6 +308,9 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
     return HappyHourStatus.NO_HAPPY_HOUR;
   }
 
+  // Preprocess to fix missing spaces between days
+  const processedTimes = preprocessHappyHourString(happyHourTimes);
+
   // Check if active now
   if (isHappyHourActive(happyHourTimes, now)) {
     return HappyHourStatus.ACTIVE;
@@ -310,8 +319,8 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
   const currentDayIndex = now.getDay();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   
-  // Check today's status
-  const dayEntries = happyHourTimes.split(" | ");
+  // Check today's status (use processed times)
+  const dayEntries = processedTimes.split(" | ");
   
   let todayStatus: 'closed' | 'later' | 'passed' | 'none' = 'none';
   
@@ -472,6 +481,29 @@ export function parseFlexibleTime(timeStr: string): number {
 }
 
 /**
+ * Preprocess happy hour string to add spaces between concatenated days
+ * e.g., "Monday: 3-6pmTuesday: 3-6pm" -> "Monday: 3-6pm | Tuesday: 3-6pm"
+ */
+function preprocessHappyHourString(happyHourString: string): string {
+  // Replace narrow non-breaking spaces and other special chars first
+  let processed = happyHourString.replace(/[\u202f\u00a0\u2000-\u200b]/g, ' ');
+  processed = processed.replace(/[\u2013\u2014]/g, '-');
+  
+  // Insert separator before day names that are directly attached to previous content
+  // Match patterns like "6 pmTuesday", "6PMTuesday", "ClosedTuesday", "11:00PMTuesday"
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  
+  for (const day of dayNames) {
+    // Match day name preceded by a letter, number, or M (from AM/PM)
+    // This handles: "pmTuesday", "PMTuesday", "6PMTuesday", "8:00PMTuesday"
+    const regex = new RegExp(`([a-zA-Z0-9])(${day}:)`, 'gi');
+    processed = processed.replace(regex, '$1 | $2');
+  }
+  
+  return processed;
+}
+
+/**
  * Normalize an entire happy hour times string
  * Converts "Monday: 3pm-6pm | Tuesday: 4:00PM-7:00PM" to consistent format
  */
@@ -480,13 +512,30 @@ export function normalizeHappyHourTimes(happyHourString: string): string {
     return "";
   }
 
-  const dayEntries = happyHourString.split(" | ");
+  // First preprocess to fix missing spaces between days
+  const preprocessed = preprocessHappyHourString(happyHourString);
+  
+  // Normalize dashes in time separators (5:00PM-8:00PM -> 5:00PM - 8:00PM)
+  const dashNormalized = preprocessed.replace(/([apAP][mM])-+(\d)/g, '$1 - $2');
+  
+  const dayEntries = dashNormalized.split(" | ");
   const normalizedEntries: string[] = [];
 
   for (const entry of dayEntries) {
-    const [dayName, timeRange] = entry.split(": ");
+    const trimmedEntry = entry.trim();
+    if (!trimmedEntry) continue;
+    
+    const colonIndex = trimmedEntry.indexOf(': ');
+    if (colonIndex === -1) {
+      normalizedEntries.push(trimmedEntry);
+      continue;
+    }
+    
+    const dayName = trimmedEntry.substring(0, colonIndex).trim();
+    const timeRange = trimmedEntry.substring(colonIndex + 2).trim();
+    
     if (!dayName || !timeRange) {
-      normalizedEntries.push(entry);
+      normalizedEntries.push(trimmedEntry);
       continue;
     }
 
@@ -500,9 +549,11 @@ export function normalizeHappyHourTimes(happyHourString: string): string {
     const normalizedSessions: string[] = [];
 
     for (const session of sessions) {
-      const times = session.split(" - ");
+      // Normalize dashes in session
+      const sessionNormalized = session.replace(/-+/g, ' - ').replace(/\s+/g, ' ').trim();
+      const times = sessionNormalized.split(" - ");
       if (times.length !== 2) {
-        normalizedSessions.push(session);
+        normalizedSessions.push(sessionNormalized);
         continue;
       }
 
