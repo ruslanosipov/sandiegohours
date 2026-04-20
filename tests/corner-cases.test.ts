@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { getHappyHourStatus, HappyHourStatus, isHappyHourActive } from '../src/lib/happy-hour-utils';
 
 describe('Closed day handling', () => {
-  it('shows NO_HAPPY_HOUR when today is marked as Closed', () => {
+  it('shows NO_HAPPY_HOUR_TODAY when today is marked as Closed', () => {
     // Sunday, but happy hour shows "Sunday: Closed"
     const now = new Date('2026-04-19T16:00:00'); // Sunday 4 PM
     const times = 'Sunday: Closed | Monday: 3:00 PM - 6:00 PM';
     
     const status = getHappyHourStatus(times, now);
-    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR);
+    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR_TODAY);
   });
 
   it('shows ACTIVE when today has happy hour (not Closed)', () => {
@@ -36,13 +36,13 @@ describe('Closed day handling', () => {
 });
 
 describe('Missing day handling', () => {
-  it('shows NO_HAPPY_HOUR when today not listed at all', () => {
+  it('shows NO_HAPPY_HOUR_TODAY when today not listed at all', () => {
     // Tuesday, but only Monday and Wednesday have happy hours
     const now = new Date('2026-04-21T16:00:00'); // Tuesday 4 PM
     const times = 'Monday: 3:00 PM - 6:00 PM | Wednesday: 3:00 PM - 6:00 PM';
     
     const status = getHappyHourStatus(times, now);
-    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR);
+    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR_TODAY);
   });
 
   it('shows PASSED_TODAY when today happy hour already passed', () => {
@@ -72,13 +72,13 @@ describe('Across midnight handling', () => {
     expect(isHappyHourActive(times, now)).toBe(true);
   });
 
-  it('shows PASSED_TODAY after midnight-spanning happy hour ends', () => {
+  it('shows NO_HAPPY_HOUR_TODAY after midnight-spanning happy hour ends and today is closed', () => {
     // Monday 1 AM, but happy hour was Sunday 10 PM - 12 AM
     const now = new Date('2026-04-20T01:00:00'); // Monday 1 AM
     const times = 'Sunday: 10:00 PM - 12:00 AM | Monday: Closed';
     
     const status = getHappyHourStatus(times, now);
-    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR); // Monday is Closed
+    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR_TODAY); // Monday is Closed
   });
 });
 

@@ -4,6 +4,7 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 
 export enum HappyHourStatus {
   NO_HAPPY_HOUR = 'NO_HAPPY_HOUR',
+  NO_HAPPY_HOUR_TODAY = 'NO_HAPPY_HOUR_TODAY',
   ACTIVE = 'ACTIVE',
   LATER_TODAY = 'LATER_TODAY',
   PASSED_TODAY = 'PASSED_TODAY',
@@ -360,7 +361,23 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
   }
   
   // Map status to enum
-  if (todayStatus === 'closed' || todayStatus === 'none') {
+  if (todayStatus === 'closed') {
+    // Has happy hour info but closed today
+    return HappyHourStatus.NO_HAPPY_HOUR_TODAY;
+  }
+  
+  if (todayStatus === 'none') {
+    // Check if there are any happy hours at all
+    const hasAnyHappyHour = dayEntries.some(entry => {
+      const match = entry.match(/^([^:]+):\s*(.+)$/i);
+      if (!match) return false;
+      const timeRange = match[2].trim();
+      return timeRange.toLowerCase() !== 'closed' && timeRange !== '';
+    });
+    
+    if (hasAnyHappyHour) {
+      return HappyHourStatus.NO_HAPPY_HOUR_TODAY;
+    }
     return HappyHourStatus.NO_HAPPY_HOUR;
   }
   
@@ -384,6 +401,8 @@ export function getHappyHourStatusLabel(status: HappyHourStatus): { text: string
       return { text: "Happy Hour Now!", colorClass: "bg-green-100 text-green-700" };
     case HappyHourStatus.NO_HAPPY_HOUR:
       return { text: "No Happy Hour", colorClass: "bg-red-100 text-red-700" };
+    case HappyHourStatus.NO_HAPPY_HOUR_TODAY:
+      return { text: "No Happy Hour Today", colorClass: "bg-gray-100 text-gray-700" };
     case HappyHourStatus.LATER_TODAY:
       return { text: "Happy Hour Later", colorClass: "bg-blue-100 text-blue-700" };
     case HappyHourStatus.PASSED_TODAY:
