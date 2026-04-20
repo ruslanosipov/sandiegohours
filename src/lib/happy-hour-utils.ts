@@ -257,8 +257,22 @@ export function isHappyHourActive(happyHourTimes: string, now: Date = new Date()
       const times = session.split(" - ");
       if (times.length !== 2) continue;
       
-      const startMinutes = parseFlexibleTime(times[0].trim());
-      const endMinutes = parseFlexibleTime(times[1].trim());
+      const startTimeRaw = times[0].trim();
+      const endTimeRaw = times[1].trim();
+      
+      // If start time doesn't have AM/PM but end time does, inherit it
+      const startHasAmPm = /(am|pm|AM|PM)/i.test(startTimeRaw);
+      const endHasAmPm = /(am|pm|AM|PM)/i.test(endTimeRaw);
+      
+      let startTime = startTimeRaw;
+      if (!startHasAmPm && endHasAmPm) {
+        // Extract AM/PM from end time and append to start time
+        const endAmPm = endTimeRaw.match(/(am|pm|AM|PM)/i)?.[0] || '';
+        startTime = `${startTimeRaw} ${endAmPm}`;
+      }
+      
+      const startMinutes = parseFlexibleTime(startTime);
+      const endMinutes = parseFlexibleTime(endTimeRaw);
       
       // Handle midnight span
       if (endMinutes < startMinutes) {
