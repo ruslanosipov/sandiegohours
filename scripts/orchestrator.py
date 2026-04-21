@@ -262,7 +262,7 @@ def main():
     args = parser.parse_args()
     
     if args.full or (not args.step and not args.resume):
-        run_pipeline(start_step='load')
+        run_pipeline(start_step='fetch')
     elif args.resume:
         run_pipeline(resume=True)
     elif args.step:
