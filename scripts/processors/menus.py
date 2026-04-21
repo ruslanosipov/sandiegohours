@@ -71,8 +71,8 @@ class MenuProcessor:
             restaurant.menu_summary = result.get('short_summary', '')
             
             if drink or food:
-                print(f"  ✓ Drink: {restaurant.cheapest_drink}")
-                print(f"  ✓ Food: {restaurant.cheapest_food}")
+                print(f"  [OK] Drink: {restaurant.cheapest_drink}")
+                print(f"  [OK] Food: {restaurant.cheapest_food}")
                 return True
             else:
                 print(f"  No menu data found")

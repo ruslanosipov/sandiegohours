@@ -65,12 +65,8 @@ def step_fetch_restaurants(storage: CSVManager) -> list:
     csv_path = DATA_DIR / 'happy_hours.csv'
     if csv_path.exists():
         print(f"Found existing {csv_path}")
-        response = input("Refresh from Google Places API? (y/N): ")
-        if response.lower() != 'y':
-            print("Loading from CSV...")
-            restaurants = storage.read('happy_hours.csv', Restaurant)
-            print(f"Loaded {len(restaurants)} restaurants")
-            return restaurants
+        # In non-interactive mode, default to refreshing
+        print("Refreshing from Google Places API (using --full)...")
     
     print("Fetching from Google Places API...")
     try:

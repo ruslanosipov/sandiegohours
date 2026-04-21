@@ -60,7 +60,7 @@ class HappyHourProcessor:
                 # Update restaurant
                 restaurant.happy_hour_times = format_happy_hour_times(result['happy_hours'])
                 restaurant.source = 'Website (AI parsed)'
-                print(f"  ✓ Found: {restaurant.happy_hour_times[:60]}...")
+                print(f"  [OK] Found: {restaurant.happy_hour_times[:60]}...")
                 return True
             else:
                 print(f"  No happy hours found")

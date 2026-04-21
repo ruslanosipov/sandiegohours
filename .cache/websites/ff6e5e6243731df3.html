@@ -1,0 +1,1357 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Home Page : Burger Lounge</title>	
+	
+<!--* Removing mobiledetect | 2026.04.14 gft
+		< ? php perch_layout('structure/mobiledetect'); ?>
+			< ? php 
+					$detect = new Mobile_Detect;
+					$device = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'desktop');
+					//user agent for SVG swap
+					$agent = $_SERVER['HTTP_USER_AGENT'];
+					?>
+*-->
+
+	<script type="text/javascript" charset="UTF-8" src="https://cdn.cookie-script.com/s/78d8c8e4125c40e25cf1a5bcf2abeb6a.js"></script>
+
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/img/base/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/base/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/img/base/favicon-16x16.png">
+<link rel="manifest" href="../assets/img/base/site.webmanifest">
+<link rel="mask-icon" href="../assets/img/base/safari-pinned-tab.svg" color="#e4002b">
+<link rel="shortcut icon" href="../assets/img/base/favicon.ico">
+<meta name="msapplication-TileColor" content="#fffdeb">
+<meta name="msapplication-TileImage" content="../assets/img/base/mstile-144x144.png">
+<meta name="msapplication-config" content="../assets/img/base/browserconfig.xml">
+<meta name="theme-color" content="#fffdeb"><meta name="generator" content="Perch">
+<meta name="refresh" content="300">
+<meta name="author" content="fathead design, inc.">
+<meta name="revisit-after" content="7">
+<meta name="copyright" content="Burger Lounge">
+<meta property="og:locale" content="en_US" />
+<meta property="og:rich_attachment" content="true" />
+<meta property="fb:admins" content="609401657" />
+<meta property="og:image" content="https://www.burgerlounge.com/assets/img/base/facebook-profile.png">
+<meta property="twitter:image" content="https://www.burgerlounge.com/assets/img/base/facebook-profile.png">
+<meta property="og:site_name" content="Burger Lounge">
+<link rel="canonical" href="https://www.burgerlounge.com/">
+<meta property="og:url" content="https://www.burgerlounge.com/">
+<meta name="twitter:url" content="https://www.burgerlounge.com/">
+<meta property="article:author" content="Burger Lounge">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@Burger_Lounge">
+<!-- ( *|* ) Sitewide Meta -->
+<meta property="og:type" content="restaurant">
+<meta property="fb:app_id" content="184857764899322">
+<meta property="place:location:latitude" content="32.724801"> 
+<meta property="place:location:longitude" content="-117.168479">
+<!-- ( *|* ) Header Tracking Codes  -->
+
+	<!-- GTM | v_GTM-5B8SKRR | Wed 03 September 25 -->
+	
+	<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5B8SKRR');</script>
+<!-- End Google Tag Manager -->
+
+	<!-- gtag.js | Thu 08 February 24 -->
+	
+	<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MLQ44B4MLQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MLQ44B4MLQ');
+</script>
+
+	<!-- FB Domain Verification | Thu 08 February 24 -->
+	
+	<meta name="facebook-domain-verification" content="qs0k7xngxxryr9r87sap2w6pszydgx" />
+
+	<!-- fb-root, fb-init | Tue 06 December 22 -->
+	
+	<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6&appId=184857764899322";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- ( *|* ) Page Specific Meta -->
+<!-- reCAPTCHA script -->
+<script src='https://www.google.com/recaptcha/api.js?render=6LcZ58AZAAAAAAUAQ58nmOyMXp9j8_PiVeE-LXlB'></script>
+
+<!-- SMS js -->
+<script src="https://cdn.attn.tv/bl/dtag.js"></script>
+
+<!--* version of jquery that is used for cookie *-->
+<script type="text/javascript" src="/assets/js/js.cookie.js"></script>
+<!--* Main CSS calls *-->
+<link rel="stylesheet" href="/assets/css/bootstrap.min.css" type="text/css">
+<!--* Bring in fonts from vendor if needed  *-->
+
+<!--* Google Fonts for Domine (used in Runway Admin) *-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Domine:wght@400..700&display=swap" rel="stylesheet">
+
+<!--* Gijgo CSS for datepicker *-->
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css">
+
+<!--* Site Specific Calls *-->
+<link rel="stylesheet" href="/assets/css/bl-main.css?v=1776296059" type="text/css">
+<link rel="preload" as="image" href="/perch/resources/LTOs/bl-house-combo-hero.webp" fetchpriority="high">
+
+
+</head>
+
+<!--* Removing skrollr-body | 2026.04.14 gft
+	< ?php if($device == 'desktop') {
+					echo '<body id="skrollr-body">';
+					 } else {
+							echo '<body>';
+						 }
+				?>
+*-->	
+<body><a href="https://www.burgerlounge.com/cdn-cgi/content?id=1wM7acml_vMbzUKowjjhAsKwNSUEbz1ZH4aBPUOaeqk-1776752908.614675-1.0.1.1-X9LwTBauOn.j0A.vHeosxtuAkZ4ZbA_VXAAs.44yOZQ" aria-hidden="true" rel="nofollow noopener" style="display: none !important; visibility: hidden !important"></a>
+	
+	<!-- Google Tag Manager | Tue 14 April 26 -->
+	
+	<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5B8SKRR"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+	<!-- fb-root div | Tue 14 April 26 -->
+	
+	<div id="fb-root"></div>
+<script>
+	const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+	const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+</script>
+
+<a href="#mainContent" class="screen-reader-text">
+	<span class="hiddenJumps" aria-hidden="true">#</span>
+	<span class="hiddenJumps">Skip to main content</span>
+</a>
+
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+  <a class="navbar-brand" href="/" aria-label="Click here to visit the home page">
+      	<div class="bl-mastlogo" alt="Logo for Burger Lounge"></div>  </a>
+	<button class="navbar-toggler" id="toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-bs-target="#BLNavbarToggler" aria-controls="Toggle button for viewing navigation on mobile devices" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="icon-bar-top top-bar"></span>
+    <span class="icon-bar-mid middle-bar"></span>
+    <span class="icon-bar-bot bottom-bar"></span>
+  </button>
+	<div class="collapse navbar-collapse" id="BLNavbarToggler">
+    <ul class="navbar-nav mx-auto justify-content-center">
+			<li class="nav-item">
+				<a class="nav-link" href="/locations" aria-label="Click Here to View All Burger Lounge Locations">Locations</a>
+			</li>
+			<li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Click Here to View the Main Menu and Catering Menu for Burger Lounge">Menus</a>
+				<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<li>			
+								<li>
+            <a class="dropdown-item" href="/menus/main-menu.php">Main Menu</a>   
+                     
+    </li>
+		<li>
+            <a class="dropdown-item" href="/menus/catering-menu">Catering Menu</a>   
+                     
+    </li>
+					</li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/fundraisers/" aria-label="Click Here to Host a Fundraiser at Burger Lounge">Host Your Fundraiser</a>
+      </li>
+    <!--*
+			<li class="nav-item">
+        <a class="nav-link" href="/careers" aria-label="Click Here to View Career Information for Burger Lounge">Careers</a>
+      </li>
+    *-->
+			<li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Click Here for Information on The History of, The Partners and Vendors for, the Ethos of, and Hosting Fundraisers at Burger Lounge">Other Stuff</a>
+				<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<li><a class="dropdown-item" href="/fundraisers/" aria-label="Click Here to Host a Fundraiser at Burger Lounge">Host a Fundraiser</a></li>
+          <li>			
+                		<li>
+            <a class="dropdown-item" href="/other-stuff/our-ethos.php">Our Ethos</a>   
+                     
+    </li>
+		<li>
+            <a class="dropdown-item" href="/other-stuff/food-and-partners.php">Food &amp; Partners</a>   
+                     
+    </li>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/careers" aria-label="Click Here to View Career Information for Burger Lounge">Careers</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/promotions/download-our-app" aria-label="Click Here to Download the Burger Lounge App">Our App</a>
+          </li>
+          <li>			
+                		<li>
+            <a class="dropdown-item" href="/contact/contact-us.php">Contact</a>   
+                     
+    </li>
+          </li>
+        </ul>
+      </li>
+			<li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-label="Click Here for Information on Purchasing, Checking the Value Of and Checking the Order Status of Burger Lounge Gift Cards" aria-expanded="false">Gift Cards</a>
+				<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<li><a class="dropdown-item" href="https://burgerlounge.cardfoundry.com/giftcards.php?action=store" aria-label="Click Here to Purchase a Burger Lounge Gift Card">Purchase Gift Cards</a></li>
+					<li><a class="dropdown-item" href="https://burgerlounge.cardfoundry.com/giftcards.php?action=order_status" aria-label="Click Here to Check On the Order Status for your Burger Lounge Gift Card">Check Order Status</a></li>
+					<li><a class="dropdown-item" href="https://burgerlounge.cardfoundry.com/giftcards.php?action=card_balance" aria-label="Click Here to Check the Balance on your Burger Lounge Gift Card">Check Card Balance</a></li>
+        </ul>
+      </li>
+    <!--*
+			<li class="nav-item">
+        <a class="nav-link" href="/promotions/download-our-app" aria-label="Click Here to Download the Burger Lounge App">Our App</a>
+      </li>
+    *-->
+			<li class="nav-item nav-item-order">
+				<a class="nav-link-order" href="https://catering.burgerlounge.com/" aria-label="Click Here to Order Catering from Burger Lounge">Order Catering</a>
+			</li>		
+			<li class="nav-item nav-item-order">
+				<a class="nav-link-order" href="https://ordering.burgerlounge.com/" aria-label="Click Here to Order Now from Burger Lounge">Order Now</a>
+			</li>	
+		</ul>
+	</div><!--* // *-->
+</nav><!--*  BEGIN Specific Page Content  *-->
+  <main id="mainContent">
+
+	<div id="homepage">
+		 
+
+	
+		
+	
+
+	
+
+	
+	
+	
+
+
+
+<section id="houseCombo" class="u-space-top-none u-space-bottom-none">
+	<div class="bl-houseCombo js-promo-reveal">
+		
+		<div class="bl-houseCombo__wrap">
+
+			<div class="container">
+				
+				<div class="bl-houseCombo__content">
+					<h2 class="bl-houseCombo__headline">
+						Lounge Combo
+					</h2>
+
+					<ul class="bl-houseCombo__items" aria-label="House combo includes">
+						<li class="bl-houseCombo__item bl-houseCombo__item--1">
+							<span class="bl-houseCombo__star" aria-hidden="true">
+								<img src="/assets/img/layout/promotions/house-combo-star.svg" alt="">
+							</span>
+							<span class="bl-houseCombo__label">
+								Grass-Fed Burger
+							</span>
+						</li>
+
+						<li class="bl-houseCombo__item bl-houseCombo__item--2">
+							<span class="bl-houseCombo__star" aria-hidden="true">
+								<img src="/assets/img/layout/promotions/house-combo-star.svg" alt="">
+							</span>
+							<span class="bl-houseCombo__label">
+								Hand-Cut Tallow Fries
+							</span>
+						</li>
+
+						<li class="bl-houseCombo__item bl-houseCombo__item--3">
+							<span class="bl-houseCombo__star" aria-hidden="true">
+								<img src="/assets/img/layout/promotions/house-combo-star.svg" alt="">
+							</span>
+							<span class="bl-houseCombo__label">
+								Your Choice of Drink
+							</span>
+						</li>
+					</ul>
+									
+				</div></div><div class="bl-houseCombo__sparkles" aria-hidden="true">
+				<span class="bl-houseCombo__spark bl-houseCombo__spark--1">
+					<img src="/assets/img/layout/promotions/house-combo-star.svg" alt="">
+				</span>
+				<span class="bl-houseCombo__spark bl-houseCombo__spark--2">
+					<img src="/assets/img/layout/promotions/house-combo-star.svg" alt="">
+				</span>
+				<span class="bl-houseCombo__spark bl-houseCombo__spark--3">
+					<img src="/assets/img/layout/promotions/house-combo-star.svg" alt="">
+				</span>
+			</div><div class="bl-houseCombo__visual">
+				
+					<a class="bl-houseCombo__link"
+						href="/menus/main-menu#combos"
+						>
+				
+				
+				<img src="/perch/resources/LTOs/bl-house-combo-hero.webp"
+				alt="The Burger Lounge Lounge Combo"
+				class="bl-houseCombo__photo"
+				decoding="async"
+				fetchpriority="high" loading="eager"
+				>
+				
+				
+					</a>
+				
+			</div><div class="bl-houseCombo__priceBar">
+				<div class="bl-houseCombo__priceText">
+					Double $13.95 · Single $11.95
+				</div>
+			</div></div></div></section>
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+
+
+
+<section id="bannerButtons" class="u-space-top-none u-space-bottom-none">
+		<div class="fullwidth creamBg" id="homeButtons">
+				<div class="container">
+						<div class="row">
+								<div class="col-sm-2 col-xs-1 justify-content-center">&nbsp;</div><div class="col-sm-4 col-xs-5 justify-content-center">
+										<a href="../menus/main-menu" class="bl-buttons">
+												<img src="../assets/svg/view-our-menu-orange.svg" class=" " alt="Click Here to View the Main Menu for Burger Lounge" aria-label="Click Here to View the Main Menu for Burger Lounge">
+										</a>
+								</div><div class="col-sm-4 col-xs-5 justify-content-center">
+										<a href="https://ordering.burgerlounge.com/" target="_blank" class="bl-buttons">
+												<img src="../assets/svg/order-now-orange.svg" class=" " aria-label="Click Here to Order Now from Burger Lounge" alt="Click Here to Order Now from Burger Lounge">
+										</a>
+								</div><div class="col-sm-2 col-xs-1 justify-content-center">&nbsp;</div></div></div></div></section>
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+
+
+<section id="powerProteinBowl" class="u-space-top-md u-space-bottom-none"><div class="bl-powerBowl bl-powerBowl--desktop js-promo-reveal d-none d-xl-block">
+		<div class="bl-powerBowl__wrap">
+
+			<div class="container">
+				<div class="bl-powerBowl__top">
+
+					<div class="bl-powerBowl__headlineGroup">
+						<h2 class="bl-powerBowl__headline">POWER PROTEIN BOWL</h2>
+						<div class="bl-powerBowl__subhead">A different kind of favorite.</div>
+						<div class="bl-powerBowl__underline" aria-hidden="true"></div>
+						<div class="bl-powerBowl__price">$15.95</div>
+					</div>
+
+					<div class="bl-powerBowl__graphicGroup">
+						<div class="bl-powerBowl__protein" aria-hidden="true">
+							<img src="/assets/img/layout/promotions/power-protein-49g.svg" alt="">
+						</div>
+					</div>
+
+				</div></div><div class="bl-powerBowl__art">
+				<div class="bl-powerBowl__leaves" aria-hidden="true">
+					<img src="/assets/img/layout/promotions/power-protein-leaves.svg" alt="">
+				</div>
+
+				<div class="bl-powerBowl__bowl" aria-hidden="true">
+					<img src="/assets/img/layout/promotions/power-protein-bowl-1000x654.webp" alt="">
+				</div>
+
+				<div class="bl-powerBowl__chicken" aria-hidden="true">
+					<img src="/assets/img/layout/promotions/power-protein-chicken.svg" alt="">
+				</div>
+			</div><div class="bl-powerBowl__band">
+				<div class="container">
+					<div class="bl-powerBowl__body">
+						<ul>
+	<li>Chilled (Poached) Chicken Breast</li>
+	<li>Five Grains Baby Kale</li>
+	<li>Roasted Corn</li>
+	<li>Avocado</li>
+	<li>Queso Fresco</li>
+	<li>Toasted Pepitas</li>
+	<li>Chili Crisps</li>
+	<li>Pickled Red Onion</li>
+	<li>Shredded Carrots</li>
+	<li>Guajillo Vinaigrette</li>
+</ul>
+					</div>
+				</div>
+			</div></div></div><div class="bl-powerBowlMobile js-promo-reveal d-block d-xl-none">
+		<div class="bl-powerBowlMobile__wrap">
+
+			<div class="bl-powerBowlMobile__top">
+				<h2 class="bl-powerBowlMobile__headline">POWER PROTEIN BOWL</h2>
+
+				<div class="bl-powerBowlMobile__artCluster">
+					<div class="bl-powerBowlMobile__leaves" aria-hidden="true">
+						<img src="/assets/img/layout/promotions/power-protein-leaves.svg" alt="">
+					</div>
+
+					<div class="bl-powerBowlMobile__protein" aria-hidden="true">
+						<img src="/assets/img/layout/promotions/power-protein-49g.svg" alt="">
+					</div>
+
+					<div class="bl-powerBowlMobile__chicken">
+						<img src="/assets/img/layout/promotions/power-protein-chicken.svg" alt="">
+					</div>
+
+					<div class="bl-powerBowlMobile__bowl" aria-hidden="true">
+						<img src="/assets/img/layout/promotions/power-protein-bowl-1000x654.webp" alt="">
+					</div>
+				</div>
+
+				<div class="bl-powerBowlMobile__subhead">A different kind of favorite.</div>
+				<div class="bl-powerBowlMobile__underline" aria-hidden="true"></div>
+			</div><div class="bl-powerBowlMobile__band">
+				<div class="bl-powerBowlMobile__body">
+					<ul>
+	<li>Chilled (Poached) Chicken Breast</li>
+	<li>Five Grains Baby Kale</li>
+	<li>Roasted Corn</li>
+	<li>Avocado</li>
+	<li>Queso Fresco</li>
+	<li>Toasted Pepitas</li>
+	<li>Chili Crisps</li>
+	<li>Pickled Red Onion</li>
+	<li>Shredded Carrots</li>
+	<li>Guajillo Vinaigrette</li>
+</ul>
+				</div>
+
+				<div class="bl-powerBowlMobile__price">$15.95</div>
+			</div></div></div></section>
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+	
+	
+
+
+
+
+<section id="tallowFries" class="u-space-top-none u-space-bottom-md">
+	<div class="bl-ltoTallow js-promo-reveal">
+		<div class="container">
+			<div class="bl-ltoTallow__wrap">
+
+				<!-- LEFT: repeat + fries -->
+				<div class="bl-ltoTallow__left" aria-hidden="true">
+					<div class="bl-ltoTallow__repeat">
+						<span>TALLOW FRIES</span><span>TALLOW FRIES</span><span>TALLOW FRIES</span><span>TALLOW FRIES</span>
+						<span>TALLOW FRIES</span><span>TALLOW FRIES</span><span>TALLOW FRIES</span><span>TALLOW FRIES</span>
+					</div>
+
+				
+					<div class="bl-ltoTallow__fries">
+						
+						
+							<a class="bl-featurePromo__link"
+								href='/menus/main-menu#sides'
+								>
+						
+						
+						<img src="/perch/resources/LTOs/tallow-fries.webp"
+						alt="French Fries from Burger Lounge"
+						decoding="async"
+						
+						loading="lazy">
+						
+						
+							</a>
+						
+
+					</div>
+				</div>
+
+				<!-- RIGHT: copy + hands -->
+				<div class="bl-ltoTallow__right">
+					<!-- Desktop hand (top-right) -->
+					<div class="bl-ltoTallow__hand bl-ltoTallow__hand--desktop" aria-hidden="true">
+						<img src="/assets/img/layout/promotions/tallow-high-five-orange.svg" alt="">
+					</div>
+
+					<!-- Mobile hand (behind kicker) -->
+					<div class="bl-ltoTallow__hand bl-ltoTallow__hand--mobile" aria-hidden="true">
+						<img src="/assets/img/layout/promotions/tallow-high-five-orange.svg" alt="">
+					</div>
+
+					<div class="bl-ltoTallow__copy">
+						<div class="bl-ltoTallow__kicker">HOT &amp; CRISPY</div>
+						<div class="bl-ltoTallow__sub">THE BELGIAN WAY.</div>
+						<div class="bl-ltoTallow__cta">AVAILABLE NOW.</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</section>
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+
+
+<section class="bl-promo bl-promo--staticImage u-bg-orange u-space-top-lg u-space-bottom-none">
+	<div class="fullwidth promoStaticImage">
+		<div class="container">
+			<div class="promoFullspan">
+
+				<div class="d-none d-sm-block">
+					
+						<a class="promoFullspan__link" href="https://ordering.burgerlounge.com" target="_blank" rel="noopener noreferrer">
+					
+
+					<img src="/perch/resources/homepage/cookies-and-cream-desktop-2.webp" alt="The Classic Cookies and Cream Milkshake from Burger Lounge - Desktop Version" />
+
+					
+						</a>
+					
+				</div><!--/.d-none d-sm-block-->
+				
+				<div class="d-block d-sm-none">
+					
+						<a class="promoFullspan__link" href="https://ordering.burgerlounge.com" target="_blank" rel="noopener noreferrer">
+					
+
+					<img src="/perch/resources/homepage/cookies-and-cream-mobile-3.webp" alt="The Classic Cookies and Cream Milkshake from Burger Lounge - Mobile Version" />
+
+					
+						</a>
+					
+				</div><!--/.d-block d-sm-none-->
+
+			</div><!--/.promoFullspan-->
+		</div><!--/.container-->
+	</div><!--/.fullwidth .promoStaticImage-->
+</section>
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+
+
+<section class="bl-promo bl-promo--staticImage u-bg-cream u-space-top-md u-space-bottom-md">
+	<div class="fullwidth promoStaticImage">
+		<div class="container">
+			<div class="promoFullspan">
+
+				<div class="d-none d-sm-block">
+					
+						<a class="promoFullspan__link" href="https://catering.burgerlounge.com" target="_blank" rel="noopener noreferrer">
+					
+
+					<img src="/perch/resources/homepage/catering-tile-v2-desktop-20230814.webp" alt="Promotional Image for Burger Lounge Catering, with text reading "Feed The Herd - Catering Designed For You." - Desktop Version" />
+
+					
+						</a>
+					
+				</div><!--/.d-none d-sm-block-->
+				
+				<div class="d-block d-sm-none">
+					
+						<a class="promoFullspan__link" href="https://catering.burgerlounge.com" target="_blank" rel="noopener noreferrer">
+					
+
+					<img src="/perch/resources/homepage/catering-tile-v2-mobile-20230814.webp" alt="Promotional Image for Burger Lounge Catering, with text reading "Feed The Herd - Catering Designed For You." - Mobile Version" />
+
+					
+						</a>
+					
+				</div><!--/.d-block d-sm-none-->
+
+			</div><!--/.promoFullspan-->
+		</div><!--/.container-->
+	</div><!--/.fullwidth .promoStaticImage-->
+</section>
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+
+
+<section class="bl-promo bl-promo--staticImage u-bg-orange u-space-top-md u-space-bottom-xl">
+	<div class="fullwidth promoStaticImage">
+		<div class="container">
+			<div class="promoFullspan">
+
+				<div class="d-none d-sm-block">
+					
+						<a class="promoFullspan__link" href="https://ordering.burgerlounge.com/" target="_blank" rel="noopener noreferrer">
+					
+
+					<img src="/perch/resources/homepage/kids-eat-free-desktop-v4.webp" alt="Promotional Image for the Kids Eat Free at Burger Lounge promotion, with text reading "Kids Eat Free Every Tuesday - One Free Kids Meal When You Order Any Entree,  Dine-In, Takeout &amp; Delivery. Use online Promo Code KIDS." - Desktop Version" />
+
+					
+						</a>
+					
+				</div><!--/.d-none d-sm-block-->
+				
+				<div class="d-block d-sm-none">
+					
+						<a class="promoFullspan__link" href="https://ordering.burgerlounge.com/" target="_blank" rel="noopener noreferrer">
+					
+
+					<img src="/perch/resources/homepage/kids-eat-free-mobile-v4.webp" alt="Promotional Image for the Kids Eat Free at Burger Lounge promotion, with text reading "Kids Eat Free Every Tuesday - One Free Kids Meal When You Order Any Entree,  Dine-In, Takeout &amp; Delivery. Use online Promo Code KIDS." - Mobile Version" />
+
+					
+						</a>
+					
+				</div><!--/.d-block d-sm-none-->
+
+			</div><!--/.promoFullspan-->
+		</div><!--/.container-->
+	</div><!--/.fullwidth .promoStaticImage-->
+</section>
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+
+
+	
+		
+	
+
+	
+
+	
+	
+	
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+
+	
+
+	
+
+	</div>
+
+		</main><!--/.main-->
+	<!-- Scroll to Top button -->
+<a href="#0" class="cd-top js-cd-top">Top</a>
+
+<!-- footer -->
+<section id="footer">
+	<div class="container">
+		<div class="decorative-rule">
+	<div class="d-none d-sm-block">
+		<div class="row">
+			<div class="col">
+				<img src="../assets/svg/footer-rule-desktop.svg" class="img-fluid" alt="">
+			</div><!--/.col-->
+		</div><!--/.row-->
+	</div><!--/.d-none d-sm-block-->
+	<div class="d-block d-sm-none">
+		<div class="row">
+			<div class="col">
+				<img src="../assets/svg/footer-rule-mobile.svg" class="img-fluid" alt="">
+			</div><!--/.col-->
+		</div><!--/.row-->
+	</div><!--/.d-block d-sm-none-->
+</div><!--/.decorative-rule-->
+		<div class="row">
+			<div class="col-sm-3"></div>
+			<div class="col-sm-6">
+    		<p><a href="../contact/contact-us.php">Let's Talk it Out</a> &nbsp; &nbsp; <a href="../promotions/download-our-app">Get the App</a> &nbsp; &nbsp; <a href="/contact/privacy-policy.php" target="_blank">Privacy Policy</a>
+</p>
+			</div><!--/.col-->
+			<div class="col-sm-3 icons-area">
+        <ul class="socialmedia">
+          <li class="socialicons">
+          	<a href="https://www.instagram.com/burgerlounge/" target="_blank" aria-label="Follow on Instagram" title="Follow on Instagram">
+							<img src="../assets/svg/instagram-cream.svg" alt="Instagram">          	</a>
+          </li>
+					<!--*
+          <li class="socialicons">
+            <a href="https://twitter.com/Burger_Lounge" target="_blank" aria-label="Follow on Twitter" title="Follow on Twitter">
+							<img src="../assets/svg/twitter-cream.svg" alt="Twitter">            </a>
+          </li>
+					*-->
+          <li class="socialicons">
+            <a href="https://www.facebook.com/BurgerLounge/" target="_blank" aria-label="Follow on Facebook" title="Follow on Facebook">
+							<img src="../assets/svg/facebook-cream.svg" alt="Facebook">            </a>
+          </li>
+        </ul>
+      </div><!--/.col-sm-3 icons-area-->
+		</div><!--/.row-->
+			
+    <!-- Fathead credits -->
+    		<div class="row">
+      		<div class="col text-center">
+        		<div class="fatheadlogo">
+							<p><a href="https://www.fatheaddesign.com/?utm_source=BurgerLounge&utm_medium=Footer+Link&utm_id=Client+Site+Referrals" target="_blank">website by<img class="credit" src="/assets/svg/fathead-bug-logo.svg" alt="Website Designed and Developed by fathead design, Chicago" />fathead design</a></p>
+        		</div><!--/.fatheadlogo-->
+      		</div><!--/.col-->
+    		</div><!--/.row-->
+
+		<!--* cookie alert layover *- ->
+					<div class="alert text-center cookiealert" role="alert">
+						<p>This website uses cookies to offer you a more personalized experience. <button type="button" class="btn btn-cookie btn-sm acceptcookies" aria-label="Accept the Cookie Policy for this website">Accept</button></p>
+					</div><!--* // *-->
+			<!--* Desktop *- ->			
+					<div class="d-none d-sm-block">	
+						This website uses cookies to offer you a more personalized experience.&nbsp; <button type="button" class="btn btn-cookie btn-sm acceptcookies" aria-label="Close">Accept</button> &nbsp; View our < ?php perch_content('Cookie Policy'); ?>. 
+    			</div><!--* // Desktop *- ->
+				</div><!--* // cookie alert layover *-->   
+	</div><!--/.container-->
+</section><!--/.section-->    
+<!-- reCAPTCHA callback // this is the site key -->
+<script>
+    grecaptcha.ready(function() {
+        grecaptcha.execute('6LcZ58AZAAAAAAUAQ58nmOyMXp9j8_PiVeE-LXlB', {action: 'contact_page'}).then(function(token) {
+
+            var formMessages = $('#formMessages');
+            var captchaResult = $('#captcha-result');
+            var submitButton = $('#submitButton');
+            var thisPage = $(location).attr('href');
+            var currentPage = thisPage.split('.com');
+            
+            // this checks if this Perch form exists and strips
+            // the action to prevent sending until it passes
+            // ***Only necessary for Perch forms
+            if($('#form1_contactForm').length){
+                $('#form1_contactForm').attr('action', '');
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '../assets/php/greVerify.php',
+                data: 'token='+token
+            })
+            .done(function(response) {
+                $(captchaResult).text(response);
+                if(response == 1) {
+                    // there are two possible form actions below
+                    // Perch form action if present
+                    if($('#form1_contactForm').length){
+                        $('#form1_contactForm').attr('action', currentPage[1]);
+                    }
+                    // calendarAPI form action if present
+                    if($('#fundraiserForm').length){
+                        $('#fundraiserForm').attr('action', '../assets/php/calendarAPI.php');
+                    }
+                } else {
+                    if(response == 0) {
+                        $(formMessages).addClass('formError');
+                        $(formMessages).text("Our tests indicate this submission is likely spam. If we have made an error please contact us.");
+                    } else {
+                        $(formMessages).addClass('formSuccess');
+                        $(formMessages).text(response);
+                    }
+                }
+            })
+            .fail(function(response) {
+                $(formMessages).addClass('formError');
+                $(formMessages).text(response);
+            })
+
+        });
+    });
+</script>
+
+	<!--  |  -->
+	
+	
+                
+<!-- Mobile Specific Metas - ->  
+<script type="text/javascript">
+    var browser     = navigator.userAgent;
+    var browserRegex  = /(Android|BlackBerry|IEMobile|Nokia|iP(ad|hone|od)|Opera M(obi|ini))/;
+    var isMobile    = false;
+    if(browser.match(browserRegex)) {
+      isMobile      = true;
+      addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+      function hideURLbar(){
+        window.scrollTo(0,1);
+      }
+    }
+  </script>
+
+<!-- Spam Killer js -->
+<script type="text/javascript" src="../assets/js/nospam.js" type="text/javascript"></script>
+
+<!-- error handling for parallax -->
+
+<!--* JQuery gets updated via npm and compiled in assets *-->
+<script src="/assets/js/jquery.min.js"></script>
+
+<!-- full jQuery version for recaptcha ajax function -->  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!--* loading this per Bootstrap 5.3.3 *-->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<!-- load gijgo AFTER bootstrap to avoid conflicts with datepicker -->
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+
+<!-- This is the datepicker function -->
+  <script>
+    $(document).ready(function(){
+    	$('.datepicker').each(function() {
+    		$(this).datepicker();
+          });
+       });
+  </script>
+
+<!-- Cookie js : goes after the Bootstrap js calls, this is for the privacy links -->
+<script src="/assets/js/cookiealert.js"></script>
+
+<!-- Back to top script -->
+<script src="/assets/js/main.js"></script> <!-- Resource JavaScript -->
+
+<!-- navigation shrink-->
+<script src="/assets/js/skrollr.min.js"></script>
+<script type="text/javascript">
+  if($("#skrollr-body").length) {
+    $(document).ready(function(){
+      var s = skrollr.init({forceHeight: false});
+    });
+  }
+</script>
+    
+<!-- Custom Nav Scripts -->
+<script>
+    // change nav classes for animation
+    // open/close main mobile menu
+    $("#toggler").click(function(){
+        if($(this).hasClass("open")) {
+            $(this).removeClass("open");
+            $("#mainNav").removeClass("open");
+        } else {
+            $(this).addClass("open");
+            $("#mainNav").addClass("open");
+        }
+    });
+    
+    // open/close sub-menus in sidenav
+    $(".nav-menu-head").click(function(){
+        if($(this.parentElement).hasClass("active")) {
+            $(this.parentElement).removeClass("active");
+        } else {
+            $(this.parentElement).addClass("active");
+        }
+    });
+    
+    // open/close footer menus in mobile view
+    $(".menuHeader").click(function(){
+        if($(this.parentElement).hasClass("active")) {
+            $(this.parentElement).removeClass("active");
+        } else {
+            $(this.parentElement).addClass("active");
+        }
+    });
+    
+    // open/close footer menus in mobile view
+    $(".featureBlock").mouseenter(function(){
+        $(this).addClass("active");
+    });
+    $(".featureBlock").mouseleave(function(){
+        $(this).removeClass("active");
+    });
+    
+    // setup for using jQuery toggle
+    //$(".nav-menu-head").click(function(){
+        //$(this).siblings("ul").toggle('slow');
+        //$(this.parentElement).add
+    //});
+</script>
+
+<!-- This script selects the active item by the current page for menu and gallery secondary navs -->
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+        
+        if($("#galleryNav").length) {
+            
+            var pageName = window.location.pathname.split("gallery/")[1];
+
+            $("#galleryNav a").each(function() {
+                if($(this).attr("href") == pageName) {
+                    $(this).addClass("active");
+                }
+            });
+        
+        } else {
+            
+            if($('#menusNav').length) {
+                
+                var pageName = window.location.pathname.split("menus/")[1];
+
+                $("#menusNav a").each(function() {
+                    if($(this).attr("href") == pageName) {
+                        $(this).addClass("active");
+                    }
+                });
+            }
+        }
+        
+    });
+
+</script>
+
+<!-- Promotional Modal with 48 hour cookie setting -->
+<script>
+(function () {
+  "use strict";
+ 
+  var cookieName = 'promoCookieConsent'; // The cookie name
+  var cookieLifetime = 2; // Cookie expiry in days
+ 
+  /**
+   * Set a cookie
+   * @param cname - cookie name
+   * @param cvalue - cookie value
+   * @param exdays - expiry in days
+   */
+  var _setCookie = function (cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  };
+ 
+  /**
+   * Get a cookie
+   * @param cname - cookie name
+   * @returns string
+   */
+  var _getCookie = function (cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  };
+ 
+  /**
+   * Should the cookie popup be shown?
+   */
+  var _shouldShowPopup = function () {
+    if (_getCookie(cookieName)) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+ 
+  // Show the cookie popup on load if not previously accepted
+  if (_shouldShowPopup()) {
+    $('#promoModal').modal('show');
+  }
+ 
+  // Modal dismiss btn - consent
+  $('#promoModalConsent').on('click', function () {
+    _setCookie(cookieName, 1, cookieLifetime);
+  });
+ 
+})();
+</script>
+
+<script>
+var multipleCardCarousel = document.querySelector(
+  "#menuCarousel"
+);
+if (window.matchMedia("(min-width: 768px)").matches) {
+  var carousel = new bootstrap.Carousel(multipleCardCarousel, {
+    interval: false,
+  });
+  var carouselWidth = $(".carousel-inner")[0].scrollWidth;
+  var cardWidth = $(".carousel-item").width();
+  var scrollPosition = 0;
+  $("#menuCarousel .carousel-control-next").on("click", function () {
+    if (scrollPosition < carouselWidth - cardWidth * 4) {
+      scrollPosition += cardWidth;
+      $("#menuCarousel .carousel-inner").animate(
+        { scrollLeft: scrollPosition },
+        600
+      );
+    }
+  });
+  $("#menuCarousel .carousel-control-prev").on("click", function () {
+    if (scrollPosition > 0) {
+      scrollPosition -= cardWidth;
+      $("#menuCarousel .carousel-inner").animate(
+        { scrollLeft: scrollPosition },
+        600
+      );
+    }
+  });
+} else {
+  $(multipleCardCarousel).addClass("slide");
+}
+
+</script>		
+
+
+<!--*Modal JS Script *-->
+<script type="text/javascript">
+		window.onload = () => {
+				$('#onload').modal('show');
+		}
+</script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+	const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+		});
+	
+	</script>
+
+
+<!--* Lite Vimeo Embed, for faster video previews - gets updated via npm and compiled in assets *-->
+	<script src="/assets/js/lite-vimeo-embed.js"></script>
+		
+<!--* Slick Carousel | deactivated 12.03.2024 gft *- ->
+	<script src="/assets/js/jquery-2.2.0.min.js"></script> <!--* static, not pulled in via npm *- ->
+	<script src="/assets/js/slick.min.js"></script> <!--* is pulled in via npm *- ->
+	<script src="/assets/js/slick-settings.js"></script> <!--* static, not pulled in via npm *-->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+<!-- down here so it loads AFTER jQuery -->
+<script src="../assets/js/calHandler.js"></script>
+
+<!-- Perch Debug code for dev // requires debug statement in perch config to be active - ->
+    < ?php PerchUtil::output_debug(); ?>
+<!-- pages close their own body and html tags below here -->	</body></html>
+<script>
+	(() => {
+		const modules = document.querySelectorAll('.js-promo-reveal');
+		if (!modules.length) return;
+	
+		const io = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				entry.target.classList.toggle('is-visible', entry.isIntersecting);
+			});
+		}, {
+			threshold: 0.2,
+			rootMargin: '0px 0px -10% 0px'
+		});
+	
+		modules.forEach((mod) => io.observe(mod));
+	})();
+</script>

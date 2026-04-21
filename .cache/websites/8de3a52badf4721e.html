@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+		<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="format-detection" content="telephone=no"><script type="text/javascript">var ajaxurl = "https://fallbrewingcompany.com/wp-admin/admin-ajax.php";</script><meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+		<style>html.sdui-panel-open body:not(.wp-admin){margin-right:400px}html.sdui-panel-open #wpcontent,html.sdui-panel-open #wpfooter{margin-right:400px}html.sdui-panel-open body:not(.wp-admin):not(.block-editor-page) header.wp-block-template-part{right:400px}#sdui-panel-placeholder{display:none;position:fixed;right:0;top:var(--wp-admin--admin-bar--height,32px);width:400px;height:calc(100dvh - var(--wp-admin--admin-bar--height,32px));background:linear-gradient(135deg,#1a1230 0%,#110c1d 100%);z-index:99999}html.sdui-panel-open #sdui-panel-placeholder{display:block}@media(max-width:768px){html.sdui-panel-open body:not(.wp-admin),html.sdui-panel-open #wpcontent,html.sdui-panel-open #wpfooter{margin-right:0}html.sdui-panel-open #sdui-panel-placeholder{display:none}}</style>
+		<script>try{if(!document.documentElement.classList.contains('sdui-panel-open')&&localStorage.getItem('site-designer-ui-panel-open')==='true'){document.documentElement.classList.add('sdui-panel-open');document.cookie='sdui_panel_open=1;path=/;max-age=31536000;SameSite=Lax;Secure';document.addEventListener('DOMContentLoaded',function(){if(!document.getElementById('sdui-panel-placeholder')){var p=document.createElement('div');p.id='sdui-panel-placeholder';document.body.appendChild(p)}})}}catch(e){}</script>
+		
+		<style id="critical-path-css" type="text/css">
+			/* non cached */ body,html{width:100%;height:100%;margin:0;padding:0}.page-preloader{top:0;left:0;z-index:999;position:fixed;height:100%;width:100%;text-align:center}.preloader-preview-area{-webkit-animation-delay:-.2s;animation-delay:-.2s;top:50%;-webkit-transform:translateY(100%);-ms-transform:translateY(100%);transform:translateY(100%);margin-top:10px;max-height:calc(50% - 20px);opacity:1;width:100%;text-align:center;position:absolute}.preloader-logo{max-width:90%;top:50%;-webkit-transform:translateY(-100%);-ms-transform:translateY(-100%);transform:translateY(-100%);margin:-10px auto 0 auto;max-height:calc(50% - 20px);opacity:1;position:relative}.ball-pulse>div{width:15px;height:15px;border-radius:100%;margin:2px;-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block;-webkit-animation:ball-pulse .75s infinite cubic-bezier(.2,.68,.18,1.08);animation:ball-pulse .75s infinite cubic-bezier(.2,.68,.18,1.08)}.ball-pulse>div:nth-child(1){-webkit-animation-delay:-.36s;animation-delay:-.36s}.ball-pulse>div:nth-child(2){-webkit-animation-delay:-.24s;animation-delay:-.24s}.ball-pulse>div:nth-child(3){-webkit-animation-delay:-.12s;animation-delay:-.12s}@-webkit-keyframes ball-pulse{0%{-webkit-transform:scale(1);transform:scale(1);opacity:1}45%{-webkit-transform:scale(.1);transform:scale(.1);opacity:.7}80%{-webkit-transform:scale(1);transform:scale(1);opacity:1}}@keyframes ball-pulse{0%{-webkit-transform:scale(1);transform:scale(1);opacity:1}45%{-webkit-transform:scale(.1);transform:scale(.1);opacity:.7}80%{-webkit-transform:scale(1);transform:scale(1);opacity:1}}.ball-clip-rotate-pulse{position:relative;-webkit-transform:translateY(-15px) translateX(-10px);-ms-transform:translateY(-15px) translateX(-10px);transform:translateY(-15px) translateX(-10px);display:inline-block}.ball-clip-rotate-pulse>div{-webkit-animation-fill-mode:both;animation-fill-mode:both;position:absolute;top:0;left:0;border-radius:100%}.ball-clip-rotate-pulse>div:first-child{height:36px;width:36px;top:7px;left:-7px;-webkit-animation:ball-clip-rotate-pulse-scale 1s 0s cubic-bezier(.09,.57,.49,.9) infinite;animation:ball-clip-rotate-pulse-scale 1s 0s cubic-bezier(.09,.57,.49,.9) infinite}.ball-clip-rotate-pulse>div:last-child{position:absolute;width:50px;height:50px;left:-16px;top:-2px;background:0 0;border:2px solid;-webkit-animation:ball-clip-rotate-pulse-rotate 1s 0s cubic-bezier(.09,.57,.49,.9) infinite;animation:ball-clip-rotate-pulse-rotate 1s 0s cubic-bezier(.09,.57,.49,.9) infinite;-webkit-animation-duration:1s;animation-duration:1s}@-webkit-keyframes ball-clip-rotate-pulse-rotate{0%{-webkit-transform:rotate(0) scale(1);transform:rotate(0) scale(1)}50%{-webkit-transform:rotate(180deg) scale(.6);transform:rotate(180deg) scale(.6)}100%{-webkit-transform:rotate(360deg) scale(1);transform:rotate(360deg) scale(1)}}@keyframes ball-clip-rotate-pulse-rotate{0%{-webkit-transform:rotate(0) scale(1);transform:rotate(0) scale(1)}50%{-webkit-transform:rotate(180deg) scale(.6);transform:rotate(180deg) scale(.6)}100%{-webkit-transform:rotate(360deg) scale(1);transform:rotate(360deg) scale(1)}}@-webkit-keyframes ball-clip-rotate-pulse-scale{30%{-webkit-transform:scale(.3);transform:scale(.3)}100%{-webkit-transform:scale(1);transform:scale(1)}}@keyframes ball-clip-rotate-pulse-scale{30%{-webkit-transform:scale(.3);transform:scale(.3)}100%{-webkit-transform:scale(1);transform:scale(1)}}@-webkit-keyframes square-spin{25%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(0);transform:perspective(100px) rotateX(180deg) rotateY(0)}50%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(180deg);transform:perspective(100px) rotateX(180deg) rotateY(180deg)}75%{-webkit-transform:perspective(100px) rotateX(0) rotateY(180deg);transform:perspective(100px) rotateX(0) rotateY(180deg)}100%{-webkit-transform:perspective(100px) rotateX(0) rotateY(0);transform:perspective(100px) rotateX(0) rotateY(0)}}@keyframes square-spin{25%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(0);transform:perspective(100px) rotateX(180deg) rotateY(0)}50%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(180deg);transform:perspective(100px) rotateX(180deg) rotateY(180deg)}75%{-webkit-transform:perspective(100px) rotateX(0) rotateY(180deg);transform:perspective(100px) rotateX(0) rotateY(180deg)}100%{-webkit-transform:perspective(100px) rotateX(0) rotateY(0);transform:perspective(100px) rotateX(0) rotateY(0)}}.square-spin{display:inline-block}.square-spin>div{-webkit-animation-fill-mode:both;animation-fill-mode:both;width:50px;height:50px;-webkit-animation:square-spin 3s 0s cubic-bezier(.09,.57,.49,.9) infinite;animation:square-spin 3s 0s cubic-bezier(.09,.57,.49,.9) infinite}.cube-transition{position:relative;-webkit-transform:translate(-25px,-25px);-ms-transform:translate(-25px,-25px);transform:translate(-25px,-25px);display:inline-block}.cube-transition>div{-webkit-animation-fill-mode:both;animation-fill-mode:both;width:15px;height:15px;position:absolute;top:-5px;left:-5px;-webkit-animation:cube-transition 1.6s 0s infinite ease-in-out;animation:cube-transition 1.6s 0s infinite ease-in-out}.cube-transition>div:last-child{-webkit-animation-delay:-.8s;animation-delay:-.8s}@-webkit-keyframes cube-transition{25%{-webkit-transform:translateX(50px) scale(.5) rotate(-90deg);transform:translateX(50px) scale(.5) rotate(-90deg)}50%{-webkit-transform:translate(50px,50px) rotate(-180deg);transform:translate(50px,50px) rotate(-180deg)}75%{-webkit-transform:translateY(50px) scale(.5) rotate(-270deg);transform:translateY(50px) scale(.5) rotate(-270deg)}100%{-webkit-transform:rotate(-360deg);transform:rotate(-360deg)}}@keyframes cube-transition{25%{-webkit-transform:translateX(50px) scale(.5) rotate(-90deg);transform:translateX(50px) scale(.5) rotate(-90deg)}50%{-webkit-transform:translate(50px,50px) rotate(-180deg);transform:translate(50px,50px) rotate(-180deg)}75%{-webkit-transform:translateY(50px) scale(.5) rotate(-270deg);transform:translateY(50px) scale(.5) rotate(-270deg)}100%{-webkit-transform:rotate(-360deg);transform:rotate(-360deg)}}.ball-scale>div{border-radius:100%;margin:2px;-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block;height:60px;width:60px;-webkit-animation:ball-scale 1s 0s ease-in-out infinite;animation:ball-scale 1s 0s ease-in-out infinite}@-webkit-keyframes ball-scale{0%{-webkit-transform:scale(0);transform:scale(0)}100%{-webkit-transform:scale(1);transform:scale(1);opacity:0}}@keyframes ball-scale{0%{-webkit-transform:scale(0);transform:scale(0)}100%{-webkit-transform:scale(1);transform:scale(1);opacity:0}}.line-scale>div{-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block;width:5px;height:50px;border-radius:2px;margin:2px}.line-scale>div:nth-child(1){-webkit-animation:line-scale 1s -.5s infinite cubic-bezier(.2,.68,.18,1.08);animation:line-scale 1s -.5s infinite cubic-bezier(.2,.68,.18,1.08)}.line-scale>div:nth-child(2){-webkit-animation:line-scale 1s -.4s infinite cubic-bezier(.2,.68,.18,1.08);animation:line-scale 1s -.4s infinite cubic-bezier(.2,.68,.18,1.08)}.line-scale>div:nth-child(3){-webkit-animation:line-scale 1s -.3s infinite cubic-bezier(.2,.68,.18,1.08);animation:line-scale 1s -.3s infinite cubic-bezier(.2,.68,.18,1.08)}.line-scale>div:nth-child(4){-webkit-animation:line-scale 1s -.2s infinite cubic-bezier(.2,.68,.18,1.08);animation:line-scale 1s -.2s infinite cubic-bezier(.2,.68,.18,1.08)}.line-scale>div:nth-child(5){-webkit-animation:line-scale 1s -.1s infinite cubic-bezier(.2,.68,.18,1.08);animation:line-scale 1s -.1s infinite cubic-bezier(.2,.68,.18,1.08)}@-webkit-keyframes line-scale{0%{-webkit-transform:scaley(1);transform:scaley(1)}50%{-webkit-transform:scaley(.4);transform:scaley(.4)}100%{-webkit-transform:scaley(1);transform:scaley(1)}}@keyframes line-scale{0%{-webkit-transform:scaley(1);transform:scaley(1)}50%{-webkit-transform:scaley(.4);transform:scaley(.4)}100%{-webkit-transform:scaley(1);transform:scaley(1)}}.ball-scale-multiple{position:relative;-webkit-transform:translateY(30px);-ms-transform:translateY(30px);transform:translateY(30px);display:inline-block}.ball-scale-multiple>div{border-radius:100%;-webkit-animation-fill-mode:both;animation-fill-mode:both;margin:2px;position:absolute;left:-30px;top:0;opacity:0;margin:0;width:50px;height:50px;-webkit-animation:ball-scale-multiple 1s 0s linear infinite;animation:ball-scale-multiple 1s 0s linear infinite}.ball-scale-multiple>div:nth-child(2){-webkit-animation-delay:-.2s;animation-delay:-.2s}.ball-scale-multiple>div:nth-child(3){-webkit-animation-delay:-.2s;animation-delay:-.2s}@-webkit-keyframes ball-scale-multiple{0%{-webkit-transform:scale(0);transform:scale(0);opacity:0}5%{opacity:1}100%{-webkit-transform:scale(1);transform:scale(1);opacity:0}}@keyframes ball-scale-multiple{0%{-webkit-transform:scale(0);transform:scale(0);opacity:0}5%{opacity:1}100%{-webkit-transform:scale(1);transform:scale(1);opacity:0}}.ball-pulse-sync{display:inline-block}.ball-pulse-sync>div{width:15px;height:15px;border-radius:100%;margin:2px;-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block}.ball-pulse-sync>div:nth-child(1){-webkit-animation:ball-pulse-sync .6s -.21s infinite ease-in-out;animation:ball-pulse-sync .6s -.21s infinite ease-in-out}.ball-pulse-sync>div:nth-child(2){-webkit-animation:ball-pulse-sync .6s -.14s infinite ease-in-out;animation:ball-pulse-sync .6s -.14s infinite ease-in-out}.ball-pulse-sync>div:nth-child(3){-webkit-animation:ball-pulse-sync .6s -70ms infinite ease-in-out;animation:ball-pulse-sync .6s -70ms infinite ease-in-out}@-webkit-keyframes ball-pulse-sync{33%{-webkit-transform:translateY(10px);transform:translateY(10px)}66%{-webkit-transform:translateY(-10px);transform:translateY(-10px)}100%{-webkit-transform:translateY(0);transform:translateY(0)}}@keyframes ball-pulse-sync{33%{-webkit-transform:translateY(10px);transform:translateY(10px)}66%{-webkit-transform:translateY(-10px);transform:translateY(-10px)}100%{-webkit-transform:translateY(0);transform:translateY(0)}}.transparent-circle{display:inline-block;border-top:.5em solid rgba(255,255,255,.2);border-right:.5em solid rgba(255,255,255,.2);border-bottom:.5em solid rgba(255,255,255,.2);border-left:.5em solid #fff;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-animation:transparent-circle 1.1s infinite linear;animation:transparent-circle 1.1s infinite linear;width:50px;height:50px;border-radius:50%}.transparent-circle:after{border-radius:50%;width:10em;height:10em}@-webkit-keyframes transparent-circle{0%{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes transparent-circle{0%{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}.ball-spin-fade-loader{position:relative;top:-10px;left:-10px;display:inline-block}.ball-spin-fade-loader>div{width:15px;height:15px;border-radius:100%;margin:2px;-webkit-animation-fill-mode:both;animation-fill-mode:both;position:absolute;-webkit-animation:ball-spin-fade-loader 1s infinite linear;animation:ball-spin-fade-loader 1s infinite linear}.ball-spin-fade-loader>div:nth-child(1){top:25px;left:0;animation-delay:-.84s;-webkit-animation-delay:-.84s}.ball-spin-fade-loader>div:nth-child(2){top:17.05px;left:17.05px;animation-delay:-.72s;-webkit-animation-delay:-.72s}.ball-spin-fade-loader>div:nth-child(3){top:0;left:25px;animation-delay:-.6s;-webkit-animation-delay:-.6s}.ball-spin-fade-loader>div:nth-child(4){top:-17.05px;left:17.05px;animation-delay:-.48s;-webkit-animation-delay:-.48s}.ball-spin-fade-loader>div:nth-child(5){top:-25px;left:0;animation-delay:-.36s;-webkit-animation-delay:-.36s}.ball-spin-fade-loader>div:nth-child(6){top:-17.05px;left:-17.05px;animation-delay:-.24s;-webkit-animation-delay:-.24s}.ball-spin-fade-loader>div:nth-child(7){top:0;left:-25px;animation-delay:-.12s;-webkit-animation-delay:-.12s}.ball-spin-fade-loader>div:nth-child(8){top:17.05px;left:-17.05px;animation-delay:0s;-webkit-animation-delay:0s}@-webkit-keyframes ball-spin-fade-loader{50%{opacity:.3;-webkit-transform:scale(.4);transform:scale(.4)}100%{opacity:1;-webkit-transform:scale(1);transform:scale(1)}}@keyframes ball-spin-fade-loader{50%{opacity:.3;-webkit-transform:scale(.4);transform:scale(.4)}100%{opacity:1;-webkit-transform:scale(1);transform:scale(1)}}		</style>
+
+		
+	<!-- This site is optimized with the Yoast SEO plugin v27.2 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Fall Brewing Company - North Park - San Diego - CA</title>
+	<meta name="description" content="Located in the North Park neighborhood of San Diego, Fall Brewing Company specializes in quality craft beers and offers a tantalizing experience in our tasting room located inside of the brewery. The beer does not get fresher here!" />
+	<link rel="canonical" href="https://fallbrewingcompany.com/" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Fall Brewing Company - North Park - San Diego - CA" />
+	<meta property="og:description" content="Located in the North Park neighborhood of San Diego, Fall Brewing Company specializes in quality craft beers and offers a tantalizing experience in our tasting room located inside of the brewery. The beer does not get fresher here!" />
+	<meta property="og:url" content="https://fallbrewingcompany.com/" />
+	<meta property="og:site_name" content="Fall Brewing Company" />
+	<meta property="article:modified_time" content="2025-04-09T03:36:22+00:00" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://fallbrewingcompany.com/","url":"https://fallbrewingcompany.com/","name":"Fall Brewing Company - North Park - San Diego - CA","isPartOf":{"@id":"https://fallbrewingcompany.com/#website"},"datePublished":"2021-09-06T22:07:22+00:00","dateModified":"2025-04-09T03:36:22+00:00","description":"Located in the North Park neighborhood of San Diego, Fall Brewing Company specializes in quality craft beers and offers a tantalizing experience in our tasting room located inside of the brewery. The beer does not get fresher here!","breadcrumb":{"@id":"https://fallbrewingcompany.com/#breadcrumb"},"inLanguage":"en","potentialAction":[{"@type":"ReadAction","target":["https://fallbrewingcompany.com/"]}]},{"@type":"BreadcrumbList","@id":"https://fallbrewingcompany.com/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home"}]},{"@type":"WebSite","@id":"https://fallbrewingcompany.com/#website","url":"https://fallbrewingcompany.com/","name":"Fall Brewing Company","description":"Rise Above","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://fallbrewingcompany.com/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel='dns-prefetch' href='//www.googletagmanager.com' />
+<link rel="alternate" type="application/rss+xml" title="Fall Brewing Company &raquo; Feed" href="https://fallbrewingcompany.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Fall Brewing Company &raquo; Comments Feed" href="https://fallbrewingcompany.com/comments/feed/" />
+
+<link rel="shortcut icon" href="http://fallbrewingcompany.com/wp-content/uploads/2018/04/loader.png"  />
+<script type="text/javascript">window.abb = {};php = {};window.PHP = {};PHP.ajax = "https://fallbrewingcompany.com/wp-admin/admin-ajax.php";PHP.wp_p_id = "3863";var mk_header_parallax, mk_banner_parallax, mk_page_parallax, mk_footer_parallax, mk_body_parallax;var mk_images_dir = "https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/images",mk_theme_js_path = "https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/js",mk_theme_dir = "https://fallbrewingcompany.com/wp-content/themes/jupiter",mk_captcha_placeholder = "Enter Captcha",mk_captcha_invalid_txt = "Invalid. Try again.",mk_captcha_correct_txt = "Captcha correct.",mk_responsive_nav_width = 1140,mk_vertical_header_back = "Back",mk_vertical_header_anim = "1",mk_check_rtl = true,mk_grid_width = 1140,mk_ajax_search_option = "disable",mk_preloader_bg_color = "#000000",mk_accent_color = "#000000",mk_go_to_top =  "true",mk_smooth_scroll =  "true",mk_show_background_video =  "true",mk_preloader_bar_color = "#000000",mk_preloader_logo = "http://fallbrewingcompany.com/wp-content/uploads/2018/04/loader.png";var mk_header_parallax = false,mk_banner_parallax = false,mk_footer_parallax = false,mk_body_parallax = false,mk_no_more_posts = "No More Posts",mk_typekit_id   = "",mk_google_fonts = ["Open Sans:100italic,200italic,300italic,400italic,500italic,600italic,700italic,800italic,900italic,100,200,300,400,500,600,700,800,900","Pacifico:100italic,200italic,300italic,400italic,500italic,600italic,700italic,800italic,900italic,100,200,300,400,500,600,700,800,900"],mk_global_lazyload = true;</script><link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://fallbrewingcompany.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Ffallbrewingcompany.com%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://fallbrewingcompany.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Ffallbrewingcompany.com%2F&#038;format=xml" />
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id='wp-block-library-inline-css' type='text/css'>
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}.has-text-align-center{text-align:center}.has-text-align-left{text-align:left}.has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-wrap:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=wp-block-library-inline-css */
+</style>
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='agc_icomoon-css' href='https://fallbrewingcompany.com/wp-content/plugins/age-checker/inc/assets/css/icomoon.css?ver=1.0.5' type='text/css' media='all' />
+<link rel='stylesheet' id='agc_style-css' href='https://fallbrewingcompany.com/wp-content/plugins/age-checker/inc/assets/css/style.css?ver=1.0.5' type='text/css' media='all' />
+<link rel='stylesheet' id='dashicons-css' href='https://fallbrewingcompany.com/wp-includes/css/dashicons.min.css?ver=6.9.4' type='text/css' media='all' />
+<link rel='stylesheet' id='admin-bar-css' href='https://fallbrewingcompany.com/wp-includes/css/admin-bar.min.css?ver=6.9.4' type='text/css' media='all' />
+<style id='admin-bar-inline-css' type='text/css'>
+
+    /* Hide CanvasJS credits for P404 charts specifically */
+    #p404RedirectChart .canvasjs-chart-credit {
+        display: none !important;
+    }
+    
+    #p404RedirectChart canvas {
+        border-radius: 6px;
+    }
+
+    .p404-redirect-adminbar-weekly-title {
+        font-weight: bold;
+        font-size: 14px;
+        color: #fff;
+        margin-bottom: 6px;
+    }
+
+    #wpadminbar #wp-admin-bar-p404_free_top_button .ab-icon:before {
+        content: "\f103";
+        color: #dc3545;
+        top: 3px;
+    }
+    
+    #wp-admin-bar-p404_free_top_button .ab-item {
+        min-width: 80px !important;
+        padding: 0px !important;
+    }
+    
+    /* Ensure proper positioning and z-index for P404 dropdown */
+    .p404-redirect-adminbar-dropdown-wrap { 
+        min-width: 0; 
+        padding: 0;
+        position: static !important;
+    }
+    
+    #wpadminbar #wp-admin-bar-p404_free_top_button_dropdown {
+        position: static !important;
+    }
+    
+    #wpadminbar #wp-admin-bar-p404_free_top_button_dropdown .ab-item {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .p404-redirect-dropdown-container {
+        min-width: 340px;
+        padding: 18px 18px 12px 18px;
+        background: #23282d !important;
+        color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        margin-top: 10px;
+        position: relative !important;
+        z-index: 999999 !important;
+        display: block !important;
+        border: 1px solid #444;
+    }
+    
+    /* Ensure P404 dropdown appears on hover */
+    #wpadminbar #wp-admin-bar-p404_free_top_button .p404-redirect-dropdown-container { 
+        display: none !important;
+    }
+    
+    #wpadminbar #wp-admin-bar-p404_free_top_button:hover .p404-redirect-dropdown-container { 
+        display: block !important;
+    }
+    
+    #wpadminbar #wp-admin-bar-p404_free_top_button:hover #wp-admin-bar-p404_free_top_button_dropdown .p404-redirect-dropdown-container {
+        display: block !important;
+    }
+    
+    .p404-redirect-card {
+        background: #2c3338;
+        border-radius: 8px;
+        padding: 18px 18px 12px 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border: 1px solid #444;
+    }
+    
+    .p404-redirect-btn {
+        display: inline-block;
+        background: #dc3545;
+        color: #fff !important;
+        font-weight: bold;
+        padding: 5px 22px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 17px;
+        transition: background 0.2s, box-shadow 0.2s;
+        margin-top: 8px;
+        box-shadow: 0 2px 8px rgba(220,53,69,0.15);
+        text-align: center;
+        line-height: 1.6;
+    }
+    
+    .p404-redirect-btn:hover {
+        background: #c82333;
+        color: #fff !important;
+        box-shadow: 0 4px 16px rgba(220,53,69,0.25);
+    }
+    
+    /* Prevent conflicts with other admin bar dropdowns */
+    #wpadminbar .ab-top-menu > li:hover > .ab-item,
+    #wpadminbar .ab-top-menu > li.hover > .ab-item {
+        z-index: auto;
+    }
+    
+    #wpadminbar #wp-admin-bar-p404_free_top_button:hover > .ab-item {
+        z-index: 999998 !important;
+    }
+    
+/*# sourceURL=admin-bar-inline-css */
+</style>
+<link rel='stylesheet' id='cmplz-general-css' href='https://fallbrewingcompany.com/wp-content/plugins/complianz-gdpr/assets/css/cookieblocker.min.css?ver=1773950418' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-components-css' href='https://fallbrewingcompany.com/wp-includes/css/dist/components/style.min.css?ver=6.9.4' type='text/css' media='all' />
+<link rel='stylesheet' id='godaddy-styles-css' href='https://fallbrewingcompany.com/wp-content/mu-plugins/vendor/wpex/godaddy-launch/includes/Dependencies/GoDaddy/Styles/build/latest.css?ver=2.0.2' type='text/css' media='all' />
+<link rel='stylesheet' id='theme-styles-css' href='https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/min/full-styles.6.10.5.css?ver=1689125619' type='text/css' media='all' />
+<style id='theme-styles-inline-css' type='text/css'>
+
+			#wpadminbar {
+				-webkit-backface-visibility: hidden;
+				backface-visibility: hidden;
+				-webkit-perspective: 1000;
+				-ms-perspective: 1000;
+				perspective: 1000;
+				-webkit-transform: translateZ(0px);
+				-ms-transform: translateZ(0px);
+				transform: translateZ(0px);
+			}
+			@media screen and (max-width: 600px) {
+				#wpadminbar {
+					position: fixed !important;
+				}
+			}
+		
+body { background-color:#fff; } .hb-custom-header #mk-page-introduce, .mk-header { background-color:#f7f7f7; } .hb-custom-header > div, .mk-header-bg { background-color:#fff; } .mk-classic-nav-bg { background-color:#fff; } .master-holder-bg { background-color:#fff; } #mk-footer { background-color:#231f20; } #mk-boxed-layout { -webkit-box-shadow:0 0 0px rgba(0, 0, 0, 0); -moz-box-shadow:0 0 0px rgba(0, 0, 0, 0); box-shadow:0 0 0px rgba(0, 0, 0, 0); } .mk-news-tab .mk-tabs-tabs .is-active a, .mk-fancy-title.pattern-style span, .mk-fancy-title.pattern-style.color-gradient span:after, .page-bg-color { background-color:#fff; } .page-title { font-size:20px; color:; text-transform:uppercase; font-weight:400; letter-spacing:2px; } .page-subtitle { font-size:14px; line-height:100%; color:; font-size:14px; text-transform:none; } .mk-header.transparent-header:not(.a-sticky) .mk-header-holder { border-bottom:1px solid #ffffff; } body, p { font-family:Open Sans } .mk-fancy-title { font-family:Pacifico } @font-face { font-family:'star'; src:url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/star/font.eot'); src:url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/star/font.eot?#iefix') format('embedded-opentype'), url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/star/font.woff') format('woff'), url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/star/font.ttf') format('truetype'), url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/star/font.svg#star') format('svg'); font-weight:normal; font-style:normal; } @font-face { font-family:'WooCommerce'; src:url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/woocommerce/font.eot'); src:url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/woocommerce/font.eot?#iefix') format('embedded-opentype'), url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/woocommerce/font.woff') format('woff'), url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/woocommerce/font.ttf') format('truetype'), url('https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/stylesheet/fonts/woocommerce/font.svg#WooCommerce') format('svg'); font-weight:normal; font-style:normal; }.home .mk-process-steps h3, .home .mk-process-steps li p { color:#fff; } .mk-product-loop.compact-layout .mk-shop-item-detail{text-align:center;} .mk-product-loop.compact-layout .product-title{padding-right:0px;}
+/*# sourceURL=theme-styles-inline-css */
+</style>
+<link rel='stylesheet' id='mkhb-render-css' href='https://fallbrewingcompany.com/wp-content/themes/jupiter/header-builder/includes/assets/css/mkhb-render.css?ver=6.10.5' type='text/css' media='all' />
+<link rel='stylesheet' id='mkhb-row-css' href='https://fallbrewingcompany.com/wp-content/themes/jupiter/header-builder/includes/assets/css/mkhb-row.css?ver=6.10.5' type='text/css' media='all' />
+<link rel='stylesheet' id='mkhb-column-css' href='https://fallbrewingcompany.com/wp-content/themes/jupiter/header-builder/includes/assets/css/mkhb-column.css?ver=6.10.5' type='text/css' media='all' />
+<link rel='stylesheet' id='js_composer_front-css' href='https://fallbrewingcompany.com/wp-content/plugins/js_composer_theme/assets/css/js_composer.min.css?ver=8.7.2.1' type='text/css' media='all' />
+<link rel='stylesheet' id='theme-options-css' href='https://fallbrewingcompany.com/wp-content/uploads/mk_assets/theme-options-production-1773950437.css?ver=1773950389' type='text/css' media='all' />
+<link rel='stylesheet' id='jupiter-donut-shortcodes-css' href='https://fallbrewingcompany.com/wp-content/plugins/jupiter-donut/assets/css/shortcodes-styles.min.css?ver=1.6.5' type='text/css' media='all' />
+<link rel='stylesheet' id='mk-style-css' href='https://fallbrewingcompany.com/wp-content/themes/jupiter-child/style.css?ver=6.9.4' type='text/css' media='all' />
+<script type="text/javascript" data-noptimize='' data-no-minify='' src="https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/js/plugins/wp-enqueue/min/webfontloader.js?ver=6.9.4" id="mk-webfontloader-js"></script>
+<script type="text/javascript" id="mk-webfontloader-js-after">
+/* <![CDATA[ */
+WebFontConfig = {
+	timeout: 2000
+}
+
+if ( mk_typekit_id.length > 0 ) {
+	WebFontConfig.typekit = {
+		id: mk_typekit_id
+	}
+}
+
+if ( mk_google_fonts.length > 0 ) {
+	WebFontConfig.google = {
+		families:  mk_google_fonts
+	}
+}
+
+if ( (mk_google_fonts.length > 0 || mk_typekit_id.length > 0) && navigator.userAgent.indexOf("Speed Insights") == -1) {
+	WebFont.load( WebFontConfig );
+}
+		
+//# sourceURL=mk-webfontloader-js-after
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+
+<!-- Google tag (gtag.js) snippet added by Site Kit -->
+<!-- Google Analytics snippet added by Site Kit -->
+<script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=GT-WR4ZH2J6" id="google_gtagjs-js" async></script>
+<script type="text/javascript" id="google_gtagjs-js-after">
+/* <![CDATA[ */
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag("set","linker",{"domains":["fallbrewingcompany.com"]});
+gtag("js", new Date());
+gtag("set", "developer_id.dZTNiMT", true);
+gtag("config", "GT-WR4ZH2J6");
+ window._googlesitekit = window._googlesitekit || {}; window._googlesitekit.throttledEvents = []; window._googlesitekit.gtagEvent = (name, data) => { var key = JSON.stringify( { name, data } ); if ( !! window._googlesitekit.throttledEvents[ key ] ) { return; } window._googlesitekit.throttledEvents[ key ] = true; setTimeout( () => { delete window._googlesitekit.throttledEvents[ key ]; }, 5 ); gtag( "event", name, { ...data, event_source: "site-kit" } ); }; 
+//# sourceURL=google_gtagjs-js-after
+/* ]]> */
+</script>
+<script></script><link rel="https://api.w.org/" href="https://fallbrewingcompany.com/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://fallbrewingcompany.com/wp-json/wp/v2/pages/3863" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://fallbrewingcompany.com/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.9.4" />
+<link rel='shortlink' href='https://fallbrewingcompany.com/' />
+<meta name="generator" content="Site Kit by Google 1.174.0" />			<style>.cmplz-hidden {
+					display: none !important;
+				}</style><meta itemprop="author" content="admin" /><meta itemprop="datePublished" content="September 6, 2021" /><meta itemprop="dateModified" content="April 8, 2025" /><meta itemprop="publisher" content="Fall Brewing Company" /><script> var isTest = false; </script><style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style><meta name="generator" content="Powered by WPBakery Page Builder - drag and drop page builder for WordPress."/>
+<meta name="generator" content="Powered by Slider Revolution 6.7.14 - responsive, Mobile-Friendly Slider Plugin for WordPress with comfortable drag and drop interface." />
+<link rel="icon" href="https://fallbrewingcompany.com/wp-content/uploads/2018/05/fall_red-dotlogo-32x32.png" sizes="32x32" />
+<link rel="icon" href="https://fallbrewingcompany.com/wp-content/uploads/2018/05/fall_red-dotlogo-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://fallbrewingcompany.com/wp-content/uploads/2018/05/fall_red-dotlogo-180x180.png" />
+<meta name="msapplication-TileImage" content="https://fallbrewingcompany.com/wp-content/uploads/2018/05/fall_red-dotlogo-270x270.png" />
+<script>function setREVStartSize(e){
+			//window.requestAnimationFrame(function() {
+				window.RSIW = window.RSIW===undefined ? window.innerWidth : window.RSIW;
+				window.RSIH = window.RSIH===undefined ? window.innerHeight : window.RSIH;
+				try {
+					var pw = document.getElementById(e.c).parentNode.offsetWidth,
+						newh;
+					pw = pw===0 || isNaN(pw) || (e.l=="fullwidth" || e.layout=="fullwidth") ? window.RSIW : pw;
+					e.tabw = e.tabw===undefined ? 0 : parseInt(e.tabw);
+					e.thumbw = e.thumbw===undefined ? 0 : parseInt(e.thumbw);
+					e.tabh = e.tabh===undefined ? 0 : parseInt(e.tabh);
+					e.thumbh = e.thumbh===undefined ? 0 : parseInt(e.thumbh);
+					e.tabhide = e.tabhide===undefined ? 0 : parseInt(e.tabhide);
+					e.thumbhide = e.thumbhide===undefined ? 0 : parseInt(e.thumbhide);
+					e.mh = e.mh===undefined || e.mh=="" || e.mh==="auto" ? 0 : parseInt(e.mh,0);
+					if(e.layout==="fullscreen" || e.l==="fullscreen")
+						newh = Math.max(e.mh,window.RSIH);
+					else{
+						e.gw = Array.isArray(e.gw) ? e.gw : [e.gw];
+						for (var i in e.rl) if (e.gw[i]===undefined || e.gw[i]===0) e.gw[i] = e.gw[i-1];
+						e.gh = e.el===undefined || e.el==="" || (Array.isArray(e.el) && e.el.length==0)? e.gh : e.el;
+						e.gh = Array.isArray(e.gh) ? e.gh : [e.gh];
+						for (var i in e.rl) if (e.gh[i]===undefined || e.gh[i]===0) e.gh[i] = e.gh[i-1];
+											
+						var nl = new Array(e.rl.length),
+							ix = 0,
+							sl;
+						e.tabw = e.tabhide>=pw ? 0 : e.tabw;
+						e.thumbw = e.thumbhide>=pw ? 0 : e.thumbw;
+						e.tabh = e.tabhide>=pw ? 0 : e.tabh;
+						e.thumbh = e.thumbhide>=pw ? 0 : e.thumbh;
+						for (var i in e.rl) nl[i] = e.rl[i]<window.RSIW ? 0 : e.rl[i];
+						sl = nl[0];
+						for (var i in nl) if (sl>nl[i] && nl[i]>0) { sl = nl[i]; ix=i;}
+						var m = pw>(e.gw[ix]+e.tabw+e.thumbw) ? 1 : (pw-(e.tabw+e.thumbw)) / (e.gw[ix]);
+						newh =  (e.gh[ix] * m) + (e.tabh + e.thumbh);
+					}
+					var el = document.getElementById(e.c);
+					if (el!==null && el) el.style.height = newh+"px";
+					el = document.getElementById(e.c+"_wrapper");
+					if (el!==null && el) {
+						el.style.height = newh+"px";
+						el.style.display = "block";
+					}
+				} catch(e){
+					console.log("Failure at Presize of Slider:" + e)
+				}
+			//});
+		  };</script>
+		<style type="text/css" id="wp-custom-css">
+			.screen-reader-text{display:none;}
+.mk-product-loop.compact-layout .mk-product-holder{border:0px;}
+@media (max-width: 540px){
+#mk-footer{text-align:center;}
+}
+.single-product .product_meta{display:none;}
+.woocommerce-variation-availability{display:none;}
+#mk-breadcrumbs .mk-breadcrumbs-inner.dark-skin {color:#333;}
+#mk-breadcrumbs .mk-breadcrumbs-inner.dark-skin a {color:#333;}
+.mk-footer-copyright {color:#fff;}
+.mk-footer-copyright a{color:#fff;}
+body{
+overflow-x: hidden;
+}
+.woocommerce-ordering{display:none;}
+.mk-woocommerce-shop-loop__title{margin-bottom:20px;}
+.woocommerce div.product .woocommerce-tabs{display:none;}
+
+@media only screen and (max-width: 600px) {
+#theme-page .theme-page-wrapper .theme-content {
+    padding: 0px !important;
+  }
+}
+		</style>
+		<meta name="generator" content="Jupiter Child Theme " /><style type="text/css" data-type="vc_shortcodes-default-css">.vc_do_custom_heading{margin-bottom:0.625rem;margin-top:0;}</style><style type="text/css" data-type="vc_shortcodes-custom-css">.vc_custom_1652882961223{background-color: #000000 !important;}.vc_custom_1630969295341{background-color: #000000 !important;}.vc_custom_1693672937468{margin-bottom: 0px !important;}.vc_custom_1728929502113{margin-bottom: 0px !important;}.vc_custom_1648736961009{margin-bottom: 0px !important;}.vc_custom_1648736825027{margin-bottom: 0px !important;}.vc_custom_1648737130599{margin-bottom: 0px !important;}.vc_custom_1648737120993{margin-bottom: 0px !important;}.vc_custom_1524073317820{background-color: #000000 !important;}.vc_custom_1524076809906{background-color: #000000 !important;}.vc_custom_1652326519044{margin-bottom: 0px !important;}</style><noscript><style> .wpb_animate_when_almost_visible { opacity: 1; }</style></noscript>	<link rel='stylesheet' id='Noto+Sans-css' href='//fonts.googleapis.com/css?family=Noto+Sans%3A100italic%2C200italic%2C300italic%2C400italic%2C500italic%2C600italic%2C700italic%2C800italic%2C900italic%2C100%2C200%2C300%2C400%2C500%2C600%2C700%2C800%2C900&#038;ver=6.9.4' type='text/css' media='all' />
+<link rel='stylesheet' id='rs-plugin-settings-css' href='//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/css/rs6.css?ver=6.7.14' type='text/css' media='all' />
+<style id='rs-plugin-settings-inline-css' type='text/css'>
+#rs-demo-id {}
+/*# sourceURL=rs-plugin-settings-inline-css */
+</style>
+
+</head>
+
+<body data-cmplz=1 class="home wp-singular page-template-default page page-id-3863 wp-theme-jupiter wp-child-theme-jupiter-child wpb-js-composer js-comp-ver-8.7.2.1 vc_responsive" itemscope="itemscope" itemtype="https://schema.org/WebPage"  data-adminbar="">
+	<div class="mk-body-loader-overlay page-preloader" style="background-color:#000000;"><img alt="Fall Brewing Company" class="preloader-logo" src="http://fallbrewingcompany.com/wp-content/uploads/2018/04/loader.png" width="100" height="100" > <div class="preloader-preview-area">  <div class="transparent-circle" style="
+                                border-top-color: rgba(209,24,32,0.2);
+                                border-right-color: rgba(209,24,32,0.2);
+                                border-bottom-color: rgba(209,24,32,0.2);
+                                border-left-color: #d11820;">
+                        </div>  </div></div>
+	<!-- Target for scroll anchors to achieve native browser bahaviour + possible enhancements like smooth scrolling -->
+	<div id="top-of-page"></div>
+
+		<div id="mk-boxed-layout">
+
+			<div id="mk-theme-container" class="trans-header">
+
+				 
+    <header data-height='90'
+                data-sticky-height='55'
+                data-responsive-height='90'
+                data-transparent-skin='light'
+                data-header-style='1'
+                data-sticky-style='fixed'
+                data-sticky-offset='header' id="mk-header-1" class="mk-header header-style-1 header-align-left  toolbar-false menu-hover-2 sticky-style-fixed mk-background-stretch boxed-header  transparent-header light-skin bg-true" role="banner" itemscope="itemscope" itemtype="https://schema.org/WPHeader" >
+                    <div class="mk-header-holder">
+                                                <div class="mk-header-inner add-header-height">
+
+                    <div class="mk-header-bg "></div>
+
+                    
+                                                <div class="mk-grid header-grid">
+                    
+                            <div class="mk-header-nav-container one-row-style menu-hover-style-2" role="navigation" itemscope="itemscope" itemtype="https://schema.org/SiteNavigationElement" >
+                                <nav class="mk-main-navigation js-main-nav"><ul id="menu-main-menu" class="main-navigation-ul"><li id="menu-item-558" class="menu-item menu-item-type-post_type menu-item-object-page no-mega-menu"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/beer/">Beer</a></li>
+<li id="menu-item-5116" class="menu-item menu-item-type-post_type menu-item-object-page no-mega-menu"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/find/">Find</a></li>
+<li id="menu-item-4463" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children no-mega-menu"><a class="menu-item-link js-smooth-scroll"  href="#">Locations</a>
+<ul style="" class="sub-menu ">
+	<li id="menu-item-5154" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/miramar-location/">Miramar</a></li>
+	<li id="menu-item-4464" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/north-park-location/">North Park</a></li>
+	<li id="menu-item-4465" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/south-park-location/">South Park</a></li>
+</ul>
+</li>
+<li id="menu-item-5046" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children no-mega-menu"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/all">SHOP</a>
+<ul style="" class="sub-menu ">
+	<li id="menu-item-5230" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/sale"><span style="color:red;">SALE</span></a></li>
+	<li id="menu-item-1169" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/shirts">SHIRTS</a></li>
+	<li id="menu-item-1170" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/hats">HATS</a></li>
+	<li id="menu-item-1171" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/hoodies">HOODIES</a></li>
+	<li id="menu-item-2668" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/kids">KIDS</a></li>
+	<li id="menu-item-1173" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/misc">MISC</a></li>
+	<li id="menu-item-1536" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/new"><span style="color:red;">NEW</span></a></li>
+</ul>
+</li>
+</ul></nav>                            </div>
+                            
+<div class="mk-nav-responsive-link">
+    <div class="mk-css-icon-menu">
+        <div class="mk-css-icon-menu-line-1"></div>
+        <div class="mk-css-icon-menu-line-2"></div>
+        <div class="mk-css-icon-menu-line-3"></div>
+    </div>
+</div>	<div class=" header-logo fit-logo-img add-header-height  ">
+		<a href="https://fallbrewingcompany.com/" title="Fall Brewing Company">
+
+			<img class="mk-desktop-logo dark-logo "
+				title="Rise Above"
+				alt="Rise Above"
+				src="http://fallbrewingcompany.com/wp-content/uploads/2018/04/logo-black.png" />
+
+							<img class="mk-desktop-logo light-logo "
+					title="Rise Above"
+					alt="Rise Above"
+					src="http://fallbrewingcompany.com/wp-content/uploads/2018/04/logo-white.png" />
+			
+			
+					</a>
+	</div>
+
+                                            </div>
+                    
+                    <div class="mk-header-right">
+                                            </div>
+
+                </div>
+                
+<div class="mk-responsive-wrap">
+
+	<nav class="menu-main-menu-container"><ul id="menu-main-menu-1" class="mk-responsive-nav"><li id="responsive-menu-item-558" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/beer/">Beer</a></li>
+<li id="responsive-menu-item-5116" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/find/">Find</a></li>
+<li id="responsive-menu-item-4463" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children"><a class="menu-item-link js-smooth-scroll"  href="#">Locations</a><span class="mk-nav-arrow mk-nav-sub-closed"><svg  class="mk-svg-icon" data-name="mk-moon-arrow-down" data-cacheid="icon-69e53a83c4cca" style=" height:16px; width: 16px; "  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M512 192l-96-96-160 160-160-160-96 96 256 255.999z"/></svg></span>
+<ul class="sub-menu ">
+	<li id="responsive-menu-item-5154" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/miramar-location/">Miramar</a></li>
+	<li id="responsive-menu-item-4464" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/north-park-location/">North Park</a></li>
+	<li id="responsive-menu-item-4465" class="menu-item menu-item-type-post_type menu-item-object-page"><a class="menu-item-link js-smooth-scroll"  href="https://fallbrewingcompany.com/south-park-location/">South Park</a></li>
+</ul>
+</li>
+<li id="responsive-menu-item-5046" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/all">SHOP</a><span class="mk-nav-arrow mk-nav-sub-closed"><svg  class="mk-svg-icon" data-name="mk-moon-arrow-down" data-cacheid="icon-69e53a83c51ca" style=" height:16px; width: 16px; "  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M512 192l-96-96-160 160-160-160-96 96 256 255.999z"/></svg></span>
+<ul class="sub-menu ">
+	<li id="responsive-menu-item-5230" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/sale"><span style="color:red;">SALE</span></a></li>
+	<li id="responsive-menu-item-1169" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/shirts">SHIRTS</a></li>
+	<li id="responsive-menu-item-1170" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/hats">HATS</a></li>
+	<li id="responsive-menu-item-1171" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/hoodies">HOODIES</a></li>
+	<li id="responsive-menu-item-2668" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/kids">KIDS</a></li>
+	<li id="responsive-menu-item-1173" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/misc">MISC</a></li>
+	<li id="responsive-menu-item-1536" class="menu-item menu-item-type-custom menu-item-object-custom"><a class="menu-item-link js-smooth-scroll"  href="https://shop.fallbrewingcompany.com/collections/new"><span style="color:red;">NEW</span></a></li>
+</ul>
+</li>
+</ul></nav>
+		
+
+</div>
+        
+            </div>
+        
+                        
+    </header>
+
+		<div id="theme-page" class="master-holder  clearfix" itemscope="itemscope" itemtype="https://schema.org/Blog" >
+			<div class="master-holder-bg-holder">
+				<div id="theme-page-bg" class="master-holder-bg js-el"  ></div>
+			</div>
+			<div class="mk-main-wrapper-holder">
+				<div id="mk-page-id-3863" class="theme-page-wrapper mk-main-wrapper mk-grid full-layout no-padding">
+					<div class="theme-content no-padding" itemprop="mainEntityOfPage">
+							<div class="wpb-content-wrapper">
+<div class="mk-page-section-wrapper" data-mk-full-width="true" data-mk-full-width-init="true" data-mk-stretch-content="true">
+	<div id="no-phone-home" class="mk-page-section self-hosted   full_layout full-width-2 js-el js-master-row jupiter-donut-hidden-sm   no-phone-home center-y"    data-intro-effect="false">
+
+			
+			<div class="mk-page-section-inner">
+				
+
+
+<div style="background-color:#212121;opacity:0.6;" class="mk-video-color-mask"></div>
+
+				
+				
+			<div class="mk-section-preloader js-el" data-mk-component="Preloader">
+			<div class="mk-section-preloader__icon"></div>
+		</div>
+	
+	<div class="background-layer-holder">
+		<div id="background-layer--2" data-mk-lazyload="false" class="background-layer mk-background-stretch none-blend-effect js-el" data-mk-component="Parallax" data-parallax-config='{"speed" : 0.3 }'  data-mk-img-set='{"landscape":{"desktop":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/slide8.jpg","tablet":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/slide8-1024x768.jpg","mobile":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/slide8-736x414.jpg"},"responsive":"true"}' >
+									<div class="mk-color-layer"></div>
+		</div>
+	</div>
+
+			</div>
+
+			
+        <div class="page-section-content vc_row-fluid mk-grid " >
+            <div class="mk-padding-wrapper wpb_row">
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<div id="padding-4" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+
+			<!-- START home 1 REVOLUTION SLIDER 6.7.14 --><p class="rs-p-wp-fix"></p>
+			<rs-module-wrap id="rev_slider_7_1_wrapper" data-source="gallery" style="visibility:hidden;background:transparent;padding:0;margin:0px auto;margin-top:0;margin-bottom:0;">
+				<rs-module id="rev_slider_7_1" style="" data-version="6.7.14">
+					<rs-slides style="overflow: hidden; position: absolute;">
+						<rs-slide style="position: absolute;" data-key="rs-32" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img fetchpriority="high" decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="slide3mir" width="1920" height="820" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2023/09/slide3mir.jpg" data-no-retina>
+<!---->					</rs-slide>
+						<rs-slide style="position: absolute;" data-key="rs-31" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="Home-2021" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2022/03/slide-99.jpg" data-no-retina>
+<!---->					</rs-slide>
+						<rs-slide style="position: absolute;" data-key="rs-30" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="Home-2021" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2022/03/slide-98.jpg" data-no-retina>
+<!---->					</rs-slide>
+						<rs-slide style="position: absolute;" data-key="rs-33" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="slide1mir" width="1920" height="820" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2023/09/slide1mir.jpg" data-no-retina>
+<!---->					</rs-slide>
+					</rs-slides>
+				</rs-module>
+				<script>
+					setREVStartSize({c: 'rev_slider_7_1',rl:[1240,1024,778,480],el:[820],gw:[1240],gh:[820],type:'standard',justify:'',layout:'fullwidth',mh:"0"});if (window.RS_MODULES!==undefined && window.RS_MODULES.modules!==undefined && window.RS_MODULES.modules["revslider71"]!==undefined) {window.RS_MODULES.modules["revslider71"].once = false;window.revapi7 = undefined;if (window.RS_MODULES.checkMinimal!==undefined) window.RS_MODULES.checkMinimal()}
+				</script>
+			</rs-module-wrap>
+			<!-- END REVOLUTION SLIDER -->
+
+<div id="padding-5" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+</div>
+</div>
+            <div class="clearboth"></div>
+        </div>
+
+
+			
+			
+			
+		<div class="clearboth"></div>
+	</div>
+</div>
+<div class="vc_row-full-width vc_clearfix"></div>
+
+
+<div class="mk-page-section-wrapper" data-mk-full-width="true" data-mk-full-width-init="true" data-mk-stretch-content="true">
+	<div id="NO_DESKY" class="mk-page-section self-hosted   full_layout full-width-6 js-el js-master-row jupiter-donut-hidden-dt   NO_DESKY center-y"    data-intro-effect="false">
+
+			
+			<div class="mk-page-section-inner">
+				
+
+
+<div style="background-color:#212121;opacity:0.6;" class="mk-video-color-mask"></div>
+
+				
+				
+			<div class="mk-section-preloader js-el" data-mk-component="Preloader">
+			<div class="mk-section-preloader__icon"></div>
+		</div>
+	
+	<div class="background-layer-holder">
+		<div id="background-layer--6" data-mk-lazyload="false" class="background-layer mk-background-stretch none-blend-effect js-el" data-mk-component="Parallax" data-parallax-config='{"speed" : 0.3 }'  data-mk-img-set='{"landscape":{"desktop":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/slide8.jpg","tablet":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/slide8-1024x768.jpg","mobile":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/slide8-736x414.jpg"},"responsive":"true"}' >
+									<div class="mk-color-layer"></div>
+		</div>
+	</div>
+
+			</div>
+
+			
+        <div class="page-section-content vc_row-fluid mk-grid " >
+            <div class="mk-padding-wrapper wpb_row">
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<div id="padding-8" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+
+			<!-- START home 1 REVOLUTION SLIDER 6.7.14 --><p class="rs-p-wp-fix"></p>
+			<rs-module-wrap id="rev_slider_7_2_wrapper" data-source="gallery" style="visibility:hidden;background:transparent;padding:0;margin:0px auto;margin-top:0;margin-bottom:0;">
+				<rs-module id="rev_slider_7_2" style="" data-version="6.7.14">
+					<rs-slides style="overflow: hidden; position: absolute;">
+						<rs-slide style="position: absolute;" data-key="rs-32" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img fetchpriority="high" decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="slide3mir" width="1920" height="820" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2023/09/slide3mir.jpg" data-no-retina>
+<!---->					</rs-slide>
+						<rs-slide style="position: absolute;" data-key="rs-31" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="Home-2021" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2022/03/slide-99.jpg" data-no-retina>
+<!---->					</rs-slide>
+						<rs-slide style="position: absolute;" data-key="rs-30" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="Home-2021" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2022/03/slide-98.jpg" data-no-retina>
+<!---->					</rs-slide>
+						<rs-slide style="position: absolute;" data-key="rs-33" data-title="Slide" data-anim="p:dark;" data-in="o:0;" data-out="o:0;">
+							<img decoding="async" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/assets/dummy.png" alt="" title="slide1mir" width="1920" height="820" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//www.fallbrewingcompany.com/wp-content/uploads/2023/09/slide1mir.jpg" data-no-retina>
+<!---->					</rs-slide>
+					</rs-slides>
+				</rs-module>
+				<script>
+					setREVStartSize({c: 'rev_slider_7_2',rl:[1240,1024,778,480],el:[820],gw:[1240],gh:[820],type:'standard',justify:'',layout:'fullwidth',mh:"0"});if (window.RS_MODULES!==undefined && window.RS_MODULES.modules!==undefined && window.RS_MODULES.modules["revslider72"]!==undefined) {window.RS_MODULES.modules["revslider72"].once = false;window.revapi7_2 = undefined;if (window.RS_MODULES.checkMinimal!==undefined) window.RS_MODULES.checkMinimal()}
+				</script>
+			</rs-module-wrap>
+			<!-- END REVOLUTION SLIDER -->
+
+<div id="padding-9" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+</div>
+</div>
+            <div class="clearboth"></div>
+        </div>
+
+
+			
+			
+			
+		<div class="clearboth"></div>
+	</div>
+</div>
+<div class="vc_row-full-width vc_clearfix"></div>
+
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<div id="padding-11" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+<h2 style="color: #ffffff;text-align: center" class="vc_custom_heading vc_do_custom_heading vc_custom_1630969295341" >LOCATIONS</h2></div>
+	</div>
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-6 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<div  class="mk-image mk-image-13 jupiter-donut-  mk-image-lazyload align-center  mk-animate-element bottom-to-top single_line-frame inside-image " style="margin-bottom:20px"><div class="mk-image-container" style="max-width: 1500px;"><div  class="mk-image-holder" style="max-width: 1500px;"><div class="mk-image-inner  "><img decoding="async" class="lightbox-false" alt="web_1" title="web_1" width="1500" height="1000" src="https://fallbrewingcompany.com/wp-content/uploads/2023/09/web_1.jpg" /></div></div><div class="clearboth"></div></div></div></div>
+
+<div class="vc_col-sm-6 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<h5 id="fancy-title-15" class="mk-fancy-title  simple-style jupiter-donut-  color-single">
+	<span>
+				<h3 style="text-align: left;"><strong>MIRAMAR</strong></h3>
+<h3 style="text-align: left;">Headquarters + Brewery + Tasting Room</h3>
+			</span>
+</h5>
+<div class="clearboth"></div>
+
+
+
+<style>#fancy-title-15 {font-family: "Noto Sans"}</style>
+
+<div class="wpb_row vc_inner vc_row vc_row-fluid jupiter-donut-   attched-false   ">
+			<div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner"><div class="wpb_wrapper">	<div class=" vc_custom_1728929502113">
+
+<div id="text-block-16" class="mk-text-block  jupiter-donut- ">
+
+	
+	<div style="text-align: left;">9550 Distribution Ave</div>
+<div style="text-align: left;">San Diego, Calif 92121</div>
+<p style="text-align: left;">Mon &#8211; Sat 11a-9p<br />
+Sunday 11a-8p</p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+</div></div></div>	</div>
+	<div class=" vc_custom_1693672937468">
+
+<div id="text-block-17" class="mk-text-block  jupiter-donut- ">
+
+	
+	<p style="text-align: left;"><a href="http://fallbrewingcompany.com/miramar-location/"><strong>READ MORE</strong> </a></p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+</div>
+	</div>
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<div class="vc_separator wpb_content_element vc_separator_align_center vc_sep_width_100 vc_sep_border_width_10 vc_sep_pos_align_center vc_separator_no_text vc_sep_color_black wpb_content_element  wpb_content_element" ><span class="vc_sep_holder vc_sep_holder_l"><span class="vc_sep_line"></span></span><span class="vc_sep_holder vc_sep_holder_r"><span class="vc_sep_line"></span></span>
+</div></div>
+	</div>
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-6 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<h5 id="fancy-title-20" class="mk-fancy-title  simple-style jupiter-donut-  color-single">
+	<span>
+				<h3 style="text-align: right;">NORTH PARK</h3>
+<h3 style="text-align: right;">BREWERY + TASTING ROOM</h3>
+			</span>
+</h5>
+<div class="clearboth"></div>
+
+
+
+<style>#fancy-title-20 {font-family: "Noto Sans"}</style>
+
+<div class="wpb_row vc_inner vc_row vc_row-fluid jupiter-donut-   attched-false   ">
+			<div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner"><div class="wpb_wrapper">	<div class=" vc_custom_1648736825027">
+
+<div id="text-block-21" class="mk-text-block  jupiter-donut- ">
+
+	
+	<p style="text-align: right;">4542 30th St<br />
+San Diego, Calif 92116</p>
+<p style="text-align: right;">Sun-Thrs 11-10pm<br />
+Fri-Sat 11-12am</p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+</div></div></div>	</div>
+	<div class=" vc_custom_1648736961009">
+
+<div id="text-block-22" class="mk-text-block  jupiter-donut- ">
+
+	
+	<p style="text-align: right;"><a href="http://fallbrewingcompany.com/north-park-location/"><strong>READ MORE</strong> </a></p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+</div>
+
+<div class="vc_col-sm-6 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<div  class="mk-image mk-image-24 jupiter-donut-  mk-image-lazyload align-center  mk-animate-element bottom-to-top single_line-frame inside-image " style="margin-bottom:20px"><div class="mk-image-container" style="max-width: 600px;"><div  class="mk-image-holder" style="max-width: 600px;"><div class="mk-image-inner  "><img loading="lazy" decoding="async" class="lightbox-false" alt="brewery-2021" title="brewery-2021" width="600" height="400" src="https://fallbrewingcompany.com/wp-content/uploads/2021/09/brewery-2021.jpg" /></div></div><div class="clearboth"></div></div></div></div>
+	</div>
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<div class="vc_separator wpb_content_element vc_separator_align_center vc_sep_width_100 vc_sep_border_width_10 vc_sep_pos_align_center vc_separator_no_text vc_sep_color_black wpb_content_element  wpb_content_element" ><span class="vc_sep_holder vc_sep_holder_l"><span class="vc_sep_line"></span></span><span class="vc_sep_holder vc_sep_holder_r"><span class="vc_sep_line"></span></span>
+</div></div>
+	</div>
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-6 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<div  class="mk-image mk-image-27 jupiter-donut-  mk-image-lazyload align-center  mk-animate-element bottom-to-top single_line-frame inside-image " style="margin-bottom:20px"><div class="mk-image-container" style="max-width: 1500px;"><div  class="mk-image-holder" style="max-width: 1500px;"><div class="mk-image-inner  "><img loading="lazy" decoding="async" class="lightbox-false" alt="groom-21" title="groom-21" width="1500" height="872" src="https://fallbrewingcompany.com/wp-content/uploads/2022/03/groom-21.jpg" /></div></div><div class="clearboth"></div></div></div></div>
+
+<div class="vc_col-sm-6 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<h5 id="fancy-title-29" class="mk-fancy-title  simple-style jupiter-donut-  color-single">
+	<span>
+				<h3 style="text-align: left;"><strong>SOUTH PARK</strong></h3>
+<h3 style="text-align: left;"><strong>GOLDEN RHINO ROOM</strong></h3>
+			</span>
+</h5>
+<div class="clearboth"></div>
+
+
+
+<style>#fancy-title-29 {font-family: "Noto Sans"}</style>
+
+<div class="wpb_row vc_inner vc_row vc_row-fluid jupiter-donut-   attched-false   ">
+			<div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner"><div class="wpb_wrapper">	<div class=" vc_custom_1648737120993">
+
+<div id="text-block-30" class="mk-text-block  jupiter-donut- ">
+
+	
+	<p style="text-align: left;">3010 Juniper St.<br />
+San Diego, Calif 92104</p>
+<p style="text-align: left;">Sun-Thrs 12-10pm<br />
+Fri-Sat 12-12am</p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+</div></div></div>	</div>
+	<div class=" vc_custom_1648737130599">
+
+<div id="text-block-31" class="mk-text-block  jupiter-donut- ">
+
+	
+	<p style="text-align: left;"><a href="http://fallbrewingcompany.com/south-park-location/"><strong>READ MORE</strong> </a></p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+</div>
+	</div>
+
+<div class="mk-page-section-wrapper" data-mk-full-width="true" data-mk-full-width-init="true" data-mk-stretch-content="true">
+	<div id="page-section-32" class="mk-page-section self-hosted   full_layout full-width-32 js-el js-master-row jupiter-donut-    center-y"    data-intro-effect="false">
+
+			
+			<div class="mk-page-section-inner">
+				
+
+
+<div style="background-color:#212121;opacity:0.7;" class="mk-video-color-mask"></div>
+
+				
+				
+			<div class="mk-section-preloader js-el" data-mk-component="Preloader">
+			<div class="mk-section-preloader__icon"></div>
+		</div>
+	
+	<div class="background-layer-holder">
+		<div id="background-layer--32" data-mk-lazyload="false" class="background-layer mk-background-stretch none-blend-effect js-el" data-mk-component="Parallax" data-parallax-config='{"speed" : 0.3 }'  data-mk-img-set='{"landscape":{"desktop":"https://fallbrewingcompany.com/wp-content/uploads/2022/03/img_4941-scaled.jpg","tablet":"https://fallbrewingcompany.com/wp-content/uploads/2022/03/img_4941-scaled-1024x683.jpg","mobile":"https://fallbrewingcompany.com/wp-content/uploads/2022/03/img_4941-scaled-621x414.jpg"},"portrait":{"desktop":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/grid-back-port.jpg","tablet":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/grid-back-port-768x1024.jpg","mobile":"https://fallbrewingcompany.com/wp-content/uploads/2018/04/grid-back-port-414x736.jpg"},"responsive":"true"}' >
+									<div class="mk-color-layer"></div>
+		</div>
+	</div>
+
+			</div>
+
+			
+        <div class="page-section-content vc_row-fluid mk-grid " >
+            <div class="mk-padding-wrapper wpb_row">
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<div id="padding-34" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+
+
+<div class="wpb_row vc_inner vc_row vc_row-fluid jupiter-donut-   attched-false   ">
+			<div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner"><div class="wpb_wrapper"><h2 style="color: #ffffff;text-align: center" class="vc_custom_heading vc_do_custom_heading vc_custom_1524073317820" >RECENT RELEASES</h2></div></div></div>	</div>
+<div class="vc_empty_space"   style="height: 32px"><span class="vc_empty_space_inner"></span></div>
+
+
+<section id="gallery-loop-35" data-mk-component="Masonry" data-masonry-config='{"container":"#gallery-loop-35", "item":".js-gallery-item", "cols": "4"}' data-query="eyJwb3N0X3R5cGUiOiJhdHRhY2htZW50IiwiY291bnQiOi0xLCJwb3N0cyI6IjUyMzQsNTIzNSw1MjQzLDUyNDQsNTI0NSIsIm9yZGVyYnkiOiJ0aXRsZSIsIm9yZGVyIjoiQVNDIn0=" data-loop-atts="eyJzaG9ydGNvZGVfbmFtZSI6Im1rX2dhbGxlcnkiLCJzdHlsZSI6Im1hc29ucnkiLCJtYXNvbnJheV9zdHlsZSI6InN0eWxlMyIsImhvdmVyX3NjZW5hcmlvcyI6ImZhZGVib3giLCJjb2xsZWN0aW9uX3RpdGxlIjoiIiwiZGlzYWJsZV90aXRsZSI6ImZhbHNlIiwiY29sdW1uX2NzcyI6IiIsImZyYW1lX3N0eWxlIjoic2ltcGxlIiwiY3VzdG9tX2xpbmtzIjpbIiJdLCJpbWFnZV9zaXplIjoiZnVsbCIsImhlaWdodCI6NTAwLCJjb2x1bW4iOjMsImlkIjozNSwibGF6eWxvYWQiOiJmYWxzZSIsImkiOjB9" data-pagination-style="1" data-max-pages="0" data-loop-iterator="-1" class="mk-gallery masnory-gallery  jupiter-donut- js-loop js-el jupiter-donut-clearfix mk-gallery-lazyload">
+
+            
+
+<article class="mk-gallery-item js-gallery-item hover-fadebox gallery-mansory-small simple-frame hover-title-false">
+    <div class="item-holder">
+        
+
+
+    <div class="image-hover-overlay">
+            </div>
+      
+    
+        <a href="https://fallbrewingcompany.com/wp-content/uploads/2025/02/craze.jpg" alt="" title="craze" data-caption="craze" data-fancybox="gallery-35" class="mk-lightbox  mk-image-lightbox">
+            <svg  class="mk-svg-icon" data-name="mk-jupiter-icon-plus-circle" data-cacheid="icon-69e53a8458c06" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M240 24c115.2 0 209.6 94.4 209.6 209.6s-94.4 209.6-209.6 209.6-209.6-94.4-209.6-209.6 94.4-209.6 209.6-209.6zm0-30.4c-132.8 0-240 107.2-240 240s107.2 240 240 240 240-107.2 240-240-107.2-240-240-240zm80 256h-160c-9.6 0-16-6.4-16-16s6.4-16 16-16h160c9.6 0 16 6.4 16 16s-6.4 16-16 16zm-80 80c-9.6 0-16-6.4-16-16v-160c0-9.6 6.4-16 16-16s16 6.4 16 16v160c0 9.6-6.4 16-16 16z"/></svg>        </a>
+
+    
+
+ <span class="gallery-inner">
+	<img decoding="async" class="mk-gallery-image" src="http://fallbrewingcompany.com/wp-content/uploads/bfi_thumb/dummy-transparent-rkr4w19bw4mbzwzvayqxtwrbcjls7gdy4xxlf91k40.png"
+		data-mk-image-src-set='{"default":"https://fallbrewingcompany.com/wp-content/uploads/2025/02/craze.jpg","2x":"","mobile":"","responsive":"true"}'		height="1000"
+		width="1000"
+		title="craze"
+		alt=""  />
+ </span>
+
+
+    </div>
+</article>        
+
+<article class="mk-gallery-item js-gallery-item hover-fadebox gallery-mansory-large simple-frame hover-title-false">
+    <div class="item-holder">
+        
+
+
+    <div class="image-hover-overlay">
+            </div>
+      
+    
+        <a href="https://fallbrewingcompany.com/wp-content/uploads/2025/04/madworld.jpg" alt="" title="dmadworld" data-caption="dmadworld" data-fancybox="gallery-35" class="mk-lightbox  mk-image-lightbox">
+            <svg  class="mk-svg-icon" data-name="mk-jupiter-icon-plus-circle" data-cacheid="icon-69e53a84638fc" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M240 24c115.2 0 209.6 94.4 209.6 209.6s-94.4 209.6-209.6 209.6-209.6-94.4-209.6-209.6 94.4-209.6 209.6-209.6zm0-30.4c-132.8 0-240 107.2-240 240s107.2 240 240 240 240-107.2 240-240-107.2-240-240-240zm80 256h-160c-9.6 0-16-6.4-16-16s6.4-16 16-16h160c9.6 0 16 6.4 16 16s-6.4 16-16 16zm-80 80c-9.6 0-16-6.4-16-16v-160c0-9.6 6.4-16 16-16s16 6.4 16 16v160c0 9.6-6.4 16-16 16z"/></svg>        </a>
+
+    
+
+ <span class="gallery-inner">
+	<img decoding="async" class="mk-gallery-image" src="http://fallbrewingcompany.com/wp-content/uploads/bfi_thumb/dummy-transparent-rkr4w19bw4mbzwzvayqxtwrbcjls7gdy4xxlf91k40.png"
+		data-mk-image-src-set='{"default":"https://fallbrewingcompany.com/wp-content/uploads/2025/04/madworld.jpg","2x":"","mobile":"","responsive":"true"}'		height="1000"
+		width="1000"
+		title="dmadworld"
+		alt=""  />
+ </span>
+
+
+    </div>
+</article>        
+
+<article class="mk-gallery-item js-gallery-item hover-fadebox gallery-mansory-small simple-frame hover-title-false">
+    <div class="item-holder">
+        
+
+
+    <div class="image-hover-overlay">
+            </div>
+      
+    
+        <a href="https://fallbrewingcompany.com/wp-content/uploads/2025/02/flirting.jpg" alt="" title="flirting" data-caption="flirting" data-fancybox="gallery-35" class="mk-lightbox  mk-image-lightbox">
+            <svg  class="mk-svg-icon" data-name="mk-jupiter-icon-plus-circle" data-cacheid="icon-69e53a84640b4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M240 24c115.2 0 209.6 94.4 209.6 209.6s-94.4 209.6-209.6 209.6-209.6-94.4-209.6-209.6 94.4-209.6 209.6-209.6zm0-30.4c-132.8 0-240 107.2-240 240s107.2 240 240 240 240-107.2 240-240-107.2-240-240-240zm80 256h-160c-9.6 0-16-6.4-16-16s6.4-16 16-16h160c9.6 0 16 6.4 16 16s-6.4 16-16 16zm-80 80c-9.6 0-16-6.4-16-16v-160c0-9.6 6.4-16 16-16s16 6.4 16 16v160c0 9.6-6.4 16-16 16z"/></svg>        </a>
+
+    
+
+ <span class="gallery-inner">
+	<img decoding="async" class="mk-gallery-image" src="http://fallbrewingcompany.com/wp-content/uploads/bfi_thumb/dummy-transparent-rkr4w19bw4mbzwzvayqxtwrbcjls7gdy4xxlf91k40.png"
+		data-mk-image-src-set='{"default":"https://fallbrewingcompany.com/wp-content/uploads/2025/02/flirting.jpg","2x":"","mobile":"","responsive":"true"}'		height="1000"
+		width="1000"
+		title="flirting"
+		alt=""  />
+ </span>
+
+
+    </div>
+</article>        
+
+<article class="mk-gallery-item js-gallery-item hover-fadebox gallery-mansory-small simple-frame hover-title-false">
+    <div class="item-holder">
+        
+
+
+    <div class="image-hover-overlay">
+            </div>
+      
+    
+        <a href="https://fallbrewingcompany.com/wp-content/uploads/2025/04/thieves.jpg" alt="" title="thieves" data-caption="thieves" data-fancybox="gallery-35" class="mk-lightbox  mk-image-lightbox">
+            <svg  class="mk-svg-icon" data-name="mk-jupiter-icon-plus-circle" data-cacheid="icon-69e53a8464766" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M240 24c115.2 0 209.6 94.4 209.6 209.6s-94.4 209.6-209.6 209.6-209.6-94.4-209.6-209.6 94.4-209.6 209.6-209.6zm0-30.4c-132.8 0-240 107.2-240 240s107.2 240 240 240 240-107.2 240-240-107.2-240-240-240zm80 256h-160c-9.6 0-16-6.4-16-16s6.4-16 16-16h160c9.6 0 16 6.4 16 16s-6.4 16-16 16zm-80 80c-9.6 0-16-6.4-16-16v-160c0-9.6 6.4-16 16-16s16 6.4 16 16v160c0 9.6-6.4 16-16 16z"/></svg>        </a>
+
+    
+
+ <span class="gallery-inner">
+	<img decoding="async" class="mk-gallery-image" src="http://fallbrewingcompany.com/wp-content/uploads/bfi_thumb/dummy-transparent-rkr4w19bw4mbzwzvayqxtwrbcjls7gdy4xxlf91k40.png"
+		data-mk-image-src-set='{"default":"https://fallbrewingcompany.com/wp-content/uploads/2025/04/thieves.jpg","2x":"","mobile":"","responsive":"true"}'		height="1000"
+		width="1000"
+		title="thieves"
+		alt=""  />
+ </span>
+
+
+    </div>
+</article>        
+
+<article class="mk-gallery-item js-gallery-item hover-fadebox gallery-mansory-small simple-frame hover-title-false">
+    <div class="item-holder">
+        
+
+
+    <div class="image-hover-overlay">
+            </div>
+      
+    
+        <a href="https://fallbrewingcompany.com/wp-content/uploads/2025/04/wife.jpg" alt="" title="wife" data-caption="wife" data-fancybox="gallery-35" class="mk-lightbox  mk-image-lightbox">
+            <svg  class="mk-svg-icon" data-name="mk-jupiter-icon-plus-circle" data-cacheid="icon-69e53a8464e69" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M240 24c115.2 0 209.6 94.4 209.6 209.6s-94.4 209.6-209.6 209.6-209.6-94.4-209.6-209.6 94.4-209.6 209.6-209.6zm0-30.4c-132.8 0-240 107.2-240 240s107.2 240 240 240 240-107.2 240-240-107.2-240-240-240zm80 256h-160c-9.6 0-16-6.4-16-16s6.4-16 16-16h160c9.6 0 16 6.4 16 16s-6.4 16-16 16zm-80 80c-9.6 0-16-6.4-16-16v-160c0-9.6 6.4-16 16-16s16 6.4 16 16v160c0 9.6-6.4 16-16 16z"/></svg>        </a>
+
+    
+
+ <span class="gallery-inner">
+	<img decoding="async" class="mk-gallery-image" src="http://fallbrewingcompany.com/wp-content/uploads/bfi_thumb/dummy-transparent-rkr4w19bw4mbzwzvayqxtwrbcjls7gdy4xxlf91k40.png"
+		data-mk-image-src-set='{"default":"https://fallbrewingcompany.com/wp-content/uploads/2025/04/wife.jpg","2x":"","mobile":"","responsive":"true"}'		height="1000"
+		width="1000"
+		title="wife"
+		alt=""  />
+ </span>
+
+
+    </div>
+</article><div class="clearboth"></div>
+</section>
+
+<input type="hidden" id="safe_load_more" name="safe_load_more" value="d8394c7ea5" /><input type="hidden" name="_wp_http_referer" value="/" />
+</div>
+</div>
+            <div class="clearboth"></div>
+        </div>
+
+
+			
+			
+			
+		<div class="clearboth"></div>
+	</div>
+</div>
+<div class="vc_row-full-width vc_clearfix"></div>
+
+
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row vc_hidden-lg vc_hidden-xs vc_hidden-sm vc_hidden-md mk-grid">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<div id="padding-37" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+</div>
+	</div>
+
+<div  data-mk-full-width="true" data-mk-full-width-init="false" data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-true  attched-false     js-master-row vc_hidden-lg vc_hidden-xs vc_hidden-sm vc_hidden-md mk-full-content-true">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	
+<div id="padding-39" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+
+<h3 id="fancy-title-40" class="mk-fancy-title  simple-style jupiter-donut-  color-single">
+	<span>
+				<h2>NEW MERCH</h2>
+			</span>
+</h3>
+<div class="clearboth"></div>
+
+
+
+<style>#fancy-title-40 {font-family: "Noto Sans"}</style>
+<div id="mk-button-41" class="mk-button-container _ jupiter-donut-relative    jupiter-donut-block jupiter-donut-text-center ">
+
+	
+		<a href="http://fallbrewingcompany.com/shop/" target="_self" class="mk-button js-smooth-scroll mk-button--dimension-flat mk-button--size-medium mk-button--corner-pointed text-color-light _ jupiter-donut-relative jupiter-donut-text-center jupiter-donut-font-weight-700 jupiter-donut-no-backface  letter-spacing-1 jupiter-donut-inline-block"><i class="mk-button--icon"><svg  class="mk-svg-icon" data-name="mk-moon-arrow-right-5" data-cacheid="icon-69e53a8467559" style=" height:16px; width: 16px; "  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M310.627 438.627l160-160c12.497-12.496 12.497-32.758 0-45.255l-160-160c-12.497-12.496-32.758-12.496-45.255 0-12.497 12.497-12.497 32.758 0 45.255l105.373 105.373h-306.745c-17.673 0-32 14.327-32 32s14.327 32 32 32h306.745l-105.373 105.373c-6.248 6.248-9.372 14.438-9.372 22.627s3.124 16.379 9.372 22.627c12.497 12.497 32.758 12.497 45.255 0z"/></svg></i><span class="mk-button--text">SEE ALL</span></a>
+
+	
+</div>
+</div>
+	</div>
+<div class="vc_row-full-width vc_clearfix"></div>
+<div  data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-false  attched-false     js-master-row  mk-grid">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	</div>
+	</div>
+
+<div  data-mk-full-width="true" data-mk-full-width-init="false" data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-true  attched-false    vc_custom_1652882961223  js-master-row vc_hidden-lg vc_hidden-xs vc_hidden-sm vc_hidden-md mk-full-content-true">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<h2 style="color: #ffffff;text-align: center" class="vc_custom_heading vc_do_custom_heading vc_custom_1524076809906" >WHAT'S NEW</h2>	<div class=" vc_custom_1652326519044">
+
+<div id="text-block-44" class="mk-text-block  jupiter-donut- ">
+
+	
+	<p>[insta-gallery id=&#8221;0&#8243;]</p>
+
+	<div class="clearboth"></div>
+</div>
+
+	</div>
+
+<div id="padding-45" class="mk-padding-divider jupiter-donut-  jupiter-donut-clearfix"></div>
+
+</div>
+	</div>
+<div class="vc_row-full-width vc_clearfix"></div>
+<div  id="#Map" data-mk-full-width="true" data-mk-full-width-init="false" data-mk-stretch-content="true" class="wpb_row vc_row vc_row-fluid jupiter-donut- mk-fullwidth-true  attched-false #Map    js-master-row  mk-full-content-true">
+				
+<div class="vc_col-sm-12 wpb_column column_container  jupiter-donut- _ jupiter-donut-height-full">
+	<div id="mk-advanced-gmaps-47" class="mk-advanced-gmaps  jupiter-donut-  js-el" 
+	style="height: 350px;"
+	data-mk-component='[ "AdvancedGMaps" ]'
+	data-AdvancedGMaps-config='{"places":[{"address":"4542 30th St San Diego, Calif 92116","latitude":"32.7600187","longitude":"-117.13054260000001","marker":"http:\/\/fallbrewingcompany.com\/wp-content\/uploads\/2021\/09\/map-brewery-1.png"},{"address":"3010 Juniper St. San Diego, Calif 92104","latitude":"32.7298239","longitude":"-117.1315553","marker":"http:\/\/fallbrewingcompany.com\/wp-content\/uploads\/2021\/09\/map-brewery-1.png"},{"address":"9550 Distribution Ave San Diego, Calif 92121","latitude":"32.880450","longitude":"-117.163740","marker":"http:\/\/fallbrewingcompany.com\/wp-content\/uploads\/2021\/09\/map-brewery-1.png"}],"options":{"zoom":10,"draggable":true,"panControl":true,"zoomControl":true,"scaleControl":true,"mapTypeControl":true,"mapTypeId":"ROADMAP","apikey":"AIzaSyDazBXKUOLpK35-pGCRgyDrLxnnSP51qf4"},"style":[{"stylers":[{"color":"#c0c0c0"}]},{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}],"icon":"http:\/\/www.tahoedesigngroup.com\/fall\/wp-content\/uploads\/2018\/04\/mappy.png"}'
+></div></div>
+	</div>
+<div class="vc_row-full-width vc_clearfix"></div>
+</div>		<div class="clearboth"></div>
+									<div class="clearboth"></div>
+											</div>
+										<div class="clearboth"></div>
+				</div>
+			</div>
+					</div>
+
+
+<section id="mk-footer-unfold-spacer"></section>
+
+<section id="mk-footer" class="" role="contentinfo" itemscope="itemscope" itemtype="https://schema.org/WPFooter" >
+		<div class="footer-wrapper mk-grid">
+		<div class="mk-padding-wrapper">
+					<div class="mk-col-1-4"><section id="custom_html-7" class="widget_text widget widget_custom_html"><div class="widgettitle">Headquarters Hours</div><div class="textwidget custom-html-widget"><strong>Fall Brewing Company</strong><br>
+<strong>(Brewery + Tasting Room)</strong><br>
+Mon-Sat 11a-9p<br>
+Sunday 11a-8p<br>
+9550 Distribution Ave<br>
+San Diego, Calif<br>
+92121<br></div></section></div>
+			<div class="mk-col-1-4"><section id="custom_html-5" class="widget_text widget widget_custom_html"><div class="widgettitle">Brewery Hours</div><div class="textwidget custom-html-widget"><strong>Fall Brewing Company</strong><br>
+<strong>(Brewery Location)</strong><br>
+Sun-Thrs 11-10pm<br>
+Fri-Sat 11-12am<br>
+4542 30th St<br>
+San Diego, Calif<br>
+92116<br>
+
+</div></section></div>
+			<div class="mk-col-1-4"><section id="custom_html-6" class="widget_text widget widget_custom_html"><div class="widgettitle">Tasting Room Hours</div><div class="textwidget custom-html-widget"><strong>Fall Brewing Company</strong><br>
+<strong>(Golden Rhino Room)</strong><br>
+Sun-Thrs 12-10pm<br>
+Fri-Sat 12-12am<br>
+3010 Juniper St.<br>
+San Diego, Calif<br>
+92104<br></div></section></div>
+			<div class="mk-col-1-4"><section id="custom_html-4" class="widget_text widget widget_custom_html"><div class="widgettitle">menu</div><div class="textwidget custom-html-widget"><a href="/contact">CONTACT</a><br>
+<a href="/press">PRESS</a><br>
+<a href="/faq">FAQ</a><br>
+<a href="/beer">BEER</a><br>
+<a href="/find">FIND</a><br>
+<a href="/brewery">BREWERY</a><br>
+<a href="https://shop.fallbrewingcompany.com/collections/all">MERCH</a><br>
+<a href="/">HOME</a></div></section></div>
+				<div class="clearboth"></div>
+		</div>
+	</div>
+		
+<div id="sub-footer">
+	<div class=" mk-grid">
+		
+		<span class="mk-footer-copyright">© FALL BREWING COMPANY  ALL RIGHTS RESERVED </span>
+			</div>
+	<div class="clearboth"></div>
+</div>
+</section>
+</div>
+</div>
+
+<div class="bottom-corner-btns js-bottom-corner-btns">
+
+<a href="#top-of-page" class="mk-go-top  js-smooth-scroll js-bottom-corner-btn js-bottom-corner-btn--back">
+	<svg  class="mk-svg-icon" data-name="mk-icon-chevron-up" data-cacheid="icon-69e53a846fd43" style=" height:16px; width: 16px; "  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1792 1792"><path d="M1683 1331l-166 165q-19 19-45 19t-45-19l-531-531-531 531q-19 19-45 19t-45-19l-166-165q-19-19-19-45.5t19-45.5l742-741q19-19 45-19t45 19l742 741q19 19 19 45.5t-19 45.5z"/></svg></a>
+</div>
+
+
+
+
+	<style type='text/css'></style>
+		<script>
+			window.RS_MODULES = window.RS_MODULES || {};
+			window.RS_MODULES.modules = window.RS_MODULES.modules || {};
+			window.RS_MODULES.waiting = window.RS_MODULES.waiting || [];
+			window.RS_MODULES.defered = true;
+			window.RS_MODULES.moduleWaiting = window.RS_MODULES.moduleWaiting || {};
+			window.RS_MODULES.type = 'compiled';
+		</script>
+		<style id="mk-shortcode-static-styles" type="text/css"> #padding-4 { height:0px; } #padding-5 { height:0px; } .full-width-2 { min-height:0px; margin-bottom:0px; } .full-width-2 .page-section-content { padding:0px 0 0px; } #background-layer--2 { ; background-position:center center; background-repeat:no-repeat; ; } #background-layer--2 .mk-color-layer { ; width:100%; height:100%; position:absolute; top:0; left:0; }  #padding-8 { height:0px; } #padding-9 { height:0px; } .full-width-6 { min-height:0px; margin-bottom:0px; } .full-width-6 .page-section-content { padding:0px 0 0px; } #background-layer--6 { ; background-position:center center; background-repeat:no-repeat; ; } #background-layer--6 .mk-color-layer { ; width:100%; height:100%; position:absolute; top:0; left:0; }  #padding-11 { height:30px; }   #fancy-title-15{letter-spacing:6px;text-transform:uppercase;font-size:16px;color:#000000;text-align:center;font-style:inherit;font-weight:bold;padding-top:0px;padding-bottom:0px;}#fancy-title-15 span{}#fancy-title-15 span i{font-style:inherit;} @media handheld, only screen and (max-width:767px) { #fancy-title-15 { text-align:center !important; } } @media handheld, only screen and (min-width:768px) and (max-width:1024px) { #fancy-title-15 { font-size:25px; } } @media handheld, only screen and (max-width:767px) { #fancy-title-15 { font-size:20px; } } #text-block-16 { margin-bottom:0px; text-align:center; } #text-block-17 { margin-bottom:0px; text-align:center; }   #fancy-title-20{letter-spacing:4px;text-transform:uppercase;font-size:16px;color:#000000;text-align:center;font-style:inherit;font-weight:bold;padding-top:0px;padding-bottom:0px;}#fancy-title-20 span{}#fancy-title-20 span i{font-style:inherit;} @media handheld, only screen and (max-width:767px) { #fancy-title-20 { text-align:center !important; } } @media handheld, only screen and (min-width:768px) and (max-width:1024px) { #fancy-title-20 { font-size:25px; } } @media handheld, only screen and (max-width:767px) { #fancy-title-20 { font-size:20px; } } #text-block-21 { margin-bottom:0px; text-align:center; } #text-block-22 { margin-bottom:0px; text-align:center; }     #fancy-title-29{letter-spacing:6px;text-transform:uppercase;font-size:16px;color:#000000;text-align:center;font-style:inherit;font-weight:bold;padding-top:0px;padding-bottom:0px;}#fancy-title-29 span{}#fancy-title-29 span i{font-style:inherit;} @media handheld, only screen and (max-width:767px) { #fancy-title-29 { text-align:center !important; } } @media handheld, only screen and (min-width:768px) and (max-width:1024px) { #fancy-title-29 { font-size:25px; } } @media handheld, only screen and (max-width:767px) { #fancy-title-29 { font-size:20px; } } #text-block-30 { margin-bottom:0px; text-align:center; } #text-block-31 { margin-bottom:0px; text-align:center; }  #padding-34 { height:10px; } #gallery-loop-35 { margin-bottom:20px; margin-top:8px; } #gallery-loop-35 .item-holder{ margin:0 4px 8px; } #gallery-loop-35 .image-hover-overlay { } #gallery-loop-35 .hover-grayscale .image-hover-overlay img { filter:url('https://fallbrewingcompany.com/wp-content/plugins/jupiter-donut/assets/grayscale.svg#greyscale'); } .full-width-32 { min-height:880px; margin-bottom:0px; } .full-width-32 .page-section-content { padding:0px 0 0px; } #background-layer--32 { ; background-position:left top; background-repeat:no-repeat; ; } #background-layer--32 .mk-color-layer { ; width:100%; height:100%; position:absolute; top:0; left:0; }  #padding-37 { height:20px; }  #padding-39 { height:40px; } #fancy-title-40{letter-spacing:6px;text-transform:uppercase;font-size:16px;color:#000000;text-align:center;font-style:inherit;font-weight:bold;padding-top:0px;padding-bottom:0px;}#fancy-title-40 span{}#fancy-title-40 span i{font-style:inherit;} @media handheld, only screen and (max-width:767px) { #fancy-title-40 { text-align:center !important; } } #mk-button-41 { margin-bottom:15px; margin-top:0px; margin-right:15px; } #mk-button-41 .mk-button span{ letter-spacing:2px; margin-right:-2px; display:inline-block; } #mk-button-41 .mk-button { display:inline-block; max-width:100%; } #mk-button-41 .mk-button { width:200px; } #mk-button-41 .mk-button { background-color:#000000; } #mk-button-41 .mk-button:hover { } #mk-button-41 .mk-button:hover .mk-svg-icon { }   #text-block-44 { margin-bottom:0px; text-align:left; } #padding-45 { height:40px; }  #mk-advanced-gmaps-47 .gm-style-iw, #mk-advanced-gmaps-47 .gm-style-iw .poi-info-window *:not(.renderable-component-text-box-content) { background-color:#4f4f4f; } #mk-advanced-gmaps-47 .gm-style > div:nth-child(1) > div:last-child > div:last-child > div > div:first-child > div:last-child { background-color:#4f4f4f !important; } #mk-advanced-gmaps-47 .gm-style > div:nth-child(1) > div:last-child > div:last-child > div > div:first-child > div:nth-child(3) > div > div { background-color:#4f4f4f !important; } #mk-advanced-gmaps-47 .gm-style-iw .info_content p, #mk-advanced-gmaps-47 .gm-style-iw .info_content p strong { color:#fff; } #mk-advanced-gmaps-47 .gm-style-iw .poi-info-window *:not(.renderable-component-text-box-content) { color:#fff; }</style><script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/jupiter-child/*","/wp-content/themes/jupiter/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<script>
+              (function(e){
+                  var el = document.createElement('script');
+                  el.setAttribute('data-account', 'Rkur1kpmOA');
+                  el.setAttribute('src', 'https://cdn.userway.org/widget.js');
+                  document.body.appendChild(el);
+                })();
+              </script>
+<!-- Consent Management powered by Complianz | GDPR/CCPA Cookie Consent https://wordpress.org/plugins/complianz-gdpr -->
+<div id="cmplz-cookiebanner-container"><div class="cmplz-cookiebanner cmplz-hidden banner-1 bottom-right-view-preferences optout cmplz-bottom-left cmplz-categories-type-view-preferences" aria-modal="true" data-nosnippet="true" role="dialog" aria-live="polite" aria-labelledby="cmplz-header-1-optout" aria-describedby="cmplz-message-1-optout">
+	<div class="cmplz-header">
+		<div class="cmplz-logo"></div>
+		<div class="cmplz-title" id="cmplz-header-1-optout">Manage Cookie Consent</div>
+		<div class="cmplz-close" tabindex="0" role="button" aria-label="Close dialog">
+			<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+		</div>
+	</div>
+
+	<div class="cmplz-divider cmplz-divider-header"></div>
+	<div class="cmplz-body">
+		<div class="cmplz-message" id="cmplz-message-1-optout">To provide the best experiences, we use technologies like cookies to store and/or access device information. Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. Not consenting or withdrawing consent, may adversely affect certain features and functions.</div>
+		<!-- categories start -->
+		<div class="cmplz-categories">
+			<details class="cmplz-category cmplz-functional" >
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Functional</span>
+							<span class='cmplz-always-active'>
+								<span class="cmplz-banner-checkbox">
+									<input type="checkbox"
+										   id="cmplz-functional-optout"
+										   data-category="cmplz_functional"
+										   class="cmplz-consent-checkbox cmplz-functional"
+										   size="40"
+										   value="1"/>
+									<label class="cmplz-label" for="cmplz-functional-optout"><span class="screen-reader-text">Functional</span></label>
+								</span>
+								Always active							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"  height="18" ><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-functional">The technical storage or access is strictly necessary for the legitimate purpose of enabling the use of a specific service explicitly requested by the subscriber or user, or for the sole purpose of carrying out the transmission of a communication over an electronic communications network.</span>
+				</div>
+			</details>
+
+			<details class="cmplz-category cmplz-preferences" >
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Preferences</span>
+							<span class="cmplz-banner-checkbox">
+								<input type="checkbox"
+									   id="cmplz-preferences-optout"
+									   data-category="cmplz_preferences"
+									   class="cmplz-consent-checkbox cmplz-preferences"
+									   size="40"
+									   value="1"/>
+								<label class="cmplz-label" for="cmplz-preferences-optout"><span class="screen-reader-text">Preferences</span></label>
+							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"  height="18" ><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-preferences">The technical storage or access is necessary for the legitimate purpose of storing preferences that are not requested by the subscriber or user.</span>
+				</div>
+			</details>
+
+			<details class="cmplz-category cmplz-statistics" >
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Statistics</span>
+							<span class="cmplz-banner-checkbox">
+								<input type="checkbox"
+									   id="cmplz-statistics-optout"
+									   data-category="cmplz_statistics"
+									   class="cmplz-consent-checkbox cmplz-statistics"
+									   size="40"
+									   value="1"/>
+								<label class="cmplz-label" for="cmplz-statistics-optout"><span class="screen-reader-text">Statistics</span></label>
+							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"  height="18" ><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-statistics">The technical storage or access that is used exclusively for statistical purposes.</span>
+					<span class="cmplz-description-statistics-anonymous">The technical storage or access that is used exclusively for anonymous statistical purposes. Without a subpoena, voluntary compliance on the part of your Internet Service Provider, or additional records from a third party, information stored or retrieved for this purpose alone cannot usually be used to identify you.</span>
+				</div>
+			</details>
+			<details class="cmplz-category cmplz-marketing" >
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Marketing</span>
+							<span class="cmplz-banner-checkbox">
+								<input type="checkbox"
+									   id="cmplz-marketing-optout"
+									   data-category="cmplz_marketing"
+									   class="cmplz-consent-checkbox cmplz-marketing"
+									   size="40"
+									   value="1"/>
+								<label class="cmplz-label" for="cmplz-marketing-optout"><span class="screen-reader-text">Marketing</span></label>
+							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"  height="18" ><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-marketing">The technical storage or access is required to create user profiles to send advertising, or to track the user on a website or across several websites for similar marketing purposes.</span>
+				</div>
+			</details>
+		</div><!-- categories end -->
+			</div>
+
+	<div class="cmplz-links cmplz-information">
+		<ul>
+			<li><a class="cmplz-link cmplz-manage-options cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">Manage options</a></li>
+			<li><a class="cmplz-link cmplz-manage-third-parties cookie-statement" href="#" data-relative_url="#cmplz-cookies-overview">Manage services</a></li>
+			<li><a class="cmplz-link cmplz-manage-vendors tcf cookie-statement" href="#" data-relative_url="#cmplz-tcf-wrapper">Manage {vendor_count} vendors</a></li>
+			<li><a class="cmplz-link cmplz-external cmplz-read-more-purposes tcf" target="_blank" rel="noopener noreferrer nofollow" href="https://cookiedatabase.org/tcf/purposes/" aria-label="Read more about TCF purposes on Cookie Database">Read more about these purposes</a></li>
+		</ul>
+			</div>
+
+	<div class="cmplz-divider cmplz-footer"></div>
+
+	<div class="cmplz-buttons">
+		<button class="cmplz-btn cmplz-accept">Accept</button>
+		<button class="cmplz-btn cmplz-deny">Deny</button>
+		<button class="cmplz-btn cmplz-view-preferences">View preferences</button>
+		<button class="cmplz-btn cmplz-save-preferences">Save preferences</button>
+		<a class="cmplz-btn cmplz-manage-options tcf cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">View preferences</a>
+			</div>
+
+	
+	<div class="cmplz-documents cmplz-links">
+		<ul>
+			<li><a class="cmplz-link cookie-statement" href="#" data-relative_url="">{title}</a></li>
+			<li><a class="cmplz-link privacy-statement" href="#" data-relative_url="">{title}</a></li>
+			<li><a class="cmplz-link impressum" href="#" data-relative_url="">{title}</a></li>
+		</ul>
+			</div>
+</div>
+</div>
+					<div id="cmplz-manage-consent" data-nosnippet="true"><button class="cmplz-btn cmplz-hidden cmplz-manage-consent manage-consent-1">Manage consent</button>
+
+</div><script type="text/javascript">
+    php = {
+        hasAdminbar: false,
+        json: (null != null) ? null : "",
+        jsPath: 'https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/js'
+      };
+    </script><script type="text/html" id="wpb-modifications"> window.wpbCustomElement = 1; </script><link href="//fonts.googleapis.com/css?family=Roboto:400&display=swap" rel="stylesheet" property="stylesheet" media="all" type="text/css" >
+
+<script>
+		if(typeof revslider_showDoubleJqueryError === "undefined") {function revslider_showDoubleJqueryError(sliderID) {console.log("You have some jquery.js library include that comes after the Slider Revolution files js inclusion.");console.log("To fix this, you can:");console.log("1. Set 'Module General Options' -> 'Advanced' -> 'jQuery & OutPut Filters' -> 'Put JS to Body' to on");console.log("2. Find the double jQuery.js inclusion and remove it");return "Double Included jQuery Library";}}
+</script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/plugins/age-checker/inc/assets/js/js.js?ver=1.0.5" id="agc_js-js"></script>
+<script type="text/javascript" id="agc_initialize-js-extra">
+/* <![CDATA[ */
+var agc = {"url":"https://fallbrewingcompany.com/wp-content/plugins/age-checker/","admin_ajax":"https://fallbrewingcompany.com/wp-admin/admin-ajax.php"};
+//# sourceURL=agc_initialize-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/plugins/age-checker/inc/assets/js/initialize.js?ver=1.0.5" id="agc_initialize-js"></script>
+<script type="text/javascript" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/js/rbtools.min.js?ver=6.7.14" defer async id="tp-tools-js"></script>
+<script type="text/javascript" src="//fallbrewingcompany.com/wp-content/plugins/revslider/sr6/assets/js/rs6.min.js?ver=6.7.14" defer async id="revmin-js"></script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/js/plugins/wp-enqueue/min/smoothscroll.js?ver=1689125619" id="smoothscroll-js"></script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/themes/jupiter/assets/js/min/full-scripts.6.10.5.js?ver=1689125619" id="theme-scripts-js"></script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/themes/jupiter/header-builder/includes/assets/js/mkhb-render.js?ver=6.10.5" id="mkhb-render-js"></script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/themes/jupiter/header-builder/includes/assets/js/mkhb-column.js?ver=6.10.5" id="mkhb-column-js"></script>
+<script type="text/javascript" id="jupiter-donut-shortcodes-js-extra">
+/* <![CDATA[ */
+var jupiterDonutVars = {"themeDir":"https://fallbrewingcompany.com/wp-content/themes/jupiter","assetsUrl":"https://fallbrewingcompany.com/wp-content/plugins/jupiter-donut/assets","gridWidth":"1140","ajaxUrl":"https://fallbrewingcompany.com/wp-admin/admin-ajax.php","nonce":"d592c7857a"};
+//# sourceURL=jupiter-donut-shortcodes-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/plugins/jupiter-donut/assets/js/shortcodes-scripts.min.js?ver=1.6.5" id="jupiter-donut-shortcodes-js"></script>
+<script type="text/javascript" id="cmplz-cookiebanner-js-extra">
+/* <![CDATA[ */
+var complianz = {"prefix":"cmplz_","user_banner_id":"1","set_cookies":[],"block_ajax_content":"","banner_version":"20","version":"7.4.5","store_consent":"","do_not_track_enabled":"","consenttype":"optout","region":"us","geoip":"","dismiss_timeout":"5000","disable_cookiebanner":"","soft_cookiewall":"","dismiss_on_scroll":"1","cookie_expiry":"365","url":"https://fallbrewingcompany.com/wp-json/complianz/v1/","locale":"lang=en&locale=en","set_cookies_on_root":"","cookie_domain":"","current_policy_id":"16","cookie_path":"/","categories":{"statistics":"statistics","marketing":"marketing"},"tcf_active":"","placeholdertext":"Click to accept {category} cookies and enable this content","css_file":"https://fallbrewingcompany.com/wp-content/uploads/complianz/css/banner-{banner_id}-{type}.css?v=20","page_links":{"us":{"cookie-statement":{"title":"","url":"https://fallbrewingcompany.com/"}}},"tm_categories":"","forceEnableStats":"","preview":"","clean_cookies":"","aria_label":"Click to accept {category} cookies and enable this content"};
+//# sourceURL=cmplz-cookiebanner-js-extra
+/* ]]> */
+</script>
+<script defer type="text/javascript" src="https://fallbrewingcompany.com/wp-content/plugins/complianz-gdpr/cookiebanner/js/complianz.min.js?ver=1773950420" id="cmplz-cookiebanner-js"></script>
+<script type="text/javascript" src="https://fallbrewingcompany.com/wp-content/plugins/js_composer_theme/assets/js/dist/js_composer_front.min.js?ver=8.7.2.1" id="wpb_composer_front_js-js"></script>
+<script></script><script id="rs-initialisation-scripts">
+		var	tpj = jQuery;
+
+		var	revapi7,revapi7_2;
+
+		if(window.RS_MODULES === undefined) window.RS_MODULES = {};
+		if(RS_MODULES.modules === undefined) RS_MODULES.modules = {};
+		RS_MODULES.modules["revslider71"] = {once: RS_MODULES.modules["revslider71"]!==undefined ? RS_MODULES.modules["revslider71"].once : undefined, init:function() {
+			window.revapi7 = window.revapi7===undefined || window.revapi7===null || window.revapi7.length===0  ? document.getElementById("rev_slider_7_1") : window.revapi7;
+			if(window.revapi7 === null || window.revapi7 === undefined || window.revapi7.length==0) { window.revapi7initTry = window.revapi7initTry ===undefined ? 0 : window.revapi7initTry+1; if (window.revapi7initTry<20) requestAnimationFrame(function() {RS_MODULES.modules["revslider71"].init()}); return;}
+			window.revapi7 = jQuery(window.revapi7);
+			if(window.revapi7.revolution==undefined){ revslider_showDoubleJqueryError("rev_slider_7_1"); return;}
+			revapi7.revolutionInit({
+					revapi:"revapi7",
+					DPR:"dpr",
+					sliderLayout:"fullwidth",
+					duration:6000,
+					visibilityLevels:"1240,1024,778,480",
+					gridwidth:1240,
+					gridheight:820,
+					lazyType:"smart",
+					spinner:"spinner0",
+					perspective:600,
+					perspectiveType:"local",
+					editorheight:"820,768,960,720",
+					responsiveLevels:"1240,1024,778,480",
+					progressBar:{disableProgressBar:true},
+					navigation: {
+						onHoverStop:false
+					},
+					viewPort: {
+						global:true,
+						globalDist:"-200px",
+						enable:false,
+						visible_area:"20%"
+					},
+					fallbacks: {
+						allowHTML5AutoPlayOnAndroid:true
+					},
+			});
+			
+		}} // End of RevInitScript
+
+		if(window.RS_MODULES === undefined) window.RS_MODULES = {};
+		if(RS_MODULES.modules === undefined) RS_MODULES.modules = {};
+		RS_MODULES.modules["revslider72"] = {once: RS_MODULES.modules["revslider72"]!==undefined ? RS_MODULES.modules["revslider72"].once : undefined, init:function() {
+			window.revapi7_2 = window.revapi7_2===undefined || window.revapi7_2===null || window.revapi7_2.length===0  ? document.getElementById("rev_slider_7_2") : window.revapi7_2;
+			if(window.revapi7_2 === null || window.revapi7_2 === undefined || window.revapi7_2.length==0) { window.revapi7_2initTry = window.revapi7_2initTry ===undefined ? 0 : window.revapi7_2initTry+1; if (window.revapi7_2initTry<20) requestAnimationFrame(function() {RS_MODULES.modules["revslider72"].init()}); return;}
+			window.revapi7_2 = jQuery(window.revapi7_2);
+			if(window.revapi7_2.revolution==undefined){ revslider_showDoubleJqueryError("rev_slider_7_2"); return;}
+			revapi7_2.revolutionInit({
+					revapi:"revapi7_2",
+					DPR:"dpr",
+					sliderLayout:"fullwidth",
+					duration:6000,
+					visibilityLevels:"1240,1024,778,480",
+					gridwidth:1240,
+					gridheight:820,
+					lazyType:"smart",
+					spinner:"spinner0",
+					perspective:600,
+					perspectiveType:"local",
+					editorheight:"820,768,960,720",
+					responsiveLevels:"1240,1024,778,480",
+					progressBar:{disableProgressBar:true},
+					navigation: {
+						onHoverStop:false
+					},
+					viewPort: {
+						global:true,
+						globalDist:"-200px",
+						enable:false,
+						visible_area:"20%"
+					},
+					fallbacks: {
+						allowHTML5AutoPlayOnAndroid:true
+					},
+			});
+			var revapi7 = revapi7_2;
+			
+		}} // End of RevInitScript
+
+		if (window.RS_MODULES.checkMinimal!==undefined) { window.RS_MODULES.checkMinimal();};
+	</script>
+<script type="text/javascript">	window.get = {};	window.get.captcha = function(enteredCaptcha) {
+                  return jQuery.get(ajaxurl, { action : "mk_validate_captcha_input", captcha: enteredCaptcha });
+              	};</script>		<script>'undefined'=== typeof _trfq || (window._trfq = []);'undefined'=== typeof _trfd && (window._trfd=[]),
+                _trfd.push({'tccl.baseHost':'secureserver.net'}),
+                _trfd.push({'ap':'wpaas_v2'},
+                    {'server':'9b062d396e2e'},
+                    {'pod':'c8-prod-p3-us-west-2'},
+                                        {'xid':'45770821'},
+                    {'wp':'6.9.4'},
+                    {'php':'8.2.30'},
+                    {'loggedin':'0'},
+                    {'cdn':'1'},
+                    {'builder':''},
+                    {'theme':'jupiter'},
+                    {'wds':'0'},
+                    {'wp_alloptions_count':'646'},
+                    {'wp_alloptions_bytes':'552014'},
+                    {'gdl_coming_soon_page':'0'}
+                    , {'appid':'60154'}                 );
+            var trafficScript = document.createElement('script'); trafficScript.src = 'https://img1.wsimg.com/signals/js/clients/scc-c2/scc-c2.min.js'; window.document.head.appendChild(trafficScript);</script>
+		<script>window.addEventListener('click', function (elem) { var _elem$target, _elem$target$dataset, _window, _window$_trfq; return (elem === null || elem === void 0 ? void 0 : (_elem$target = elem.target) === null || _elem$target === void 0 ? void 0 : (_elem$target$dataset = _elem$target.dataset) === null || _elem$target$dataset === void 0 ? void 0 : _elem$target$dataset.eid) && ((_window = window) === null || _window === void 0 ? void 0 : (_window$_trfq = _window._trfq) === null || _window$_trfq === void 0 ? void 0 : _window$_trfq.push(["cmdLogEvent", "click", elem.target.dataset.eid]));});</script>
+		<script src='https://img1.wsimg.com/traffic-assets/js/tccl-tti.min.js' onload="window.tti.calculateTTI()"></script>
+		
+	
+<!-- Default Statcounter code for Fallbrewing.com
+http://fallbrewing.com -->
+<script type="text/javascript">
+var sc_project=9853305; 
+var sc_invisible=1; 
+var sc_security="d61e8727"; 
+</script>
+<script type="text/javascript"
+src="https://www.statcounter.com/counter/counter.js"
+async></script>
+<noscript><div class="statcounter"><a title="web stats"
+href="https://statcounter.com/" target="_blank"><img
+class="statcounter"
+src="https://c.statcounter.com/9853305/0/d61e8727/1/"
+alt="web stats"
+referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
+<!-- End of Statcounter Code -->
+</body>
+</html>
