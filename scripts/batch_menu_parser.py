@@ -176,19 +176,19 @@ def process_restaurant(name, website_url):
         return None
 
 def main():
-    # Load first 10 restaurants
+    # Load all restaurants
     csv_path = Path(__file__).parent.parent / 'public' / 'happy_hours.csv'
     restaurants = []
     
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
-            if i >= 10:
-                break
+        for row in reader:
             restaurants.append({
                 'name': row['restaurant_name'],
                 'website': row.get('website_url', '')
             })
+    
+    print(f"Loaded {len(restaurants)} restaurants to process")
     
     print(f"Processing {len(restaurants)} restaurants...")
     
