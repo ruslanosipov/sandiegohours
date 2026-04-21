@@ -204,6 +204,32 @@ def main():
         # Delay between requests to be nice to APIs
         time.sleep(2)
     
+    # Write to CSV
+    menu_csv_path = Path(__file__).parent.parent / 'public' / 'menu_data.csv'
+    print(f"\nWriting results to {menu_csv_path}...")
+    
+    with open(menu_csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['restaurant_name', 'cheapest_drink', 'cheapest_drink_price', 
+                        'cheapest_food', 'cheapest_food_price', 'menu_summary'])
+        
+        for r in results:
+            data = r['data'] or {}
+            drink = data.get('drink', {}) or {}
+            food = data.get('food', {}) or {}
+            summary = data.get('short_summary', '')
+            
+            writer.writerow([
+                r['restaurant_name'],
+                drink.get('name', ''),
+                drink.get('price', ''),
+                food.get('name', ''),
+                food.get('price', ''),
+                summary
+            ])
+    
+    print(f"Saved {len(results)} restaurants to CSV")
+    
     # Print summary
     print(f"\n{'='*60}")
     print("BATCH SUMMARY")
