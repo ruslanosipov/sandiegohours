@@ -13,6 +13,12 @@ export interface HappyHourPlace {
   latitude?: string;
   longitude?: string;
   distance?: number; // in miles, calculated at runtime
+  // Menu data
+  cheapest_drink?: string;
+  cheapest_drink_price?: number;
+  cheapest_food?: string;
+  cheapest_food_price?: number;
+  menu_summary?: string;
 }
 
 export interface ParsedHappyHour {

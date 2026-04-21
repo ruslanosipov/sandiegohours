@@ -95,7 +95,7 @@ If no happy hour prices found, return null for drink and food, and empty string 
                 'https://openrouter.ai/api/v1/chat/completions',
                 headers=headers,
                 json={
-                    'model': 'openrouter/free',
+                    'model': 'google/gemini-2.5-flash-lite',
                     'messages': [
                         {'role': 'system', 'content': 'You are a menu parser. Extract happy hour items with prices. Return JSON only.'},
                         {'role': 'user', 'content': prompt}

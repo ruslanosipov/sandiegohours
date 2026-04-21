@@ -43,6 +43,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [expandedHappyHours, setExpandedHappyHours] = useState<Set<string>>(new Set());
 
   // Create a date object from selected day and time for accurate filtering
   const selectedDateTime = useMemo(() => {
@@ -304,9 +305,33 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                 <p className="text-sm text-gray-700 mb-3">{restaurant.address}</p>
 
                 {hasHH && (
-                  <div className={`text-sm p-3 rounded-md mb-3 ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
-                    <strong>Happy Hour:</strong>
-                    <div className="mt-1 space-y-0.5">
+                  <details 
+                    className="text-sm mb-3"
+                    open={expandedHappyHours.has(restaurant.restaurant_name)}
+                    onToggle={(e) => {
+                      const newSet = new Set(expandedHappyHours);
+                      if (e.currentTarget.open) {
+                        newSet.add(restaurant.restaurant_name);
+                      } else {
+                        newSet.delete(restaurant.restaurant_name);
+                      }
+                      setExpandedHappyHours(newSet);
+                    }}
+                  >
+                    <summary className={`cursor-pointer font-medium p-2 rounded-md ${isActive ? "bg-green-50 text-green-800 hover:bg-green-100" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}>
+                      Happy Hour
+                      {!expandedHappyHours.has(restaurant.restaurant_name) && (
+                        <span className="ml-2 text-gray-500 font-normal">
+                          {(() => {
+                            const todayLine = normalizeHappyHourTimes(restaurant.happy_hour_times)
+                              .split(" | ")
+                              .find(line => line.toLowerCase().startsWith(selectedDay.toLowerCase()));
+                            return todayLine ? `(${todayLine})` : '';
+                          })()}
+                        </span>
+                      )}
+                    </summary>
+                    <div className={`mt-2 p-3 rounded-md ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
                       {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => {
                         const dayName = line.split(':')[0].trim();
                         const isToday = dayName.toLowerCase() === selectedDay.toLowerCase();
@@ -319,6 +344,31 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                           </span>
                         );
                       })}
+                    </div>
+                  </details>
+                )}
+
+                {/* AI Menu Summary */}
+                {(restaurant.menu_summary || restaurant.cheapest_drink || restaurant.cheapest_food) && (
+                  <div className="bg-purple-50 p-3 rounded-md mb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-purple-600 text-lg">🍽️</span>
+                      <span className="font-medium text-purple-900">Happy Hour Deals</span>
+                    </div>
+                    {restaurant.menu_summary && (
+                      <p className="text-sm text-purple-800 mb-2">{restaurant.menu_summary}</p>
+                    )}
+                    <div className="flex flex-wrap gap-3 text-sm">
+                      {restaurant.cheapest_drink && (
+                        <span className="bg-white px-2 py-1 rounded text-purple-700">
+                          🍺 {restaurant.cheapest_drink}
+                        </span>
+                      )}
+                      {restaurant.cheapest_food && (
+                        <span className="bg-white px-2 py-1 rounded text-purple-700">
+                          🍔 {restaurant.cheapest_food}
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
