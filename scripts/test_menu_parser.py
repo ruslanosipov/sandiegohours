@@ -6,12 +6,13 @@ Test menu parser with The Hangout's happy hour menu.
 import requests
 import json
 import re
+import time
 
 # OpenRouter API key (same as scrape_websites_ai.py)
 API_KEY = "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"
 
 # The Hangout happy hour page
-MENU_URL = 'http://www.thehangoutrestaurantandbar.com/happy-hour-menu'
+MENU_URL = 'http://www.thehangoutrestaurantandbar.com/happy-hour'
 
 def fetch_menu():
     """Fetch menu HTML."""
@@ -33,8 +34,8 @@ def clean_html(html):
     html = re.sub(r'\s+', ' ', html)
     return html[:8000]  # Limit length
 
-def parse_with_ai(text_content):
-    """Send to OpenRouter AI."""
+def parse_with_ai(text_content, max_retries=3):
+    """Send to OpenRouter AI with retry logic."""
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "HTTP-Referer": "https://happy-hour-finder.local",
@@ -63,22 +64,35 @@ Examples:
 
 Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown in examples. If no prices, use null."""
 
-    response = requests.post(
-        'https://openrouter.ai/api/v1/chat/completions',
-        headers=headers,
-        json={
-            'model': 'google/gemma-3-4b-it:free',
-            'messages': [
-                {'role': 'system', 'content': 'You are a menu parser. Extract happy hour items with prices. Return JSON only.'},
-                {'role': 'user', 'content': prompt}
-            ],
-            'temperature': 0.1,
-        },
-        timeout=60
-    )
-    
-    response.raise_for_status()
-    data = response.json()
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                'https://openrouter.ai/api/v1/chat/completions',
+                headers=headers,
+                json={
+                    'model': 'google/gemma-3-4b-it:free',
+                    'messages': [
+                        {'role': 'system', 'content': 'You are a menu parser. Extract happy hour items with prices. Return JSON only.'},
+                        {'role': 'user', 'content': prompt}
+                    ],
+                    'temperature': 0.1,
+                },
+                timeout=60
+            )
+            
+            if response.status_code == 429:
+                print(f"Rate limited, waiting {2 ** attempt}s...")
+                time.sleep(2 ** attempt)  # Exponential backoff
+                continue
+                
+            response.raise_for_status()
+            data = response.json()
+            break
+        except requests.exceptions.RequestException as e:
+            if attempt == max_retries - 1:
+                raise
+            print(f"Request failed: {e}, retrying...")
+            time.sleep(2 ** attempt)
     
     content = data['choices'][0]['message']['content']
     
