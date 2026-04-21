@@ -38,7 +38,18 @@ class CSVManager:
                 cleaned = {k: v if v != '' else None for k, v in row.items()}
                 # Filter to only fields in the dataclass
                 valid_fields = {f.name for f in model_class.__dataclass_fields__.values()}
-                filtered = {k: v for k, v in cleaned.items() if k in valid_fields}
+                filtered = {}
+                for k, v in cleaned.items():
+                    if k in valid_fields:
+                        # Handle None values for numeric fields
+                        field_info = model_class.__dataclass_fields__.get(k)
+                        if field_info and 'Optional[float]' in str(field_info.type):
+                            try:
+                                filtered[k] = float(v) if v is not None else None
+                            except (ValueError, TypeError):
+                                filtered[k] = None
+                        else:
+                            filtered[k] = v
                 results.append(model_class(**filtered))
         
         return results

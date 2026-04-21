@@ -1,7 +1,7 @@
 """
 Data models for the happy hour pipeline.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Optional, List
 from datetime import datetime
 
