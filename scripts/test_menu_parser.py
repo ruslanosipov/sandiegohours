@@ -11,15 +11,79 @@ import time
 # OpenRouter API key (same as scrape_websites_ai.py)
 API_KEY = "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"
 
-# The Hangout happy hour page
-MENU_URL = 'http://www.thehangoutrestaurantandbar.com/happy-hour'
+BASE_URL = 'http://www.thehangoutrestaurantandbar.com'
 
-def fetch_menu():
-    """Fetch menu HTML."""
+# Priority order: happy hour first, then menu pages
+PRIORITY_PATHS = [
+    '/happy-hour',
+    '/happyhour', 
+    '/hh',
+    '/specials',
+    '/menu',
+    '/drinks',
+    '/bar',
+]
+
+def find_menu_page(base_url):
+    """Find happy hour or menu page by checking priority paths and links."""
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
-    response = requests.get(MENU_URL, headers=headers, timeout=30)
+    
+    # First, try priority paths directly
+    print("Checking priority paths...")
+    for path in PRIORITY_PATHS:
+        url = f"{base_url}{path}"
+        try:
+            response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
+            if response.status_code == 200:
+                print(f"Found: {url}")
+                return url
+        except:
+            pass
+    
+    # If no direct hits, scrape the homepage for links
+    print("Searching homepage for menu links...")
+    try:
+        response = requests.get(base_url, headers=headers, timeout=30)
+        response.raise_for_status()
+        html = response.text.lower()
+        
+        # Look for happy hour links
+        hh_patterns = [
+            r'href="([^"]*happy[-_]?hour[^"]*)"',
+            r'href="([^"]*hh[^"]*)"',
+            r'href="([^"]*specials[^"]*)"',
+            r'href="([^"]*menu[^"]*)"',
+            r'href="([^"]*drinks[^"]*)"',
+        ]
+        
+        for pattern in hh_patterns:
+            matches = re.findall(pattern, html)
+            for match in matches:
+                # Handle relative and absolute URLs
+                if match.startswith('http'):
+                    return match
+                elif match.startswith('/'):
+                    return f"{base_url}{match}"
+                else:
+                    return f"{base_url}/{match}"
+    except Exception as e:
+        print(f"Error searching homepage: {e}")
+    
+    # Fallback: return base URL and let AI parse the homepage
+    print("No menu page found, using homepage")
+    return base_url
+
+def fetch_menu():
+    """Fetch menu HTML from discovered page."""
+    menu_url = find_menu_page(BASE_URL)
+    print(f"Fetching: {menu_url}")
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    response = requests.get(menu_url, headers=headers, timeout=30)
     response.raise_for_status()
     return response.text
 
