@@ -81,9 +81,13 @@ Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown 
             )
             
             if response.status_code == 429:
-                print(f"Rate limited, waiting {2 ** attempt}s...")
-                time.sleep(2 ** attempt)  # Exponential backoff
-                continue
+                if attempt < max_retries - 1:
+                    wait = 2 ** (attempt + 1)
+                    print(f"Rate limited, waiting {wait}s...")
+                    time.sleep(wait)  # Exponential backoff
+                    continue
+                else:
+                    raise Exception("Rate limited after max retries")
                 
             response.raise_for_status()
             data = response.json()
@@ -92,7 +96,7 @@ Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown 
             if attempt == max_retries - 1:
                 raise
             print(f"Request failed: {e}, retrying...")
-            time.sleep(2 ** attempt)
+            time.sleep(2 ** (attempt + 1))
     
     content = data['choices'][0]['message']['content']
     
