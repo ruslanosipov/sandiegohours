@@ -55,14 +55,21 @@ Extract drink and food items with prices. Look for patterns like:
 Return JSON in this exact format:
 {{
   "drink": {{"name": "item name with price", "price": 5.00}},
-  "food": {{"name": "item name with price", "price": 6.00}}
+  "food": {{"name": "item name with price", "price": 6.00}},
+  "short_summary": "$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
 }}
 
 Examples:
-{{"drink": {{"name": "$5 bottled beer", "price": 5}}, "food": {{"name": "$1 wings", "price": 1}}}}
-{{"drink": {{"name": "$7 draft pours", "price": 7}}, "food": {{"name": "$3 chicken sliders", "price": 3}}}}
+{{"drink": {{"name": "$5 bottled beer", "price": 5}}, "food": {{"name": "$1 wings", "price": 1}}, "short_summary": "$1 wings, $3 sliders, $5 bottled and $7 cocktails"}}
+{{"drink": {{"name": "$7 draft pours", "price": 7}}, "food": {{"name": "$3 chicken sliders", "price": 3}}, "short_summary": "$3 sliders, $6 nachos, $7 draft and $9 cocktails"}}
 
-Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown in examples. If no prices, use null."""
+Rules:
+- Find the CHEAPEST drink and CHEAPEST food item
+- short_summary must be UNDER 20 words
+- Order by price: drinks and foods mixed, cheapest first
+- Example: "$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+
+If no prices, use null."""
 
     for attempt in range(max_retries):
         try:
@@ -124,6 +131,8 @@ def main():
     print("\n=== CHEAPEST ITEMS ===")
     print(f"Drink: {result.get('drink', 'Not found')}")
     print(f"Food: {result.get('food', 'Not found')}")
+    print(f"\nSummary: {result.get('short_summary', 'N/A')}")
+    print(f"Summary word count: {len(result.get('short_summary', '').split())}")
     
     return result
 
