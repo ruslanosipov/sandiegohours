@@ -16,6 +16,7 @@ from typing import Optional
 from storage import CSVManager, Restaurant, ProcessingState
 from ai import OpenRouterClient
 from fetchers import WebsiteFetcher
+from fetchers.google_places import fetch_92116_restaurants
 from processors import HappyHourProcessor, MenuProcessor
 
 
@@ -57,13 +58,41 @@ def print_step(step_name: str):
 
 
 def step_fetch_restaurants(storage: CSVManager) -> list:
-    """Load restaurants from CSV."""
-    print_step("Load Restaurants")
+    """Fetch restaurants from Google Places API or load from CSV."""
+    print_step("Fetch Restaurants from Google Places")
     
-    restaurants = storage.read('happy_hours.csv', Restaurant)
-    print(f"Loaded {len(restaurants)} restaurants")
+    # Check if we should refresh from API or use existing
+    csv_path = DATA_DIR / 'happy_hours.csv'
+    if csv_path.exists():
+        print(f"Found existing {csv_path}")
+        response = input("Refresh from Google Places API? (y/N): ")
+        if response.lower() != 'y':
+            print("Loading from CSV...")
+            restaurants = storage.read('happy_hours.csv', Restaurant)
+            print(f"Loaded {len(restaurants)} restaurants")
+            return restaurants
     
-    return restaurants
+    print("Fetching from Google Places API...")
+    try:
+        restaurants = fetch_92116_restaurants()
+        
+        # Set freshness date
+        from datetime import datetime
+        for r in restaurants:
+            r.freshness_date = datetime.now().isoformat()[:10]
+        
+        # Save immediately
+        storage.write('happy_hours.csv', restaurants)
+        print(f"Saved {len(restaurants)} restaurants to happy_hours.csv")
+        
+        return restaurants
+        
+    except Exception as e:
+        print(f"{RED}Error fetching from API: {e}{RESET}")
+        print("Falling back to CSV...")
+        restaurants = storage.read('happy_hours.csv', Restaurant)
+        print(f"Loaded {len(restaurants)} restaurants")
+        return restaurants
 
 
 def step_parse_happy_hours(restaurants: list, storage: CSVManager) -> list:
@@ -175,11 +204,11 @@ def run_pipeline(start_step: str = 'load', resume: bool = False):
         start_step = progress.step
     
     # Define step order
-    steps = ['load', 'parse_happy_hours', 'parse_menus', 'summary']
+    steps = ['fetch', 'parse_happy_hours', 'parse_menus', 'summary']
     
     try:
         # Execute steps
-        if start_step in ['load', 'parse_happy_hours', 'parse_menus', 'summary']:
+        if start_step in ['fetch', 'parse_happy_hours', 'parse_menus', 'summary']:
             restaurants = step_fetch_restaurants(storage)
             save_progress(ProcessingState('parse_happy_hours'))
         else:
@@ -221,7 +250,7 @@ def main():
     )
     parser.add_argument(
         '--step',
-        choices=['load', 'parse_happy_hours', 'parse_menus', 'summary'],
+        choices=['fetch', 'parse_happy_hours', 'parse_menus', 'summary'],
         help='Start from specific step'
     )
     parser.add_argument(
