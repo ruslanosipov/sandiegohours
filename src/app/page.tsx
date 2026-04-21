@@ -15,9 +15,24 @@ interface Restaurant {
   price_level: string;
   source: string;
   freshness_date: string;
+  cheapest_drink?: string;
+  cheapest_drink_price?: number;
+  cheapest_food?: string;
+  cheapest_food_price?: number;
+  menu_summary?: string;
+}
+
+interface MenuData {
+  restaurant_name: string;
+  cheapest_drink: string;
+  cheapest_drink_price: string;
+  cheapest_food: string;
+  cheapest_food_price: string;
+  menu_summary: string;
 }
 
 async function getRestaurants(): Promise<Restaurant[]> {
+  // Load main restaurant data
   const csvPath = path.join(process.cwd(), 'public', 'happy_hours.csv');
   const fileContent = await fs.readFile(csvPath, 'utf-8');
   
@@ -25,6 +40,34 @@ async function getRestaurants(): Promise<Restaurant[]> {
     columns: true,
     skip_empty_lines: true,
   }) as Restaurant[];
+  
+  // Load menu data
+  try {
+    const menuCsvPath = path.join(process.cwd(), 'public', 'menu_data.csv');
+    const menuContent = await fs.readFile(menuCsvPath, 'utf-8');
+    const menuRecords = parse(menuContent, {
+      columns: true,
+      skip_empty_lines: true,
+    }) as MenuData[];
+    
+    // Create lookup map for menu data
+    const menuMap = new Map(menuRecords.map(m => [m.restaurant_name, m]));
+    
+    // Merge menu data into restaurants
+    for (const restaurant of records) {
+      const menu = menuMap.get(restaurant.restaurant_name);
+      if (menu) {
+        restaurant.cheapest_drink = menu.cheapest_drink || undefined;
+        restaurant.cheapest_drink_price = menu.cheapest_drink_price ? parseFloat(menu.cheapest_drink_price) : undefined;
+        restaurant.cheapest_food = menu.cheapest_food || undefined;
+        restaurant.cheapest_food_price = menu.cheapest_food_price ? parseFloat(menu.cheapest_food_price) : undefined;
+        restaurant.menu_summary = menu.menu_summary || undefined;
+      }
+    }
+  } catch (error) {
+    // menu_data.csv might not exist yet
+    console.log('Menu data not loaded yet:', error);
+  }
   
   return records;
 }
