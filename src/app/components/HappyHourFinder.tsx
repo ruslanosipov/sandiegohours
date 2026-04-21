@@ -307,9 +307,18 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                   <div className={`text-sm p-3 rounded-md mb-3 ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
                     <strong>Happy Hour:</strong>
                     <div className="mt-1 space-y-0.5">
-                      {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => (
-                        <span key={i} className="block leading-snug">{line}</span>
-                      ))}
+                      {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => {
+                        const dayName = line.split(':')[0].trim();
+                        const isToday = dayName.toLowerCase() === selectedDay.toLowerCase();
+                        return (
+                          <span 
+                            key={i} 
+                            className={`block leading-snug ${isToday ? 'font-bold text-gray-900' : ''}`}
+                          >
+                            {line}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
