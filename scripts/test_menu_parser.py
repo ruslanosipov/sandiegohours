@@ -4,10 +4,11 @@ Test menu parser with The Hangout's happy hour menu.
 """
 
 import requests
-import os
 import json
+import re
 
-API_KEY = os.environ.get('OPENROUTER_API_KEY', 'YOUR_KEY_HERE')
+# OpenRouter API key (same as scrape_websites_ai.py)
+API_KEY = "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"
 
 # The Hangout happy hour page
 MENU_URL = 'http://www.thehangoutrestaurantandbar.com/happy-hour-menu'
@@ -23,7 +24,6 @@ def fetch_menu():
 
 def clean_html(html):
     """Clean HTML to text."""
-    import re
     # Remove scripts and styles
     html = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL)
     html = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL)
@@ -35,6 +35,13 @@ def clean_html(html):
 
 def parse_with_ai(text_content):
     """Send to OpenRouter AI."""
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "HTTP-Referer": "https://happy-hour-finder.local",
+        "X-Title": "Happy Hour Finder",
+        "Content-Type": "application/json"
+    }
+    
     prompt = f"""Parse this happy hour menu from The Hangout Restaurant and Bar.
 
 Menu content:
@@ -58,10 +65,7 @@ Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown 
 
     response = requests.post(
         'https://openrouter.ai/api/v1/chat/completions',
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {API_KEY}',
-        },
+        headers=headers,
         json={
             'model': 'google/gemma-3-4b-it:free',
             'messages': [
@@ -79,7 +83,6 @@ Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown 
     content = data['choices'][0]['message']['content']
     
     # Extract JSON
-    import re
     json_match = re.search(r'```json\n?(.*?)\n?```', content, re.DOTALL) or \
                  re.search(r'```\n?(.*?)\n?```', content, re.DOTALL) or \
                  re.search(r'(\{[\s\S]*\})', content)
