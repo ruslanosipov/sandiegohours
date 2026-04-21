@@ -1,11 +1,13 @@
 restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,menu_summary
-The Hangout Restaurant and Bar,Bottle Beer,5.0,Wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
-The Rabbit Hole,Draft Beers + House Wines,6.0,Select Apps,0.0,"$6 Draft Beers, $7 Cocktails, and Half-Off Apps"
-Happy Medium,,,,,
-The Vibe,,,,,
-Swan Bar,,,,,
-Wormwood,,,,,
-Polite Provisions,$7 draft,7.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
-Kairoa Brewing Company,,,,,
-Monkey Bar,"draft beers, house cabernet and house chardonnay",7.0,wood-fired pizza,13.0,"$13 pizza, $7 draft beers, house cabernet and chardonnay"
-Whiskers & Wine Cat Cafe,SODA,3.5,Add-on: Assorted Chocolates,4.0,"$4 add-ons, $8 beer, $12 mimosas, $13 bloody meowy"
+The Ould Sod,draft beers and well drinks,5.5,,,$5.50 draft beers and well drinks
+The Rabbit Hole,Draft Beers + House Wines,6.0,Select Apps,,"$6 Draft Beers, $7 Cocktails, Half-Off Apps"
+DAO Fu,,,Miso Cup,3.5,"Steamed Tofu, Fried Tofu, Miso Cup"
+Paleo Treats,,,Protein Keto Donuts,9.0,Protein Keto Donuts
+ampm,12 oz COFFEE,0.99,CHEESECAKE BITES,1.0,"$1 cheesecake bites, $1 fountain drink, $1 freeze, 99¢ coffee"
+Et Voilà! French Bistro,Boont daylight amber,7.0,Side of fries,5.0,"Fries $5, Baguette $6, Amber $7, Cocktails $12"
+Venice Pizza House Since 1954,Beers,4.0,,,"Beers starting at $4, wine glasses starting at $5"
+Señor Mangos,Aguas Frescas,4.5,Cottage Cheese/Yogurt Cup,6.95,"Aguas Frescas $4.50, Cottage Cheese/Yogurt Cup $6.95"
+Giant Pizza King,Soda,1.5,14'' Pizza Cheese & One Topping Pizza Special Pick Up Only,11.99,"$11.99 pizza, $15.99 wings, $18.99 king plate, $26.99 special"
+Brothers Mexican Restaurant,$5 bottled beer,5.0,$6 chips and salsa,6.0,"$5 bottled beer, $7 draft, $8 cocktails, $6 chips and salsa"
+Bocas Del Sol. (MissShelly's Shack ),,,Bocas Bowl,10.0,"BBQ Quesadilla, Latina Nachos, Bocas Bowl, Crispy Fries"
+Savio's Pizza,Soda,1.99,Garlic Knots,5.99,"$5.99 garlic knots, $6.99 salads, $8 onion rings, $1.99 soda"
