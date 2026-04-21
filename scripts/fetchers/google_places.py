@@ -98,17 +98,37 @@ class GooglePlacesFetcher:
             opening_hours = ' | '.join(hours)
         
         # Format happy hours from secondary_opening_hours
+        # Google returns this as a list of dicts with 'open_now', 'weekday_text', etc.
         happy_hour_times = ""
         secondary_hours = source.get('secondary_opening_hours', {})
-        if isinstance(secondary_hours, dict) and secondary_hours.get('weekday_text'):
-            hh_list = secondary_hours['weekday_text']
-            if isinstance(hh_list, list):
-                happy_hour_times = ' | '.join(hh_list)
-                print(f"    Found happy hours: {happy_hour_times[:60]}...")
-        elif isinstance(secondary_hours, list):
-            # Handle list format
-            happy_hour_times = ' | '.join(secondary_hours)
-            print(f"    Found happy hours: {happy_hour_times[:60]}...")
+        try:
+            if isinstance(secondary_hours, dict):
+                # Could have periods, weekday_text, etc.
+                if 'weekday_text' in secondary_hours:
+                    hh_list = secondary_hours['weekday_text']
+                    if isinstance(hh_list, list) and len(hh_list) > 0:
+                        if isinstance(hh_list[0], str):
+                            happy_hour_times = ' | '.join(hh_list)
+                        elif isinstance(hh_list[0], dict):
+                            # Extract from dict format
+                            hh_strings = [h.get('day', '') + ': ' + h.get('hours', '') for h in hh_list if isinstance(h, dict)]
+                            happy_hour_times = ' | '.join(hh_strings)
+                elif 'periods' in secondary_hours:
+                    periods = secondary_hours['periods']
+                    if isinstance(periods, list):
+                        hh_parts = []
+                        for p in periods:
+                            if isinstance(p, dict) and 'open' in p:
+                                day = p['open'].get('day', '')
+                                time = p['open'].get('time', '')
+                                if day and time:
+                                    hh_parts.append(f"{day}: {time}")
+                        happy_hour_times = ' | '.join(hh_parts)
+                
+                if happy_hour_times:
+                    print(f"    Found happy hours: {happy_hour_times[:60]}...")
+        except Exception as e:
+            print(f"    Error parsing happy hours: {e}")
         
         # Extract location for coordinates
         location = source.get('geometry', {}).get('location', {})
