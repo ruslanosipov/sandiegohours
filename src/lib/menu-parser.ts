@@ -77,7 +77,7 @@ export async function parseMenuWithAI(
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'google/gemma-3-4b-it:free',
+        model: 'openrouter/free',
         messages: [
           {
             role: 'system',

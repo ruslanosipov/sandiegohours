@@ -70,7 +70,7 @@ Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown 
                 'https://openrouter.ai/api/v1/chat/completions',
                 headers=headers,
                 json={
-                    'model': 'google/gemma-3-4b-it:free',
+                    'model': 'openrouter/free',
                     'messages': [
                         {'role': 'system', 'content': 'You are a menu parser. Extract happy hour items with prices. Return JSON only.'},
                         {'role': 'user', 'content': prompt}
