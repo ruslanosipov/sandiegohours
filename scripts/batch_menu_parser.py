@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*
 """
 Batch process restaurants to find cheapest happy hour items.
 Process 10 restaurants from the happy_hours.csv
@@ -162,16 +163,16 @@ def process_restaurant(name, website_url):
         
         result = parse_with_ai(name, text)
         if result:
-            print(f"  ✓ Drink: {result.get('drink', 'N/A')}")
-            print(f"  ✓ Food: {result.get('food', 'N/A')}")
-            print(f"  ✓ Summary: {result.get('short_summary', 'N/A')}")
+            print(f"  [OK] Drink: {result.get('drink', 'N/A')}")
+            print(f"  [OK] Food: {result.get('food', 'N/A')}")
+            print(f"  [OK] Summary: {result.get('short_summary', 'N/A')}")
         else:
-            print("  ✗ No results from AI")
+            print("  [FAIL] No results from AI")
         
         return result
         
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [ERROR] {e}")
         return None
 
 def main():
