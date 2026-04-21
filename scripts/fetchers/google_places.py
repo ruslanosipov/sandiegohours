@@ -63,7 +63,7 @@ class GooglePlacesFetcher:
         """
         params = {
             'place_id': place_id,
-            'fields': 'name,formatted_address,formatted_phone_number,website,opening_hours,price_level,rating,user_ratings_total',
+            'fields': 'name,formatted_address,formatted_phone_number,website,opening_hours,secondary_opening_hours,price_level,rating,user_ratings_total',
             'key': self.api_key
         }
         
@@ -97,6 +97,14 @@ class GooglePlacesFetcher:
             hours = source['opening_hours']['weekday_text']
             opening_hours = ' | '.join(hours)
         
+        # Format happy hours from secondary_opening_hours
+        happy_hour_times = ""
+        secondary_hours = source.get('secondary_opening_hours', {})
+        if secondary_hours and secondary_hours.get('weekday_text'):
+            hh_list = secondary_hours['weekday_text']
+            happy_hour_times = ' | '.join(hh_list)
+            print(f"    Found happy hours: {happy_hour_times[:60]}...")
+        
         # Extract location for coordinates
         location = source.get('geometry', {}).get('location', {})
         
@@ -105,7 +113,7 @@ class GooglePlacesFetcher:
             address=source.get('formatted_address') or source.get('vicinity', ''),
             phone_number=source.get('formatted_phone_number', ''),
             website_url=source.get('website', ''),
-            happy_hour_times='',  # Will be filled by AI scraper
+            happy_hour_times=happy_hour_times,
             regular_hours=opening_hours,
             rating=str(source.get('rating', '')),
             review_count=str(source.get('user_ratings_total', '')),
