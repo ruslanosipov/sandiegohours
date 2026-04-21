@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback } from "react";
 import { HappyHourPlace } from "@/types/happy-hour";
-import { parseHappyHourTimes, hasHappyHour, formatPriceLevel, getHappyHourStatus, getHappyHourStatusLabel, isHappyHourActive, HappyHourStatus } from "@/lib/happy-hour-utils";
+import { parseHappyHourTimes, hasHappyHour, formatPriceLevel, getHappyHourStatus, getHappyHourStatusLabel, isHappyHourActive, HappyHourStatus, normalizeHappyHourTimes } from "@/lib/happy-hour-utils";
 import { sortByDistance, formatDistance } from "@/lib/distance-utils";
 
 interface HappyHourFinderProps {
@@ -307,7 +307,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                   <div className={`text-sm p-3 rounded-md mb-3 ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
                     <strong>Happy Hour:</strong>
                     <div className="mt-1 space-y-0.5">
-                      {restaurant.happy_hour_times.split(" | ").map((line, i) => (
+                      {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => (
                         <span key={i} className="block leading-snug">{line}</span>
                       ))}
                     </div>

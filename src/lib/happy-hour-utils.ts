@@ -512,6 +512,12 @@ export function normalizeHappyHourTimes(happyHourString: string): string {
     return "";
   }
 
+  // Check if this looks like HTML content
+  const htmlPattern = /<[^>]+>/;
+  if (htmlPattern.test(happyHourString)) {
+    return "";
+  }
+
   // First preprocess to fix missing spaces between days
   const preprocessed = preprocessHappyHourString(happyHourString);
   
@@ -557,8 +563,23 @@ export function normalizeHappyHourTimes(happyHourString: string): string {
         continue;
       }
 
-      const startTime = normalizeTimeFormat(times[0].trim());
-      const endTime = normalizeTimeFormat(times[1].trim());
+      let startTimeRaw = times[0].trim();
+      const endTimeRaw = times[1].trim();
+      
+      // Check if start time needs AM/PM from end time (e.g., "2" or "2:00" without AM/PM)
+      const startHasAmPm = /(am|pm|AM|PM)/i.test(startTimeRaw);
+      const endHasAmPm = /(am|pm|AM|PM)/i.test(endTimeRaw);
+      
+      if (!startHasAmPm && endHasAmPm) {
+        // Extract AM/PM from end time
+        const endAmPmMatch = endTimeRaw.match(/(am|pm|AM|PM)/i);
+        if (endAmPmMatch) {
+          startTimeRaw = `${startTimeRaw} ${endAmPmMatch[0]}`;
+        }
+      }
+
+      const startTime = normalizeTimeFormat(startTimeRaw);
+      const endTime = normalizeTimeFormat(endTimeRaw);
       normalizedSessions.push(`${startTime} - ${endTime}`);
     }
 
