@@ -100,9 +100,14 @@ class GooglePlacesFetcher:
         # Format happy hours from secondary_opening_hours
         happy_hour_times = ""
         secondary_hours = source.get('secondary_opening_hours', {})
-        if secondary_hours and secondary_hours.get('weekday_text'):
+        if isinstance(secondary_hours, dict) and secondary_hours.get('weekday_text'):
             hh_list = secondary_hours['weekday_text']
-            happy_hour_times = ' | '.join(hh_list)
+            if isinstance(hh_list, list):
+                happy_hour_times = ' | '.join(hh_list)
+                print(f"    Found happy hours: {happy_hour_times[:60]}...")
+        elif isinstance(secondary_hours, list):
+            # Handle list format
+            happy_hour_times = ' | '.join(secondary_hours)
             print(f"    Found happy hours: {happy_hour_times[:60]}...")
         
         # Extract location for coordinates
