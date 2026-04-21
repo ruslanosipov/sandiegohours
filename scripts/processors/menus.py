@@ -3,11 +3,11 @@ Menu processor using AI to extract cheapest items.
 """
 from typing import Optional
 
-from scripts.ai import OpenRouterClient
-from scripts.ai.prompts import format_menu_prompt
-from scripts.storage import Restaurant
-from scripts.fetchers.website import WebsiteFetcher
-from scripts.parsers.content_parsers import parse_menu_response
+from ai import OpenRouterClient
+from ai.prompts import format_menu_prompt
+from storage import Restaurant
+from fetchers.website import WebsiteFetcher
+from parsers.content_parsers import parse_menu_response
 
 
 class MenuProcessor:

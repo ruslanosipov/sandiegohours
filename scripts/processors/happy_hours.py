@@ -3,11 +3,11 @@ Happy hour schedule processor using AI.
 """
 from typing import Optional
 
-from scripts.ai import OpenRouterClient
-from scripts.ai.prompts import format_happy_hour_prompt
-from scripts.storage import Restaurant
-from scripts.fetchers.website import WebsiteFetcher
-from scripts.parsers.content_parsers import parse_happy_hour_response, format_happy_hour_times
+from ai import OpenRouterClient
+from ai.prompts import format_happy_hour_prompt
+from storage import Restaurant
+from fetchers.website import WebsiteFetcher
+from parsers.content_parsers import parse_happy_hour_response, format_happy_hour_times
 
 
 class HappyHourProcessor:
