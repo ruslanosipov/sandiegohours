@@ -85,18 +85,26 @@ export async function parseMenuWithAI(
           },
           {
             role: 'user',
-            content: `Parse this menu from ${restaurantName} and find the cheapest happy hour drink and cheapest happy hour food item. 
+            content: `Parse this happy hour menu from ${restaurantName}.
 
 Menu content:
 ${textContent}
 
+Extract drink and food items with prices. Look for patterns like:
+- $5 bottled beer, $7 draft, $8 cocktails
+- $1 wings, $3 sliders, $8 nachos
+
 Return JSON in this exact format:
 {
-  "drink": {"name": "Drink Name", "price": 5.00},
-  "food": {"name": "Food Name", "price": 6.00}
+  "drink": {"name": "item name with price", "price": 5.00},
+  "food": {"name": "item name with price", "price": 6.00}
 }
 
-If no prices found, use null. Only include happy hour items.`,
+Examples:
+{"drink": {"name": "$5 bottled beer", "price": 5}, "food": {"name": "$1 wings", "price": 1}}
+{"drink": {"name": "$7 draft pours", "price": 7}, "food": {"name": "$3 chicken sliders", "price": 3}}
+
+Find the CHEAPEST drink and CHEAPEST food item. Return the concise format shown in examples. If no prices, use null.`,
           },
         ],
         temperature: 0.1,
