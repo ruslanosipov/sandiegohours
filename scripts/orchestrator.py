@@ -234,29 +234,39 @@ def run_pipeline(start_step: str = 'load', resume: bool = False):
         start_step = progress.step
     
     # Define step order
-    steps = ['fetch', 'overrides', 'parse_happy_hours', 'parse_menus', 'summary']
+    steps = ['fetch', 'parse_happy_hours', 'overrides', 'parse_menus', 'summary']
     
     try:
-        # Execute steps
-        if start_step in ['fetch', 'overrides', 'parse_happy_hours', 'parse_menus', 'summary']:
-            restaurants = step_fetch_restaurants(storage)
-            save_progress(ProcessingState('overrides'))
-        else:
-            raise ValueError(f"Unknown step: {start_step}")
+        # Determine which steps to run based on start_step
+        start_idx = steps.index(start_step)
+        steps_to_run = steps[start_idx:]
         
-        if start_step in ['parse_happy_hours', 'parse_menus', 'summary']:
+        print(f"Running steps: {', '.join(steps_to_run)}\n")
+        
+        restaurants = []
+        
+        # Execute steps
+        if 'fetch' in steps_to_run:
+            restaurants = step_fetch_restaurants(storage)
+            save_progress(ProcessingState('parse_happy_hours'))
+        else:
+            # Load existing data
+            restaurants = storage.read('happy_hours.csv', Restaurant)
+            print(f"Loaded {len(restaurants)} restaurants from CSV")
+        
+        if 'parse_happy_hours' in steps_to_run:
             restaurants = step_parse_happy_hours(restaurants, storage)
             save_progress(ProcessingState('overrides'))
         
-        if start_step in ['overrides', 'parse_menus', 'summary']:
+        if 'overrides' in steps_to_run:
             restaurants = step_apply_overrides(restaurants, storage)
             save_progress(ProcessingState('parse_menus'))
         
-        if start_step in ['parse_menus', 'summary']:
+        if 'parse_menus' in steps_to_run:
             restaurants = step_parse_menus(restaurants, storage)
             save_progress(ProcessingState('summary'))
         
-        if start_step == 'summary':
+        if 'summary' in steps_to_run:
             step_generate_summary(restaurants)
         
         # Clear progress on success
