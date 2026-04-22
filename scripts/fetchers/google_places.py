@@ -97,7 +97,7 @@ def parse_secondary_opening_hours(secondary_hours: List[Dict]) -> Optional[str]:
     return None
 
 
-def search_places_new(location: str, radius: int = 1500, api_key: str = None) -> List[Dict]:
+def search_places_new(location: str, radius: int = 2400, api_key: str = None, page_token: str = None) -> List[Dict]:
     """
     Search for places using Places API (New) v1 nearby search.
     
@@ -128,7 +128,7 @@ def search_places_new(location: str, radius: int = 1500, api_key: str = None) ->
             }
         },
         "includedTypes": ["restaurant", "bar"],
-        "maxResultCount": 20
+        "maxResultCount": 20  # Google limit per page
     }
     
     response = requests.post(url, headers=headers, json=body, timeout=30)
@@ -205,12 +205,13 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
     )
 
 
-def fetch_92116_restaurants(api_key: str = None) -> List[Restaurant]:
+def fetch_92116_restaurants(api_key: str = None, max_results: int = 60) -> List[Restaurant]:
     """
     Fetch restaurants in 92116 area with happy hour data from Google Places API (New).
     
     Args:
         api_key: Optional API key (uses default if not provided)
+        max_results: Maximum results to fetch (Google limit is 60)
         
     Returns:
         List of Restaurant instances with happy hour data where available
@@ -219,19 +220,33 @@ def fetch_92116_restaurants(api_key: str = None) -> List[Restaurant]:
     location = "32.762889,-117.119922"  # 2861 Copley Ave
     
     print(f"Fetching restaurants near {location} using Places API v1...")
+    print(f"Radius: 2400m (30-min walk), Max results: {max_results}")
     
-    # Search for places
-    places = search_places_new(location, radius=1500, api_key=api_key)
-    print(f"Found {len(places)} places")
+    # Search for places - may need multiple pages
+    all_places = []
+    page_token = None
+    
+    while len(all_places) < max_results:
+        places = search_places_new(location, radius=2400, api_key=api_key, page_token=page_token)
+        if not places:
+            break
+        all_places.extend(places)
+        print(f"  Found {len(places)} places (total: {len(all_places)})")
+        if len(all_places) >= max_results:
+            break
+        # Check for next page token (would need to implement pagination in search_places_new)
+        break  # For now, just use first page
+    
+    print(f"Processing {len(all_places)} places...")
     
     restaurants = []
     hh_count = 0
     
-    for i, place_summary in enumerate(places, 1):
+    for i, place_summary in enumerate(all_places, 1):
         place_id = place_summary.get('id')
         name = place_summary.get('displayName', {}).get('text', 'Unknown')
         
-        print(f"[{i}/{len(places)}] Processing {name}...")
+        print(f"[{i}/{len(all_places)}] Processing {name}...")
         
         # Get full details
         details = get_place_details_new(place_id, api_key)

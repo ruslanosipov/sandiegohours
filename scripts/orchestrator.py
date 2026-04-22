@@ -244,12 +244,12 @@ def run_pipeline(start_step: str = 'load', resume: bool = False):
         else:
             raise ValueError(f"Unknown step: {start_step}")
         
-        if start_step in ['overrides', 'parse_happy_hours', 'parse_menus', 'summary']:
-            restaurants = step_apply_overrides(restaurants, storage)
-            save_progress(ProcessingState('parse_happy_hours'))
-        
         if start_step in ['parse_happy_hours', 'parse_menus', 'summary']:
             restaurants = step_parse_happy_hours(restaurants, storage)
+            save_progress(ProcessingState('overrides'))
+        
+        if start_step in ['overrides', 'parse_menus', 'summary']:
+            restaurants = step_apply_overrides(restaurants, storage)
             save_progress(ProcessingState('parse_menus'))
         
         if start_step in ['parse_menus', 'summary']:
