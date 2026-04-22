@@ -42,6 +42,7 @@ next-env.d.ts
 
 # project specific
 /archive
+/.archive
 /dist
 __pycache__/
 *.pyc
