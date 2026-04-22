@@ -77,14 +77,21 @@ export default async function Home() {
   
   return (
     <main className="min-h-screen bg-brand-cream">
-      {/* Banner */}
-      <div className="bg-brand-teal py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <img 
-            src="/banner.jpg" 
-            alt="San Diego Happy Hour" 
-            className="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
-          />
+      {/* Banner with logo and drinks */}
+      <div className="bg-brand-teal py-6">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-4">
+            <img 
+              src="/drinks.png" 
+              alt="Drinks" 
+              className="h-24 w-auto"
+            />
+            <img 
+              src="/logo.png" 
+              alt="San Diego Happy Hour" 
+              className="h-20 w-auto"
+            />
+          </div>
         </div>
       </div>
       
