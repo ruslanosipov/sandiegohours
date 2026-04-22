@@ -2,6 +2,7 @@
 Google Places API (New) v1 fetcher for restaurant data with happy hour support.
 Uses Places API v1 text search with pagination to get more than 20 results.
 """
+import math
 import requests
 import time
 from typing import List, Optional, Dict, Any
@@ -87,7 +88,7 @@ def search_places_text(location: str, radius: int = 2400, api_key: str = None,
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key or GOOGLE_PLACES_API_KEY,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType,nextPageToken"
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType,places.location,nextPageToken"
     }
     
     lat, lng = float(location.split(',')[0]), float(location.split(',')[1])
@@ -160,22 +161,79 @@ def search_places_paginated(location: str, radius: int = 2400, api_key: str = No
     return all_places[:max_results]
 
 
-def fetch_all_places(location: str, radius: int = 2400, api_key: str = None,
+def calculate_distance_meters(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    """
+    Calculate distance between two coordinates using Haversine formula.
+    Returns distance in meters.
+    """
+    R = 6371000  # Earth's radius in meters
+    
+    d_lat = math.radians(lat2 - lat1)
+    d_lng = math.radians(lng2 - lng1)
+    
+    a = (math.sin(d_lat / 2) * math.sin(d_lat / 2) +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(d_lng / 2) * math.sin(d_lng / 2))
+    
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c
+
+
+def filter_by_distance(places: List[Dict], center_lat: float, center_lng: float, 
+                       max_distance: float) -> List[Dict]:
+    """
+    Filter places by distance from center point.
+    
+    Args:
+        places: List of place dictionaries with location data
+        center_lat: Center latitude
+        center_lng: Center longitude
+        max_distance: Maximum distance in meters
+        
+    Returns:
+        Filtered list of places within max_distance
+    """
+    filtered = []
+    for place in places:
+        location = place.get('location', {})
+        if not location:
+            # If no location data, include it (conservative)
+            filtered.append(place)
+            continue
+        
+        place_lat = location.get('latitude')
+        place_lng = location.get('longitude')
+        
+        if place_lat is None or place_lng is None:
+            filtered.append(place)
+            continue
+        
+        distance = calculate_distance_meters(center_lat, center_lng, place_lat, place_lng)
+        
+        if distance <= max_distance:
+            filtered.append(place)
+    
+    return filtered
+
+
+def fetch_all_places(location: str, radius: int = 800, api_key: str = None,
                      keywords: List[str] = None) -> List[Dict]:
     """
     Fetch all possible places using text search with pagination.
-    Searches multiple keywords and deduplicates results.
+    Searches multiple keywords, deduplicates results, and filters by distance.
     
     Args:
         location: "lat,lng" string
-        radius: Search radius in meters
+        radius: Search radius in meters (default 800m = ~10 min walk)
         api_key: API key
         keywords: List of search keywords (default: restaurant, bar, happy hour, etc.)
         
     Returns:
-        Combined list of unique place results
+        Combined list of unique place results within radius
     """
     api_key = api_key or GOOGLE_PLACES_API_KEY
+    center_lat, center_lng = float(location.split(',')[0]), float(location.split(',')[1])
     all_places = {}
     
     if keywords is None:
@@ -200,11 +258,17 @@ def fetch_all_places(location: str, radius: int = 2400, api_key: str = None,
         
         print(f"  Found {len(places)} places (total unique: {len(all_places)})")
     
+    # Filter by distance
+    print(f"\nFiltering by distance ({radius}m radius)...")
+    places_list = list(all_places.values())
+    filtered = filter_by_distance(places_list, center_lat, center_lng, radius)
+    print(f"  Kept {len(filtered)}/{len(places_list)} places within {radius}m")
+    
     print(f"\n{'=' * 60}")
-    print(f"TOTAL UNIQUE PLACES FOUND: {len(all_places)}")
+    print(f"TOTAL PLACES WITHIN {radius}m: {len(filtered)}")
     print(f"{'=' * 60}")
     
-    return list(all_places.values())
+    return filtered
 
 
 def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
