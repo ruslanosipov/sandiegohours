@@ -76,7 +76,7 @@ export default async function Home() {
   const restaurants = await getRestaurants();
 
   return (
-    <main className="min-h-screen bg-brand-cream">
+    <main className="min-h-screen bg-white">
       {/* Banner with logo and drinks */}
       <div className="bg-white py-6">
         <div className="max-w-6xl mx-auto px-4">
