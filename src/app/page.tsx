@@ -91,7 +91,7 @@ export default async function Home() {
       {/* Tagline */}
       <div className="bg-brand-yellow py-4">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-lg text-brand-orange font-semibold">
+          <p className="text-lg text-brand-teal font-semibold">
             Find the best happy hours in Normal Heights, North Park & surrounding areas
           </p>
         </div>
