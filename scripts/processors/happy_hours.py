@@ -56,10 +56,16 @@ class HappyHourProcessor:
             # Parse response
             result = parse_happy_hour_response(response)
             
+            # Check confidence level
+            confidence = result.get('confidence', 'low')
+            if confidence in ['low', 'none']:
+                print(f"  Low confidence ({confidence}), skipping")
+                return False
+            
             if result['happy_hours']:
                 # Update restaurant
                 restaurant.happy_hour_times = format_happy_hour_times(result['happy_hours'])
-                restaurant.source = 'Website (AI parsed)'
+                restaurant.source = f'Website (AI parsed, {confidence} confidence)'
                 print(f"  [OK] Found: {restaurant.happy_hour_times[:60]}...")
                 return True
             else:

@@ -7,6 +7,12 @@ HAPPY_HOUR_PARSER_PROMPT = """Parse this website content and extract happy hour 
 Website content:
 {text}
 
+CRITICAL: Only extract HAPPY HOUR times, NOT regular opening hours.
+- Happy hours are special discount periods (e.g., "3-6 PM", "4-7 PM")
+- Opening hours are when the restaurant is open (e.g., "11 AM - 10 PM")
+- If you only see "Opening Hours", "Hours", "Business Hours" - these are NOT happy hours
+- Look for explicit mentions of "happy hour", "hh", "drink specials", "appetizer specials"
+
 Extract happy hour times for each day of the week. Look for:
 - Days of week (Monday, Tuesday, etc.)
 - Time ranges (3-6 PM, 4:00-7:00 PM, etc.)
@@ -26,8 +32,13 @@ Return JSON in this exact format:
   "confidence": "high"
 }}
 
-Confidence can be "high", "medium", or "low". Use "Closed" for days with no happy hour.
-If no happy hour info found, return empty happy_hours array."""
+Confidence can be "high", "medium", or "low".
+- Use "high" only if you see explicit "happy hour" text
+- Use "medium" if you see "specials" or "discounts" with times
+- Use "low" if you're unsure
+- Use "Closed" for days with no happy hour
+
+If no happy hour info found, return empty happy_hours array and confidence "none"."""
 
 MENU_PARSER_PROMPT = """Parse this happy hour menu from {restaurant_name}.
 
