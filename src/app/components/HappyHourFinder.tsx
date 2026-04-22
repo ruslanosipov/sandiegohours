@@ -147,16 +147,16 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 text-center">
-          <div className="text-3xl font-bold text-purple-600">{restaurants.length}</div>
+        <div className="bg-white rounded-lg shadow p-4 text-center border-2 border-brand-teal">
+          <div className="text-3xl font-bold text-brand-teal">{restaurants.length}</div>
           <div className="text-gray-600 text-sm">Total Places</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 text-center">
-          <div className="text-3xl font-bold text-green-600">{happyHourCount}</div>
+        <div className="bg-white rounded-lg shadow p-4 text-center border-2 border-brand-yellow">
+          <div className="text-3xl font-bold text-brand-orange">{happyHourCount}</div>
           <div className="text-gray-600 text-sm">With Happy Hour</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 text-center">
-          <div className="text-3xl font-bold text-orange-600">{activeCount}</div>
+        <div className="bg-white rounded-lg shadow p-4 text-center border-2 border-brand-orange">
+          <div className="text-3xl font-bold text-brand-orange">{activeCount}</div>
           <div className="text-gray-600 text-sm">Active Now</div>
         </div>
       </div>
@@ -275,7 +275,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
           return (
             <div
               key={index}
-              className={`bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg ${isActive ? "ring-2 ring-green-400" : ""}`}
+              className={`bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg ${isActive ? "ring-2 ring-brand-yellow" : ""}`}
             >
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">

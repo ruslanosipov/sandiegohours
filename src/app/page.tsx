@@ -76,11 +76,24 @@ export default async function Home() {
   const restaurants = await getRestaurants();
   
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2">San Diego Happy Hours</h1>
-          <p className="text-lg opacity-90">Find the best happy hours in Normal Heights, North Park & surrounding areas</p>
+    <main className="min-h-screen bg-brand-cream">
+      {/* Banner */}
+      <div className="bg-brand-teal py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <img 
+            src="/banner.jpg" 
+            alt="San Diego Happy Hour" 
+            className="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
+          />
+        </div>
+      </div>
+      
+      {/* Tagline */}
+      <div className="bg-brand-yellow py-4">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <p className="text-lg text-brand-orange font-semibold">
+            Find the best happy hours in Normal Heights, North Park & surrounding areas
+          </p>
         </div>
       </div>
       
