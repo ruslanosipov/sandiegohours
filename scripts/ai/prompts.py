@@ -45,9 +45,16 @@ MENU_PARSER_PROMPT = """Parse this happy hour menu from {restaurant_name}.
 Menu content:
 {text}
 
-Extract ALL drink and food items with prices you can find. Look for patterns like:
-- $5 bottled beer, $7 draft, $8 cocktails
-- $1 wings, $3 sliders, $8 nachos
+CRITICAL RULES:
+1. ONLY extract items that are EXPLICITLY listed in the text above
+2. DO NOT make up items, DO NOT use "typical" happy hour items
+3. If the text is empty, too short, or doesn't mention specific items, return null
+4. The text might be a loading page or error page - if so, return null
+
+Extract drink and food items with prices ONLY if explicitly shown. Look for:
+- Dollar amounts with items (e.g., "$5 bottled beer", "$1 wings")
+- "Happy Hour" or "HH" sections
+- Special pricing clearly marked
 
 Return JSON in this exact format:
 {{
@@ -56,18 +63,20 @@ Return JSON in this exact format:
   "short_summary": "$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
 }}
 
-Examples:
+Examples of VALID responses (only if text contains these):
 {{"drink": {{"name": "$5 bottled beer", "price": 5}}, "food": {{"name": "$1 wings", "price": 1}}, "short_summary": "$1 wings, $3 sliders, $5 bottled and $7 cocktails"}}
-{{"drink": {{"name": "$7 draft pours", "price": 7}}, "food": {{"name": "$3 chicken sliders", "price": 3}}, "short_summary": "$3 sliders, $7 draft and $9 cocktails"}}
+
+If text is empty, too short (< 100 chars), or doesn't contain specific happy hour items with prices:
+{{"drink": null, "food": null, "short_summary": ""}}
 
 Rules:
-- Find the CHEAPEST drink and CHEAPEST food item
-- Include 3-5 popular items in short_summary
+- ONLY use items EXPLICITLY in the text
+- Find the CHEAPEST drink and CHEAPEST food item (if any)
+- Include 3-5 popular items in short_summary (ONLY if found)
 - short_summary must be UNDER 15 words
 - Order by price: cheapest first
 - Use "and" before last item
-
-If no happy hour prices found, return null for drink and food, and empty string for short_summary."""
+- If no specific items found, return null/empty"""
 
 
 def format_happy_hour_prompt(text: str) -> str:
