@@ -4,17 +4,48 @@
 Next.js website displaying happy hours for restaurants/bars near 92116 (Normal Heights/North Park, San Diego).
 
 ## Tech Stack
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Testing**: Vitest (TypeScript), pytest (Python)
-- **Data**: CSV with lat/lng coordinates
-- **APIs**: Google Maps Places API (for coordinates)
+- **Data**: CSV files (happy_hours.csv, menu_data.csv)
+- **APIs**: Google Places API (New) v1 for restaurant data + happy hours
+- **AI**: OpenRouter for website parsing
+
+## Architecture
+
+### Data Pipeline (Python)
+```
+orchestrator.py
+  ├── fetchers/google_places.py    # Google Places API v1 with pagination
+  ├── fetchers/website_fetcher.py  # Website scraping with caching
+  ├── processors/happy_hour.py     # AI happy hour extraction
+  ├── processors/menu.py           # AI menu/deals extraction
+  ├── storage/csv_manager.py       # CSV read/write
+  └── ai/openrouter.py             # OpenRouter API client
+```
+
+### Frontend (Next.js)
+```
+src/
+  ├── app/
+  │   ├── page.tsx                  # Main page (server component)
+  │   └── components/
+  │       └── HappyHourFinder.tsx   # Main UI component
+  ├── lib/
+  │   ├── happy-hour-utils.ts       # Time parsing & status logic
+  │   ├── distance-utils.ts         # Haversine formula & sorting
+  │   └── menu-parser.ts            # Menu summary extraction
+  └── types/
+      └── happy-hour.ts             # TypeScript interfaces
+```
 
 ## Key Features
-- Distance-based sorting with geolocation
-- Time-accurate happy hour status (Active/Later/Passed/No HH Today/No HH)
-- Search by name/address
-- Day/time filtering
-- Responsive grid layout
+- **Distance-based sorting** with geolocation
+- **Time-accurate happy hour status** (Active/Later/Passed/No HH Today/No HH)
+- **Search** by name/address
+- **Day/time filtering** with visual indicators
+- **Responsive grid layout**
+- **Happy hour deals display** (cheapest drink/food from menu parsing)
+- **Multi-source data**: Google Places API + website scraping + manual overrides
 
 ## Running the Project
 
@@ -22,39 +53,77 @@ Next.js website displaying happy hours for restaurants/bars near 92116 (Normal H
 # Install dependencies
 npm install
 
-# Run tests (TDD - do this first!)
-npx vitest run          # TypeScript tests
-python -m pytest tests/ # Python tests
+# Run tests
+npx vitest run              # TypeScript tests (153 tests)
+python -m pytest tests/     # Python tests
 
-# Build static site
-npm run build           # Outputs to dist/
+# Development
+npm run dev                 # http://localhost:3000
 
-# Test build locally
-npx serve dist
+# Production build
+npm run build               # Static export to dist/
+npm run start               # Serve production build
 ```
 
-## TDD Workflow
-1. Write test first (describe expected behavior)
-2. Run test - watch it fail
-3. Implement minimal code to pass
-4. Run test - confirm it passes
-5. Refactor if needed
-6. Commit with descriptive message
+## Data Pipeline
+
+### 1. Fetch Restaurants
+```bash
+python scripts/orchestrator.py --full
+```
+- Uses Google Places API (New) v1 text search with pagination
+- Searches multiple keywords: "restaurant", "bar", "happy hour", "pub", "grill", "kitchen"
+- Gets up to 60 results per keyword (3 pages × 20 results via nextPageToken)
+- Deduplicates results across keywords
+- Fetches details including: name, address, phone, website, hours, happy hours, rating, reviews, price level, coordinates
+
+### 2. Parse Happy Hours
+- For restaurants without happy hour data from Google API
+- Scrapes website using AI (OpenRouter)
+- Extracts structured happy hour times
+
+### 3. Parse Menus
+- Scrapes happy hour menu pages
+- Extracts cheapest drink and food items with prices
+- Generates concise summary (e.g., "$1 wings, $5 bottled")
+
+### 4. Apply Manual Overrides
+- Reads manual_overrides.csv
+- Overrides AI/API data with human-verified happy hours
+
+## Testing Strategy
+- **Unit tests**: Time parsing, status logic, distance calc, data conversion
+- **Component tests**: HappyHourFinder rendering, interactions, missing data
+- **Integration tests**: CSV parsing, menu extraction
+- **Total**: 153 TypeScript tests, Python tests
 
 ## Project Structure
 ```
 happy-hour-finder/
-├── src/
-│   ├── app/components/HappyHourFinder.tsx  # Main UI
-│   ├── lib/happy-hour-utils.ts             # Time parsing & status logic
-│   ├── lib/distance-utils.ts               # Haversine formula
-│   └── hooks/useUserLocation.ts            # Geolocation hook
-├── tests/                                   # Vitest tests
-├── public/happy_hours.csv                   # Data with lat/lng
-└── dist/                                    # Built static site
+├── scripts/                    # Python data pipeline
+│   ├── orchestrator.py         # Main pipeline entry point
+│   ├── fetchers/               # API fetchers
+│   ├── processors/             # AI processors
+│   ├── storage/                # CSV management
+│   └── ai/                     # OpenRouter client
+├── src/                        # Next.js frontend
+│   ├── app/
+│   ├── lib/
+│   └── types/
+├── tests/                      # Vitest tests
+├── public/
+│   ├── happy_hours.csv         # Main restaurant data
+│   └── menu_data.csv           # Menu/parsing results
+└── dist/                       # Built static site
 ```
 
 ## Key Learnings
+
+### Google Places API v1
+- **Text Search** (searchText) supports pagination via nextPageToken
+- **Nearby Search** (searchNearby) does NOT support pagination - max 20 results
+- Use text search with multiple keywords to get comprehensive coverage
+- Field masks required: `places.id,places.displayName,nextPageToken`
 
 ### Time Parsing Complexity
 - Times come in many formats: "3pm", "3:00 pm", "3:00 PM", "15:00", "3 - 6 PM"
@@ -71,17 +140,13 @@ happy-hour-finder/
 - Show feet for <0.1mi, decimal miles otherwise
 - Sort by distance when user location available
 
-## Testing Strategy
-- **Unit tests**: Time parsing, status logic, distance calc
-- **Component tests**: HappyHourFinder rendering, interactions
-- **Test coverage**: 104+ TypeScript tests, 43 Python tests
-
-## Known Issues (Skipped)
-- Unicode special character edge cases (low priority)
-- Hook tests need React Testing Library setup fixes
+## Known Issues
+- Rating of 0 becomes empty string (falsy value bug in conversion)
+- Some restaurants have coordinates but no happy hour data
+- OpenRouter rate limits on free tier
 
 ## Future Ideas
-- Add "Add to Calendar" button
-- Show happy hour menu items if available
 - User-contributed happy hour updates
 - Photos of happy hour deals
+- "Add to Calendar" button
+- Push notifications when happy hour starts nearby

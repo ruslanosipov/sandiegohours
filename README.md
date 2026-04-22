@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# San Diego Happy Hour Finder
 
-## Getting Started
+Find the best happy hours in Normal Heights, North Park & surrounding San Diego neighborhoods.
 
-First, run the development server:
+## Features
+
+- 🍺 **271+ restaurants and bars** in the 92116 area
+- 📍 **Distance-based sorting** using your location
+- ⏰ **Real-time happy hour status** - see what's active right now
+- 🔍 **Search** by restaurant name or address
+- 📅 **Filter by day and time** to plan ahead
+- 💰 **Happy hour deals** - cheapest drinks and food items
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
+- **Data**: Google Places API (New) v1 + AI-powered website parsing
+- **Testing**: Vitest (153 tests)
+
+## Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Run tests
+npx vitest run
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Data Pipeline
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The project includes a Python-based data pipeline that:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Fetches restaurants** from Google Places API with pagination (gets 100+ results)
+2. **Extracts happy hours** from Google API or scrapes websites with AI
+3. **Parses menus** to find cheapest drink/food deals
+4. **Applies manual overrides** for human-verified data
 
-## Learn More
+Run the pipeline:
+```bash
+python scripts/orchestrator.py --full
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+├── scripts/          # Python data pipeline
+│   ├── orchestrator.py
+│   ├── fetchers/
+│   ├── processors/
+│   └── storage/
+├── src/              # Next.js frontend
+│   ├── app/
+│   ├── lib/
+│   └── types/
+├── tests/            # Vitest tests
+└── public/           # CSV data files
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
