@@ -274,11 +274,13 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List
     api_key = api_key or GOOGLE_PLACES_API_KEY
     location = "32.762889,-117.119922"
     
+    radius = 800  # ~10 min walk
+    
     print(f"Fetching restaurants near {location}")
-    print(f"Radius: 2400m, Target: {max_results} places\n")
+    print(f"Radius: {radius}m (~10 min walk), Target: {max_results} places\n")
     
     # Fetch all places using pagination
-    all_places = fetch_all_places(location, radius=2400, api_key=api_key)
+    all_places = fetch_all_places(location, radius=radius, api_key=api_key)
     
     # Limit if needed
     if len(all_places) > max_results:
