@@ -35,12 +35,12 @@ async function getRestaurants(): Promise<Restaurant[]> {
   // Load main restaurant data
   const csvPath = path.join(process.cwd(), 'public', 'happy_hours.csv');
   const fileContent = await fs.readFile(csvPath, 'utf-8');
-  
+
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
   }) as Restaurant[];
-  
+
   // Load menu data
   try {
     const menuCsvPath = path.join(process.cwd(), 'public', 'menu_data.csv');
@@ -49,10 +49,10 @@ async function getRestaurants(): Promise<Restaurant[]> {
       columns: true,
       skip_empty_lines: true,
     }) as MenuData[];
-    
+
     // Create lookup map for menu data
     const menuMap = new Map(menuRecords.map(m => [m.restaurant_name, m]));
-    
+
     // Merge menu data into restaurants
     for (const restaurant of records) {
       const menu = menuMap.get(restaurant.restaurant_name);
@@ -68,17 +68,17 @@ async function getRestaurants(): Promise<Restaurant[]> {
     // menu_data.csv might not exist yet
     console.log('Menu data not loaded yet:', error);
   }
-  
+
   return records;
 }
 
 export default async function Home() {
   const restaurants = await getRestaurants();
-  
+
   return (
     <main className="min-h-screen bg-brand-cream">
       {/* Banner with logo and drinks */}
-      <div className="bg-brand-teal py-6">
+      <div className="bg-white py-6">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-center gap-4">
             <img 
@@ -94,16 +94,16 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      
+
       {/* Tagline */}
-      <div className="bg-brand-yellow py-4">
+      <div className="bg-brand-teal py-4">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-lg text-brand-teal font-semibold">
+          <p className="text-lg text-white font-semibold">
             Find the best happy hours in Normal Heights, North Park & surrounding areas
           </p>
         </div>
       </div>
-      
+
       <div className="max-w-6xl mx-auto px-4 py-8">
         <HappyHourFinder restaurants={restaurants} />
       </div>
