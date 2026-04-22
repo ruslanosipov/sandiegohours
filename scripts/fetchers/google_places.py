@@ -1,230 +1,265 @@
 """
-Google Places API fetcher for restaurant data.
+Google Places API (New) v1 fetcher for restaurant data with happy hour support.
+Uses Places API v1 with field masks to get secondaryOpeningHours (happy hours).
 """
 import requests
 from typing import List, Optional, Dict, Any
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from storage import Restaurant
 
 GOOGLE_PLACES_API_KEY = "AIzaSyCEsrQU4JQp_pOoLDOHA9GsUaOb5RoxKWk"
-PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-DETAILS_API_URL = "https://maps.googleapis.com/maps/api/place/details/json"
+PLACES_API_BASE = "https://places.googleapis.com/v1"
 
 
-class GooglePlacesFetcher:
-    """Fetch restaurant data from Google Places API."""
+def get_place_details_new(place_id: str, api_key: str) -> Optional[Dict[str, Any]]:
+    """
+    Get place details using Places API (New) v1.
     
-    def __init__(self, api_key: str = None):
-        self.api_key = api_key or GOOGLE_PLACES_API_KEY
-    
-    def search_nearby(
-        self, 
-        location: str,
-        radius: int = 1500,
-        place_type: str = "restaurant|bar"
-    ) -> List[Dict[str, Any]]:
-        """
-        Search for restaurants/bars near a location.
+    Args:
+        place_id: Google place ID
+        api_key: API key
         
-        Args:
-            location: "lat,lng" string
-            radius: Search radius in meters
-            place_type: Types of places to search
+    Returns:
+        Place details including secondaryOpeningHours
+    """
+    # Place ID might need to be URL-encoded or have specific format
+    # Try with just the ID first
+    url = f"{PLACES_API_BASE}/places/{place_id}"
+    print(f"    URL: {url[:80]}...")
+    
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": api_key,
+        # Request specific fields - use camelCase for v1 API
+        # Try currentSecondaryOpeningHours for happy hours
+        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours"
+    }
+    
+    response = requests.get(url, headers=headers, timeout=30)
+    
+    if response.status_code != 200:
+        print(f"    API Error: {response.status_code}")
+        print(f"    Response: {response.text[:500]}")
+        return None
+    
+    return response.json()
+
+
+def parse_secondary_opening_hours(secondary_hours: List[Dict]) -> Optional[str]:
+    """
+    Parse secondary opening hours to find happy hours.
+    
+    The API returns currentSecondaryOpeningHours as a list where each entry has:
+    - openNow: boolean
+    - periods: list of periods with open/close times
+    - weekdayDescriptions: list of strings like "Monday: 3:00 PM – 6:00 PM"
+    - secondaryHoursType: str (e.g., "HAPPY_HOUR", "KITCHEN", "DELIVERY")
+    
+    Args:
+        secondary_hours: List of SecondaryOpeningHour from API
+        
+    Returns:
+        Formatted happy hour string or None
+    """
+    if not secondary_hours or not isinstance(secondary_hours, list):
+        return None
+    
+    for entry in secondary_hours:
+        # Check if this entry is for happy hour
+        hours_type = entry.get('secondaryHoursType', '').upper()
+        if hours_type == 'HAPPY_HOUR':
+            # Get weekday descriptions
+            descriptions = entry.get('weekdayDescriptions', [])
+            if descriptions:
+                return ' | '.join(descriptions)
             
-        Returns:
-            List of place results
-        """
-        params = {
-            'location': location,
-            'radius': radius,
-            'type': place_type,
-            'key': self.api_key
-        }
-        
-        response = requests.get(PLACES_API_URL, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        if data.get('status') != 'OK':
-            error_msg = data.get('error_message', data.get('status', 'Unknown error'))
-            raise Exception(f"Places API error: {error_msg}")
-        
-        return data.get('results', [])
-    
-    def get_place_details(self, place_id: str) -> Dict[str, Any]:
-        """
-        Get detailed information about a place.
-        
-        Args:
-            place_id: Google place_id
-            
-        Returns:
-            Place details
-        """
-        params = {
-            'place_id': place_id,
-            'fields': 'name,formatted_address,formatted_phone_number,website,opening_hours,secondary_opening_hours,price_level,rating,user_ratings_total',
-            'key': self.api_key
-        }
-        
-        response = requests.get(DETAILS_API_URL, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        if data.get('status') != 'OK':
-            error_msg = data.get('error_message', data.get('status', 'Unknown error'))
-            raise Exception(f"Places Details API error: {error_msg}")
-        
-        return data.get('result', {})
-    
-    def convert_to_restaurant(self, place: Dict[str, Any], details: Dict[str, Any] = None) -> Restaurant:
-        """
-        Convert Google Places result to Restaurant model.
-        
-        Args:
-            place: Places API result
-            details: Optional detailed result
-            
-        Returns:
-            Restaurant instance
-        """
-        # Use details if available, otherwise use basic place data
-        source = details or place
-        
-        # Format opening hours
-        opening_hours = ""
-        if source.get('opening_hours', {}).get('weekday_text'):
-            hours = source['opening_hours']['weekday_text']
-            opening_hours = ' | '.join(hours)
-        
-        # Format happy hours from secondary_opening_hours
-        # Google returns this as a list of dicts with 'open_now', 'weekday_text', etc.
-        happy_hour_times = ""
-        secondary_hours = source.get('secondary_opening_hours', {})
-        try:
-            if isinstance(secondary_hours, dict):
-                # Could have periods, weekday_text, etc.
-                if 'weekday_text' in secondary_hours:
-                    hh_list = secondary_hours['weekday_text']
-                    if isinstance(hh_list, list) and len(hh_list) > 0:
-                        if isinstance(hh_list[0], str):
-                            happy_hour_times = ' | '.join(hh_list)
-                        elif isinstance(hh_list[0], dict):
-                            # Extract from dict format
-                            hh_strings = [h.get('day', '') + ': ' + h.get('hours', '') for h in hh_list if isinstance(h, dict)]
-                            happy_hour_times = ' | '.join(hh_strings)
-                elif 'periods' in secondary_hours:
-                    periods = secondary_hours['periods']
-                    if isinstance(periods, list):
-                        hh_parts = []
-                        for p in periods:
-                            if isinstance(p, dict) and 'open' in p:
-                                day = p['open'].get('day', '')
-                                time = p['open'].get('time', '')
-                                if day and time:
-                                    hh_parts.append(f"{day}: {time}")
-                        happy_hour_times = ' | '.join(hh_parts)
+            # Fallback: build from periods
+            periods = entry.get('periods', [])
+            if periods:
+                parts = []
+                for period in periods:
+                    open_info = period.get('open', {})
+                    close_info = period.get('close', {})
+                    
+                    day = open_info.get('day', '')
+                    open_time = f"{open_info.get('hour', 0):02d}:{open_info.get('minute', 0):02d}"
+                    close_time = f"{close_info.get('hour', 0):02d}:{close_info.get('minute', 0):02d}"
+                    
+                    if day is not None:
+                        parts.append(f"Day {day}: {open_time} - {close_time}")
                 
-                if happy_hour_times:
-                    print(f"    Found happy hours: {happy_hour_times[:60]}...")
-        except Exception as e:
-            print(f"    Error parsing happy hours: {e}")
-        
-        # Extract location for coordinates
-        location = source.get('geometry', {}).get('location', {})
-        
-        return Restaurant(
-            restaurant_name=source.get('name', ''),
-            address=source.get('formatted_address') or source.get('vicinity', ''),
-            phone_number=source.get('formatted_phone_number', ''),
-            website_url=source.get('website', ''),
-            happy_hour_times=happy_hour_times,
-            regular_hours=opening_hours,
-            rating=str(source.get('rating', '')),
-            review_count=str(source.get('user_ratings_total', '')),
-            price_level=str(source.get('price_level', '')),
-            source='Google Maps API',
-            freshness_date='',  # Will be set by orchestrator
-            latitude=str(location.get('lat', '')) if location else '',
-            longitude=str(location.get('lng', '')) if location else ''
-        )
+                if parts:
+                    return ' | '.join(parts)
     
-    def fetch_area(
-        self,
-        location: str,
-        radius: int = 1500,
-        max_results: int = 60
-    ) -> List[Restaurant]:
-        """
-        Fetch all restaurants in an area.
+    return None
+
+
+def search_places_new(location: str, radius: int = 1500, api_key: str = None) -> List[Dict]:
+    """
+    Search for places using Places API (New) v1 nearby search.
+    
+    Args:
+        location: "lat,lng" string
+        radius: Search radius in meters
+        api_key: API key
         
-        Args:
-            location: "lat,lng" string
-            radius: Search radius in meters
-            max_results: Maximum results (Google limits to 60)
-            
-        Returns:
-            List of Restaurant instances
-        """
-        restaurants = []
-        next_page_token = None
-        
-        print(f"Fetching restaurants near {location} (radius: {radius}m)")
-        
-        while len(restaurants) < max_results:
-            params = {
-                'location': location,
-                'radius': radius,
-                'type': 'restaurant|bar',
-                'key': self.api_key
+    Returns:
+        List of place results
+    """
+    url = f"{PLACES_API_BASE}/places:searchNearby"
+    
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": api_key or GOOGLE_PLACES_API_KEY,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType"
+    }
+    
+    body = {
+        "locationRestriction": {
+            "circle": {
+                "center": {
+                    "latitude": float(location.split(',')[0]),
+                    "longitude": float(location.split(',')[1])
+                },
+                "radius": radius
             }
-            
-            if next_page_token:
-                params['pagetoken'] = next_page_token
-            
-            response = requests.get(PLACES_API_URL, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            if data.get('status') not in ['OK', 'ZERO_RESULTS']:
-                error_msg = data.get('error_message', data.get('status'))
-                raise Exception(f"Places API error: {error_msg}")
-            
-            results = data.get('results', [])
-            print(f"  Found {len(results)} places in this page")
-            
-            for place in results:
-                # Get detailed info
-                try:
-                    details = self.get_place_details(place['place_id'])
-                    restaurant = self.convert_to_restaurant(place, details)
-                    restaurants.append(restaurant)
-                except Exception as e:
-                    print(f"  Error fetching details for {place.get('name')}: {e}")
-                    # Use basic data
-                    restaurant = self.convert_to_restaurant(place)
-                    restaurants.append(restaurant)
-            
-            # Check for next page
-            next_page_token = data.get('next_page_token')
-            if not next_page_token:
-                break
-            
-            # Google requires delay between page requests
-            import time
-            time.sleep(2)
-        
-        print(f"Total: {len(restaurants)} restaurants")
-        return restaurants[:max_results]
-
-
-def fetch_92116_restaurants() -> List[Restaurant]:
-    """
-    Fetch restaurants in 92116 area (Normal Heights).
-    Center point: 2861 Copley Ave, San Diego, CA 92116
-    """
-    # Coordinates for 2861 Copley Ave
-    location = "32.762889,-117.119922"
+        },
+        "includedTypes": ["restaurant", "bar"],
+        "maxResultCount": 20
+    }
     
-    fetcher = GooglePlacesFetcher()
-    return fetcher.fetch_area(location, radius=1500, max_results=60)
+    response = requests.post(url, headers=headers, json=body, timeout=30)
+    
+    if response.status_code != 200:
+        print(f"Search API Error: {response.status_code} - {response.text[:200]}")
+        return []
+    
+    data = response.json()
+    return data.get('places', [])
+
+
+def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
+    """
+    Convert Places API v1 response to Restaurant model.
+    
+    Args:
+        place_data: API response for a single place
+        
+    Returns:
+        Restaurant instance
+    """
+    # Extract display name
+    name = place_data.get('displayName', {}).get('text', '')
+    
+    # Get address
+    address = place_data.get('formattedAddress', '')
+    
+    # Get phone and website
+    phone = place_data.get('nationalPhoneNumber', '')
+    website = place_data.get('websiteUri', '')
+    
+    # Parse regular opening hours
+    regular_hours = ""
+    reg_hours = place_data.get('regularOpeningHours', {})
+    if reg_hours:
+        descriptions = reg_hours.get('weekdayDescriptions', [])
+        if descriptions:
+            regular_hours = ' | '.join(descriptions)
+    
+    # Parse happy hours from current secondary opening hours
+    happy_hour_times = ""
+    sec_hours = place_data.get('currentSecondaryOpeningHours', [])
+    hh_result = parse_secondary_opening_hours(sec_hours)
+    if hh_result:
+        happy_hour_times = hh_result
+        try:
+            print(f"    [OK] Found happy hours: {hh_result[:60]}...")
+        except UnicodeEncodeError:
+            print(f"    [OK] Found happy hours: (unicode characters)")
+    
+    # Determine source
+    source = 'Google Places API'
+    if happy_hour_times:
+        source = 'Google Places API (Happy Hours)'
+    
+    # Get location if available
+    location = place_data.get('location', {})
+    
+    return Restaurant(
+        restaurant_name=name,
+        address=address,
+        phone_number=phone,
+        website_url=website,
+        happy_hour_times=happy_hour_times,
+        regular_hours=regular_hours,
+        rating=str(place_data.get('rating', '')),
+        review_count=str(place_data.get('userRatingCount', '')),
+        price_level=str(place_data.get('priceLevel', '')),
+        source=source,
+        freshness_date='',  # Will be set by caller
+        latitude=str(location.get('latitude', '')) if location else '',
+        longitude=str(location.get('longitude', '')) if location else ''
+    )
+
+
+def fetch_92116_restaurants(api_key: str = None) -> List[Restaurant]:
+    """
+    Fetch restaurants in 92116 area with happy hour data from Google Places API (New).
+    
+    Args:
+        api_key: Optional API key (uses default if not provided)
+        
+    Returns:
+        List of Restaurant instances with happy hour data where available
+    """
+    api_key = api_key or GOOGLE_PLACES_API_KEY
+    location = "32.762889,-117.119922"  # 2861 Copley Ave
+    
+    print(f"Fetching restaurants near {location} using Places API v1...")
+    
+    # Search for places
+    places = search_places_new(location, radius=1500, api_key=api_key)
+    print(f"Found {len(places)} places")
+    
+    restaurants = []
+    hh_count = 0
+    
+    for i, place_summary in enumerate(places, 1):
+        place_id = place_summary.get('id')
+        name = place_summary.get('displayName', {}).get('text', 'Unknown')
+        
+        print(f"[{i}/{len(places)}] Processing {name}...")
+        
+        # Get full details
+        details = get_place_details_new(place_id, api_key)
+        if not details:
+            continue
+        
+        try:
+            restaurant = convert_to_restaurant(details)
+            restaurants.append(restaurant)
+            if restaurant.happy_hour_times:
+                hh_count += 1
+        except Exception as e:
+            print(f"    Error converting: {e}")
+            continue
+    
+    print(f"\nTotal: {len(restaurants)} restaurants")
+    print(f"With happy hours: {hh_count}")
+    
+    return restaurants
+
+
+if __name__ == '__main__':
+    # Test
+    results = fetch_92116_restaurants()
+    for r in results[:3]:
+        try:
+            print(f"\n{r.restaurant_name}:")
+            print(f"  HH: {r.happy_hour_times or 'None'}")
+        except UnicodeEncodeError:
+            print(f"\n{r.restaurant_name}:")
+            print(f"  HH: (unicode)")
