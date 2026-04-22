@@ -1,8 +1,9 @@
 """
 Google Places API (New) v1 fetcher for restaurant data with happy hour support.
-Uses Places API v1 with field masks to get secondaryOpeningHours (happy hours).
+Uses Places API v1 text search with pagination to get more than 20 results.
 """
 import requests
+import time
 from typing import List, Optional, Dict, Any
 
 import sys
@@ -25,24 +26,18 @@ def get_place_details_new(place_id: str, api_key: str) -> Optional[Dict[str, Any
     Returns:
         Place details including secondaryOpeningHours
     """
-    # Place ID might need to be URL-encoded or have specific format
-    # Try with just the ID first
     url = f"{PLACES_API_BASE}/places/{place_id}"
-    print(f"    URL: {url[:80]}...")
     
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key,
-        # Request specific fields - use camelCase for v1 API
-        # Try currentSecondaryOpeningHours for happy hours
-        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours"
+        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours,rating,userRatingCount,priceLevel,location"
     }
     
     response = requests.get(url, headers=headers, timeout=30)
     
     if response.status_code != 200:
         print(f"    API Error: {response.status_code}")
-        print(f"    Response: {response.text[:500]}")
         return None
     
     return response.json()
@@ -51,12 +46,6 @@ def get_place_details_new(place_id: str, api_key: str) -> Optional[Dict[str, Any
 def parse_secondary_opening_hours(secondary_hours: List[Dict]) -> Optional[str]:
     """
     Parse secondary opening hours to find happy hours.
-    
-    The API returns currentSecondaryOpeningHours as a list where each entry has:
-    - openNow: boolean
-    - periods: list of periods with open/close times
-    - weekdayDescriptions: list of strings like "Monday: 3:00 PM – 6:00 PM"
-    - secondaryHoursType: str (e.g., "HAPPY_HOUR", "KITCHEN", "DELIVERY")
     
     Args:
         secondary_hours: List of SecondaryOpeningHour from API
@@ -68,77 +57,154 @@ def parse_secondary_opening_hours(secondary_hours: List[Dict]) -> Optional[str]:
         return None
     
     for entry in secondary_hours:
-        # Check if this entry is for happy hour
         hours_type = entry.get('secondaryHoursType', '').upper()
         if hours_type == 'HAPPY_HOUR':
-            # Get weekday descriptions
             descriptions = entry.get('weekdayDescriptions', [])
             if descriptions:
                 return ' | '.join(descriptions)
-            
-            # Fallback: build from periods
-            periods = entry.get('periods', [])
-            if periods:
-                parts = []
-                for period in periods:
-                    open_info = period.get('open', {})
-                    close_info = period.get('close', {})
-                    
-                    day = open_info.get('day', '')
-                    open_time = f"{open_info.get('hour', 0):02d}:{open_info.get('minute', 0):02d}"
-                    close_time = f"{close_info.get('hour', 0):02d}:{close_info.get('minute', 0):02d}"
-                    
-                    if day is not None:
-                        parts.append(f"Day {day}: {open_time} - {close_time}")
-                
-                if parts:
-                    return ' | '.join(parts)
     
     return None
 
 
-def search_places_new(location: str, radius: int = 2400, api_key: str = None, page_token: str = None) -> List[Dict]:
+def search_places_text(location: str, radius: int = 2400, api_key: str = None,
+                       keyword: str = None, page_token: str = None) -> tuple:
     """
-    Search for places using Places API (New) v1 nearby search.
+    Search for places using text search with pagination.
+    Uses Places API (New) v1 searchText endpoint.
     
     Args:
         location: "lat,lng" string
         radius: Search radius in meters
         api_key: API key
+        keyword: Search keyword
+        page_token: Next page token for pagination
         
     Returns:
-        List of place results
+        Tuple of (list of place results, next_page_token)
     """
-    url = f"{PLACES_API_BASE}/places:searchNearby"
+    url = f"{PLACES_API_BASE}/places:searchText"
     
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key or GOOGLE_PLACES_API_KEY,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType"
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType,nextPageToken"
     }
     
+    lat, lng = float(location.split(',')[0]), float(location.split(',')[1])
+    
     body = {
-        "locationRestriction": {
+        "textQuery": keyword or "restaurant",
+        "locationBias": {
             "circle": {
-                "center": {
-                    "latitude": float(location.split(',')[0]),
-                    "longitude": float(location.split(',')[1])
-                },
+                "center": {"latitude": lat, "longitude": lng},
                 "radius": radius
             }
         },
-        "includedTypes": ["restaurant", "bar"],
-        "maxResultCount": 20  # Google limit per page
+        "maxResultCount": 20
     }
+    
+    if page_token:
+        body["pageToken"] = page_token
     
     response = requests.post(url, headers=headers, json=body, timeout=30)
     
     if response.status_code != 200:
-        print(f"Search API Error: {response.status_code} - {response.text[:200]}")
-        return []
+        print(f"Text Search API Error: {response.status_code}")
+        return [], None
     
     data = response.json()
-    return data.get('places', [])
+    places = data.get('places', [])
+    next_token = data.get('nextPageToken')
+    
+    return places, next_token
+
+
+def search_places_paginated(location: str, radius: int = 2400, api_key: str = None,
+                            keyword: str = None, max_results: int = 60) -> List[Dict]:
+    """
+    Search for places with full pagination support.
+    Fetches multiple pages until max_results or no more pages.
+    
+    Args:
+        location: "lat,lng" string
+        radius: Search radius in meters
+        api_key: API key
+        keyword: Search keyword
+        max_results: Maximum total results to fetch
+        
+    Returns:
+        List of all place results
+    """
+    api_key = api_key or GOOGLE_PLACES_API_KEY
+    all_places = []
+    page_token = None
+    pages = 0
+    max_pages = (max_results + 19) // 20
+    
+    while len(all_places) < max_results and pages < max_pages:
+        places, page_token = search_places_text(
+            location, radius, api_key, keyword, page_token
+        )
+        
+        if not places:
+            break
+        
+        all_places.extend(places)
+        pages += 1
+        
+        if not page_token:
+            break
+        
+        time.sleep(0.5)  # Avoid rate limiting
+    
+    return all_places[:max_results]
+
+
+def fetch_all_places(location: str, radius: int = 2400, api_key: str = None,
+                     keywords: List[str] = None) -> List[Dict]:
+    """
+    Fetch all possible places using text search with pagination.
+    Searches multiple keywords and deduplicates results.
+    
+    Args:
+        location: "lat,lng" string
+        radius: Search radius in meters
+        api_key: API key
+        keywords: List of search keywords (default: restaurant, bar, happy hour, etc.)
+        
+    Returns:
+        Combined list of unique place results
+    """
+    api_key = api_key or GOOGLE_PLACES_API_KEY
+    all_places = {}
+    
+    if keywords is None:
+        keywords = ["restaurant", "bar", "happy hour", "pub", "grill", "kitchen"]
+    
+    print("=" * 60)
+    print("FETCHING ALL PLACES (text search with pagination)")
+    print("=" * 60)
+    
+    for keyword in keywords:
+        print(f"\n[Searching] '{keyword}'")
+        places = search_places_paginated(
+            location, radius, api_key, 
+            keyword=keyword, 
+            max_results=60
+        )
+        
+        for place in places:
+            pid = place.get('id')
+            if pid and pid not in all_places:
+                all_places[pid] = place
+        
+        print(f"  Found {len(places)} places (total unique: {len(all_places)})")
+    
+    print(f"\n{'=' * 60}")
+    print(f"TOTAL UNIQUE PLACES FOUND: {len(all_places)}")
+    print(f"{'=' * 60}")
+    
+    return list(all_places.values())
 
 
 def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
@@ -151,13 +217,8 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
     Returns:
         Restaurant instance
     """
-    # Extract display name
     name = place_data.get('displayName', {}).get('text', '')
-    
-    # Get address
     address = place_data.get('formattedAddress', '')
-    
-    # Get phone and website
     phone = place_data.get('nationalPhoneNumber', '')
     website = place_data.get('websiteUri', '')
     
@@ -169,23 +230,16 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
         if descriptions:
             regular_hours = ' | '.join(descriptions)
     
-    # Parse happy hours from current secondary opening hours
+    # Parse happy hours
     happy_hour_times = ""
     sec_hours = place_data.get('currentSecondaryOpeningHours', [])
     hh_result = parse_secondary_opening_hours(sec_hours)
     if hh_result:
         happy_hour_times = hh_result
-        try:
-            print(f"    [OK] Found happy hours: {hh_result[:60]}...")
-        except UnicodeEncodeError:
-            print(f"    [OK] Found happy hours: (unicode characters)")
+        print(f"    [OK] Happy hours: {hh_result[:60]}...")
     
-    # Determine source
-    source = 'Google Places API'
-    if happy_hour_times:
-        source = 'Google Places API (Happy Hours)'
+    source = 'Google Places API (Happy Hours)' if happy_hour_times else 'Google Places API'
     
-    # Get location if available
     location = place_data.get('location', {})
     
     return Restaurant(
@@ -195,49 +249,43 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
         website_url=website,
         happy_hour_times=happy_hour_times,
         regular_hours=regular_hours,
-        rating=str(place_data.get('rating', '')),
-        review_count=str(place_data.get('userRatingCount', '')),
-        price_level=str(place_data.get('priceLevel', '')),
+        rating=str(place_data.get('rating') or ''),
+        review_count=str(place_data.get('userRatingCount') or ''),
+        price_level=str(place_data.get('priceLevel') or ''),
         source=source,
-        freshness_date='',  # Will be set by caller
+        freshness_date='',
         latitude=str(location.get('latitude', '')) if location else '',
         longitude=str(location.get('longitude', '')) if location else ''
     )
 
 
-def fetch_92116_restaurants(api_key: str = None, max_results: int = 60) -> List[Restaurant]:
+def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List[Restaurant]:
     """
-    Fetch restaurants in 92116 area with happy hour data from Google Places API (New).
+    Fetch restaurants in 92116 area with happy hour data.
+    Uses text search with pagination to get around the 20-result limit.
     
     Args:
-        api_key: Optional API key (uses default if not provided)
-        max_results: Maximum results to fetch (Google limit is 60)
+        api_key: Optional API key
+        max_results: Maximum results to fetch
         
     Returns:
-        List of Restaurant instances with happy hour data where available
+        List of Restaurant instances
     """
     api_key = api_key or GOOGLE_PLACES_API_KEY
-    location = "32.762889,-117.119922"  # 2861 Copley Ave
+    location = "32.762889,-117.119922"
     
-    print(f"Fetching restaurants near {location} using Places API v1...")
-    print(f"Radius: 2400m (30-min walk), Max results: {max_results}")
+    print(f"Fetching restaurants near {location}")
+    print(f"Radius: 2400m, Target: {max_results} places\n")
     
-    # Search for places - may need multiple pages
-    all_places = []
-    page_token = None
+    # Fetch all places using pagination
+    all_places = fetch_all_places(location, radius=2400, api_key=api_key)
     
-    while len(all_places) < max_results:
-        places = search_places_new(location, radius=2400, api_key=api_key, page_token=page_token)
-        if not places:
-            break
-        all_places.extend(places)
-        print(f"  Found {len(places)} places (total: {len(all_places)})")
-        if len(all_places) >= max_results:
-            break
-        # Check for next page token (would need to implement pagination in search_places_new)
-        break  # For now, just use first page
+    # Limit if needed
+    if len(all_places) > max_results:
+        print(f"\nLimiting to {max_results} places (found {len(all_places)})")
+        all_places = all_places[:max_results]
     
-    print(f"Processing {len(all_places)} places...")
+    print(f"\nProcessing {len(all_places)} places for details...")
     
     restaurants = []
     hh_count = 0
@@ -246,9 +294,8 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 60) -> List[
         place_id = place_summary.get('id')
         name = place_summary.get('displayName', {}).get('text', 'Unknown')
         
-        print(f"[{i}/{len(all_places)}] Processing {name}...")
+        print(f"[{i}/{len(all_places)}] {name}...")
         
-        # Get full details
         details = get_place_details_new(place_id, api_key)
         if not details:
             continue
@@ -259,22 +306,19 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 60) -> List[
             if restaurant.happy_hour_times:
                 hh_count += 1
         except Exception as e:
-            print(f"    Error converting: {e}")
+            print(f"    Error: {e}")
             continue
     
-    print(f"\nTotal: {len(restaurants)} restaurants")
+    print(f"\n{'='*60}")
+    print(f"Total: {len(restaurants)} restaurants")
     print(f"With happy hours: {hh_count}")
+    print(f"{'='*60}")
     
     return restaurants
 
 
 if __name__ == '__main__':
-    # Test
     results = fetch_92116_restaurants()
     for r in results[:3]:
-        try:
-            print(f"\n{r.restaurant_name}:")
-            print(f"  HH: {r.happy_hour_times or 'None'}")
-        except UnicodeEncodeError:
-            print(f"\n{r.restaurant_name}:")
-            print(f"  HH: (unicode)")
+        print(f"\n{r.restaurant_name}:")
+        print(f"  HH: {r.happy_hour_times or 'None'}")

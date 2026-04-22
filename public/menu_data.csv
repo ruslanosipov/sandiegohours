@@ -1,13 +1,64 @@
 restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,menu_summary
-The Ould Sod,draft beers and well drinks,5.5,,,$5.50 draft beers and well drinks
 The Rabbit Hole,Draft Beers + House Wines,6.0,Select Apps,,"$6 Draft Beers, $7 Cocktails, Half-Off Apps"
-DAO Fu,,,Miso Cup,3.5,"Steamed Tofu, Fried Tofu, Miso Cup"
-Paleo Treats,,,Protein Keto Donuts,9.0,Protein Keto Donuts
-ampm,12 oz COFFEE,0.99,CHEESECAKE BITES,1.0,"$1 cheesecake bites, $1 fountain drink, $1 freeze, 99¢ coffee"
-Et Voilà! French Bistro,Boont daylight amber,7.0,Side of fries,5.0,"Fries $5, Baguette $6, Amber $7, Cocktails $12"
+Lazy Dog Restaurant & Bar,select bottled beer,5.0,edamame,3.0,"$3 edamame, $5 bottled beer, $7 draft, $8 cocktails"
+The Ould Sod,draft beers and well drinks,5.5,,,$5.50 draft beers and well drinks
+Brothers Mexican Restaurant,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
 Venice Pizza House Since 1954,Beers,4.0,,,"Beers starting at $4, wine glasses starting at $5"
-Señor Mangos,Aguas Frescas,4.5,Cottage Cheese/Yogurt Cup,6.95,"Aguas Frescas $4.50, Cottage Cheese/Yogurt Cup $6.95"
-Giant Pizza King,Soda,1.5,14'' Pizza Cheese & One Topping Pizza Special Pick Up Only,11.99,"$11.99 pizza, $15.99 wings, $18.99 king plate, $26.99 special"
-Brothers Mexican Restaurant,$5 bottled beer,5.0,$6 chips and salsa,6.0,"$5 bottled beer, $7 draft, $8 cocktails, $6 chips and salsa"
-Bocas Del Sol. (MissShelly's Shack ),,,Bocas Bowl,10.0,"BBQ Quesadilla, Latina Nachos, Bocas Bowl, Crispy Fries"
-Savio's Pizza,Soda,1.99,Garlic Knots,5.99,"$5.99 garlic knots, $6.99 salads, $8 onion rings, $1.99 soda"
+Trattoria da Sofia,Peroni,5.0,Garlic Bread,7.0,"$7 Garlic Bread, $8 Polpette, $10 Cesare, $5 Beer and $7 Drinks"
+Street Side Thai Kitchen,,,Mild Steam Edamame,7.95,"Edamame, Tofu Tempura, Summer Rolls, and Calamari"
+Et Voilà! French Bistro,Boont daylight amber,7.0,Baguette et beurre,6.0,"$6 baguette, $10 tempura, $7 beers, $12 cocktails and wines"
+The Hangout Restaurant and Bar,Bottled Beer,5.0,Wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Brother's Mexican Restaurant,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Trust,DRAFT BEER,6.0,SMASH BURGER,10.0,"$10 cocktails, $10 wine, $6 draft beer, $10 smash burger"
+Thai Joint,$5 bottled beer,5.0,$6 spring rolls,6.0,"$6 spring rolls, $7 cocktails, and $8 wine"
+Black Radish,bottled beer,5.0,wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Rosie O'Grady's,$5 Drafts,5.0,$2 Off Wings,,"$5 Drafts, $7 Wells, $2 Off Wings, $10 Chicken Bites"
+Polite Provisions,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Soda Bar,well drinks,6.0,fries,5.0,"$5 fries, $6 well drinks, $7 draft, and $8 cocktails"
+Part Time Lover,$12 cocktails,12.0,$6 fries,6.0,"$6 fries, $8 wings, $10 pizzas, and $12 cocktails"
+Redwing Bar & Grill,beer,7.0,burger and beer,7.0,$7 burger and beer
+Monkeybar,"draft beers, house cabernet and house chardonnay",7.0,wood-fired pizza,13.0,"$13 pizza, $7 draft beers, house wine"
+The Lancers,$7 cocktails,7.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+The Tower Bar,all drafts and wells,1.0,,,$1 off drafts and wells
+McGregor's Bar and Grill,$5 select draft beer,5.0,discounted bar bites,,"$1-off well drinks, $5 draft beer, discounted bites"
+Til-Two Club,Shots,3.0,,,"$3 shots, $4 wells, and $5 drafts"
+Cleopatra's Lounge,,,Hookah Refill,10.0,"$18 Hookah, $10 Refill, $4 Ice Hose"
+Dave & Buster's San Diego,$5 beverages,5.0,,,"$5 beverages including draft beer, wine, and cocktails"
+Fairplay,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Whistle Stop Bar,Taps & Spirits,,,,$1 off Taps & Spirits everyday 4 PM-7 PM
+Aero Club Bar,$5 beers,5.0,,,$5 beers
+The Library Tavern,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Camel's Bar and Grill,,,PUPPY PATTY,5.0,"Puppy Patty $5, Doggone Dessert $3"
+Pal Joey's Cocktail Lounge,Mimosas,3.5,,,"$3.50 Mimosas, $5 Jameson and Ketel One, $6 Buffalo Trace and $7 Teremana Blanco"
+Urban MO's Bar & Grill,12oz Bud Light Drafts,1.0,,,"$1 Bud Light Drafts, $10 mini pitchers"
+619 Spirits North Park,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Belching Beaver Brewery North Park,$5 Pint Tuesdays,5.0,,,$5 pints
+AIR CONDITIONED Lounge,$7 Slushies,7.0,,,$7 slushies and shooters
+Chili's Grill & Bar,Bud Light 16 oz,3.0,,,"$3 beers, $4 beers, $5 wines and margaritas"
+Nómade Tapas and Records,,,Olives,6.0,"Olives $6, Croquetas $9, Pajarito $9, Shishito $9, Patatas Bravas $9"
+False Idol,$10 cocktails,10.0,$8 pupu platter,8.0,"$8 pupu platter, $10 cocktails"
+Fernside,$7 draft,7.0,$6 fries,6.0,"$6 fries, $7 draft, and $9 cocktails"
+TapRoom Beer Company,,,Chicken Tortilla Soup,4.95,"$4.95 soup, $8.95 fries, $16.95 sandwiches, $17.95 burgers"
+West Coast Tavern,Spicy Pomegranate Mule,12.0,Patatas Bravas,9.0,"$9 Patatas Bravas, $10 Garlic Parmesan Fries, $12 Spicy Pomegranate Mule"
+Shakespeare Pub,House Wine,5.0,,,"$1 off draught pints, well liquor, bottled beer, and house wine"
+Eureka!,Bottled Beer,5.0,Crispy Cauliflower,6.0,"$5 bottled beer, $6 cauliflower, $7 draft, $8 cocktails"
+Happy Does Bar,$5 Bud Light,5.0,$3 Crispy Chicken Sliders,3.0,"$3 sliders, $5 beers, $6 wine and seltzer"
+Encontro North Park,$7 watermelon soju shots,7.0,$7 tapas,7.0,$7 tapas and $7 soju shots
+BJ's Restaurant & Brewhouse,BJ's Blonde Ale,5.0,Pizookie,4.0,"$4 Pizookie, $5 Blonde Ale, $7 appetizers and $8 cocktails"
+The Pub,$4 Cans,4.0,Pub Bites,,"$4 cans, $7 cocktails, and 50% off Pub Bites"
+Stout Public House,,,Mini Angus Beef Burgers,5.0,"$5 mini burgers, $10 curry chips, $13 mac and cheese"
+Bock,draft pints,2.0,,,"$2 off draft pints, $4 off liter steins, $10 off Kranz, $2 Bergs"
+Neighborhood,$7 draft,7.0,$5 fries,5.0,"$5 fries, $7 draft, and $9 cocktails"
+Bullpen,,,Chips and Salsa,6.5,"$6.50 Chips and Salsa, $8.75 Potato Skins, $9.25 Chili Fries"
+Gaslamp Tavern,Mexican Lager,14.0,2 Tacos,14.0,$14 tacos and Mexican lager
+Knotty Barrel,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
+Novo Brazil Brewing Mission Valley,$5 Pints,5.0,,,$5 Pints
+Pretzels & Pints,$2 OFF DRAFTS,,"$6 pint with any pretzel, pizza or sandwich purchase",6.0,"$2 off drafts, $6 pint with pretzel, pizza, sandwich"
+Babaz Grill Pizza & Subs,Soda,2.55,Hot Sauce,0.55,"$0.55 hot sauce, $2.55 soda, $8.99 jalapeno poppers"
+Wagyu Shawarma Grill Mission Valley,,,French Fries,3.0,"$3 French Fries, $5 Baba Ganoush and Hummus"
+Wild Thyme Bar & Grill,Canned Soda,2.0,Pita Bread,1.0,"$1 pita, $2 soda, $7 beer and wine"
+Applebee's Grill + Bar,Busch Light Apple,4.0,1/2 price appetizers,,"1/2 price appetizers, $4 Busch Light Apple"
+Offshore Tavern & Grill,any beer,10.0,5 of any flavor wing,10.0,Wing Wednesday: beer and wings for $10
+Luna Grill Mission Valley,$5 bottled beer,5.0,$6 hummus,6.0,"$6 hummus, $7 appetizers, $8 cocktails and $9 wine"
+Garden Fresh Grill & Smoothie,,,Vegetarian Sambusa,2.49,"$2.49 Sambusa, $5.95 Falafel, $10.95 Hummus, $15.95 Combos"
+Luna Grill Hillcrest,$5 bottled beer,5.0,$6 hummus,6.0,"$6 hummus, $7 appetizers, $5 bottled beer, $7 draft, $8 cocktails"

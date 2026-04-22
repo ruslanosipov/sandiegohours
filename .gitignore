@@ -45,3 +45,10 @@ next-env.d.ts
 /dist
 __pycache__/
 *.pyc
+.pytest_cache/
+.cache/
+.next/
+node_modules/
+check_menu.py
+check_status.py
+temp_hh.txt
