@@ -22,7 +22,11 @@ class Restaurant:
     freshness_date: str = ""
     latitude: Optional[str] = None
     longitude: Optional[str] = None
-    
+
+    # Google Maps data
+    google_maps_url: str = ""
+    generative_summary: str = ""
+
     # Menu data (populated by AI)
     cheapest_drink: Optional[str] = None
     cheapest_drink_price: Optional[float] = None

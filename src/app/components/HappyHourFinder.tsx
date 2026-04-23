@@ -290,6 +290,11 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                   )}
                 </div>
 
+                {/* Generative Summary */}
+                {restaurant.generative_summary && (
+                  <p className="text-sm text-gray-600 italic mb-3">{restaurant.generative_summary}</p>
+                )}
+
                 <div className="flex items-center text-sm text-gray-600 mb-2">
                   <span className="font-medium">{restaurant.rating}★</span>
                   <span className="mx-1">·</span>
@@ -302,7 +307,39 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                   )}
                 </div>
 
-                <p className="text-sm text-gray-700 mb-3">{restaurant.address}</p>
+                {/* Clickable Address with Map Icon */}
+                {restaurant.google_maps_url ? (
+                  <a
+                    href={restaurant.google_maps_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-700 mb-3 flex items-center gap-1 hover:text-blue-600 transition-colors group"
+                  >
+                    <svg
+                      className="w-4 h-4 text-gray-400 group-hover:text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <span className="group-hover:underline">{restaurant.address}</span>
+                  </a>
+                ) : (
+                  <p className="text-sm text-gray-700 mb-3">{restaurant.address}</p>
+                )}
 
                 {hasHH && (
                   <details 

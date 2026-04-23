@@ -20,6 +20,8 @@ interface GooglePlaceV1 {
   userRatingCount?: number;
   priceLevel?: string;
   location?: { latitude?: number; longitude?: number };
+  googleMapsUri?: string;
+  editorialSummary?: { text?: string };
 }
 
 interface Restaurant {
@@ -36,6 +38,8 @@ interface Restaurant {
   freshness_date: string;
   latitude: string;
   longitude: string;
+  google_maps_url: string;
+  generative_summary: string;
 }
 
 function convertToRestaurant(placeData: GooglePlaceV1): Restaurant {
@@ -63,11 +67,17 @@ function convertToRestaurant(placeData: GooglePlaceV1): Restaurant {
     }
   }
 
-  const source = happyHourTimes 
-    ? 'Google Places API (Happy Hours)' 
+  const source = happyHourTimes
+    ? 'Google Places API (Happy Hours)'
     : 'Google Places API';
 
   const location = placeData.location || {};
+
+  // Extract Google Maps URL
+  const googleMapsUrl = placeData.googleMapsUri || '';
+
+  // Extract editorial summary (one-sentence description)
+  const generativeSummary = placeData.editorialSummary?.text || '';
 
   return {
     restaurant_name: name,
@@ -83,6 +93,8 @@ function convertToRestaurant(placeData: GooglePlaceV1): Restaurant {
     freshness_date: '',
     latitude: String(location.latitude || ''),
     longitude: String(location.longitude || ''),
+    google_maps_url: googleMapsUrl,
+    generative_summary: generativeSummary,
   };
 }
 
@@ -270,5 +282,105 @@ describe('Google Places API V1 Conversion', () => {
     const result = convertToRestaurant(placeData);
 
     expect(result.review_count).toBe('999999');
+  });
+
+  it('extracts googleMapsUri as google_maps_url', () => {
+    const placeData: GooglePlaceV1 = {
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+      googleMapsUri: 'https://www.google.com/maps/place/Test+Bar',
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.google_maps_url).toBe('https://www.google.com/maps/place/Test+Bar');
+  });
+
+  it('extracts editorialSummary text', () => {
+    const placeData: GooglePlaceV1 = {
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+      editorialSummary: {
+        text: 'A popular local spot known for craft beers and pub grub.',
+      },
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.generative_summary).toBe('A popular local spot known for craft beers and pub grub.');
+  });
+
+  it('handles missing googleMapsUri', () => {
+    const placeData: GooglePlaceV1 = {
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.google_maps_url).toBe('');
+  });
+
+  it('handles missing editorialSummary', () => {
+    const placeData: GooglePlaceV1 = {
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.generative_summary).toBe('');
+  });
+
+  it('handles empty editorialSummary object', () => {
+    const placeData: GooglePlaceV1 = {
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+      editorialSummary: {},
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.generative_summary).toBe('');
+  });
+
+  it('converts full place data with new fields correctly', () => {
+    const placeData: GooglePlaceV1 = {
+      id: 'ChIJ123',
+      displayName: { text: 'Test Restaurant', languageCode: 'en' },
+      formattedAddress: '123 Main St, San Diego, CA',
+      nationalPhoneNumber: '(619) 555-1234',
+      websiteUri: 'https://example.com',
+      regularOpeningHours: {
+        weekdayDescriptions: [
+          'Monday: 11:00 AM - 10:00 PM',
+          'Tuesday: 11:00 AM - 10:00 PM',
+        ],
+      },
+      currentSecondaryOpeningHours: [
+        {
+          secondaryHoursType: 'HAPPY_HOUR',
+          weekdayDescriptions: [
+            'Monday: 3:00 PM - 6:00 PM',
+            'Tuesday: 3:00 PM - 6:00 PM',
+          ],
+        },
+      ],
+      rating: 4.5,
+      userRatingCount: 1234,
+      priceLevel: 'PRICE_LEVEL_MODERATE',
+      location: { latitude: 32.7157, longitude: -117.1611 },
+      googleMapsUri: 'https://www.google.com/maps/place/Test+Restaurant',
+      editorialSummary: {
+        text: 'A cozy neighborhood spot with great happy hour deals.',
+      },
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.restaurant_name).toBe('Test Restaurant');
+    expect(result.address).toBe('123 Main St, San Diego, CA');
+    expect(result.google_maps_url).toBe('https://www.google.com/maps/place/Test+Restaurant');
+    expect(result.generative_summary).toBe('A cozy neighborhood spot with great happy hour deals.');
   });
 });

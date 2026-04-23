@@ -32,7 +32,7 @@ def get_place_details_new(place_id: str, api_key: str) -> Optional[Dict[str, Any
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key,
-        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours,rating,userRatingCount,priceLevel,location"
+        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours,rating,userRatingCount,priceLevel,location,googleMapsUri,editorialSummary"
     }
     
     response = requests.get(url, headers=headers, timeout=30)
@@ -274,10 +274,10 @@ def fetch_all_places(location: str, radius: int = 800, api_key: str = None,
 def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
     """
     Convert Places API v1 response to Restaurant model.
-    
+
     Args:
         place_data: API response for a single place
-        
+
     Returns:
         Restaurant instance
     """
@@ -285,7 +285,7 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
     address = place_data.get('formattedAddress', '')
     phone = place_data.get('nationalPhoneNumber', '')
     website = place_data.get('websiteUri', '')
-    
+
     # Parse regular opening hours
     regular_hours = ""
     reg_hours = place_data.get('regularOpeningHours', {})
@@ -293,19 +293,32 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
         descriptions = reg_hours.get('weekdayDescriptions', [])
         if descriptions:
             regular_hours = ' | '.join(descriptions)
-    
+
     # Parse happy hours
     happy_hour_times = ""
     sec_hours = place_data.get('currentSecondaryOpeningHours', [])
     hh_result = parse_secondary_opening_hours(sec_hours)
     if hh_result:
         happy_hour_times = hh_result
-        print(f"    [OK] Happy hours: {hh_result[:60]}...")
-    
+        # Safe print for Windows console encoding
+        try:
+            print(f"    [OK] Happy hours: {hh_result[:60]}...")
+        except UnicodeEncodeError:
+            print("    [OK] Happy hours: <Unicode content>")
+
     source = 'Google Places API (Happy Hours)' if happy_hour_times else 'Google Places API'
-    
+
     location = place_data.get('location', {})
-    
+
+    # Extract Google Maps URL
+    google_maps_url = place_data.get('googleMapsUri', '')
+
+    # Extract editorial summary (one-sentence description)
+    generative_summary = ""
+    summary_obj = place_data.get('editorialSummary', {})
+    if summary_obj and isinstance(summary_obj, dict):
+        generative_summary = summary_obj.get('text', '')
+
     return Restaurant(
         restaurant_name=name,
         address=address,
@@ -319,7 +332,9 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
         source=source,
         freshness_date='',
         latitude=str(location.get('latitude', '')) if location else '',
-        longitude=str(location.get('longitude', '')) if location else ''
+        longitude=str(location.get('longitude', '')) if location else '',
+        google_maps_url=google_maps_url,
+        generative_summary=generative_summary
     )
 
 
@@ -359,18 +374,25 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List
     for i, place_summary in enumerate(all_places, 1):
         place_id = place_summary.get('id')
         name = place_summary.get('displayName', {}).get('text', 'Unknown')
-        
-        print(f"[{i}/{len(all_places)}] {name}...")
-        
+
+        # Safe print for Windows console encoding
+        try:
+            print(f"[{i}/{len(all_places)}] {name}...")
+        except UnicodeEncodeError:
+            print(f"[{i}/{len(all_places)}] <Unicode name>...")
+
         details = get_place_details_new(place_id, api_key)
         if not details:
             continue
-        
+
         try:
             restaurant = convert_to_restaurant(details)
             restaurants.append(restaurant)
             if restaurant.happy_hour_times:
                 hh_count += 1
+        except UnicodeEncodeError as e:
+            print(f"    Error: Unicode encoding issue")
+            continue
         except Exception as e:
             print(f"    Error: {e}")
             continue

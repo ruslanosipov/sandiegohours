@@ -1,9 +1,17 @@
 restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,menu_summary
-The Rabbit Hole,Draft Beers + House Wines,6.0,Select Apps,,"$6 Draft Beers, $7 Cocktails, Half-Off Apps"
-The Ould Sod,draft beers and well drinks,5.5,,,$5.50 draft beers and well drinks
-DAO Fu,,,Miso Cup,3.5,"Steamed Tofu, Fried Tofu, Miso Cup"
-Brothers Mexican Restaurant,$5 bottled beer,5.0,$1 wings,1.0,"$1 wings, $3 sliders, $5 bottled, $7 draft and cocktails"
-Thai Joint,$5 bottled beer,5.0,$6 spring rolls,6.0,"$6 spring rolls, $7 draft, and $8 cocktails"
-Savio's Pizza,Soda,1.99,Garlic Knots,5.99,"$5.99 garlic knots, $6.99 salads, $8 onion rings, $10.99 wings and $12.99 pizzas"
-Rosie O'Grady's,$5 Drafts,5.0,$2 Off Wings,,"$5 Drafts, $7 Wells, and $2 Off Wings"
-Cleopatra's Lounge,,,Happy Hour Hookah,18.0,"Happy Hour Hookah $18, Refill $10, Ice Hose $4"
+The Rabbit Hole,$6 Draft Beers + House Wines,6.0,Half-Off Select Apps,,"$6 Draft Beers, $7 Specialty Cocktails, Half-Off Apps"
+The Ould Sod,well drinks,5.5,,,$5.50 draft beers and well drinks
+Trattoria da Sofia,Peroni,5.0,Garlic Bread,7.0,"Peroni $5, Garlic Bread $7, Margherita Flatbread $12, Aperol Spritz $10"
+Et Voilà! French Bistro,Boont daylight amber,7.0,Side of fries,5.0,"Baguette et beurre $6, Side of fries $5, and Boont daylight amber $7"
+The Hangout Restaurant and Bar,Bottle Beer,5.0,Wings,1.0,"$1 wings, $3 sliders, $5 bottled beer, $7 cocktails and draft"
+Bleu Bohème,Café Rue Bourbon,15.0,,,Café Rue Bourbon $15
+Venice Pizza House Since 1954,Beers,4.0,,,"Beers starting at $4, Wine glasses starting at $5"
+Ximalli Restaurant,,,Torta de Carnitas,13.5,Torta de Carnitas $13.50
+Rosie O'Grady's,$5 Drafts,5.0,,,"$5 Drafts, $7 Wells"
+Redwing Bar & Grill,,,burger and beer,7.0,burger and beer for $7
+Dave & Buster's San Diego,$5 beverages,5.0,,,"$5 beverages including domestic draft beer, wine, and cocktails."
+AIR CONDITIONED Lounge,$7 Slushies,7.0,,,$7 Slushies and $7 Shooters
+Belching Beaver Brewery North Park,$5 pints,5.0,,,$5 pints
+Encontro North Park,$7 watermelon soju shots,7.0,$7 tapas,7.0,$7 tapas and $7 watermelon soju shots
+Whiskers & Wine Cat Cafe,SODA,3.5,Add-on: Assorted Chocolates,4.0,"SODA $3.50, HOT COCOA $5, MEOWMOSA $12"
+Bully's East Prime Bistro Sports Bar,,,Baja Fish Tacos,3.5,"Margaritas $8, Filet Tacos $3.75, Fish Tacos $3.50, Shrimp Tacos $3.50"

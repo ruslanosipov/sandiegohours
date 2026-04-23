@@ -13,6 +13,9 @@ export interface HappyHourPlace {
   latitude?: string;
   longitude?: string;
   distance?: number; // in miles, calculated at runtime
+  // Google Maps data
+  google_maps_url?: string;
+  generative_summary?: string;
   // Menu data
   cheapest_drink?: string;
   cheapest_drink_price?: number;
