@@ -28,15 +28,29 @@ class MenuProcessor:
         Returns:
             True if successful, False otherwise
         """
+        try:
+            name = restaurant.restaurant_name
+        except UnicodeEncodeError:
+            name = "<Unicode name>"
+        
         if not restaurant.website_url:
-            print(f"  No website for {restaurant.restaurant_name}")
+            try:
+                print(f"  No website for {name}")
+            except UnicodeEncodeError:
+                print("  No website for <Unicode name>")
             return False
         
-        print(f"Processing {restaurant.restaurant_name}...")
+        try:
+            print(f"Processing {name}...")
+        except UnicodeEncodeError:
+            print("Processing <Unicode name>...")
         
         # Find menu/happy hour page
         menu_url = self.fetcher.find_menu_page(restaurant.website_url)
-        print(f"  URL: {menu_url}")
+        try:
+            print(f"  URL: {menu_url}")
+        except UnicodeEncodeError:
+            print("  URL: <Unicode content>")
         
         # Fetch and clean content
         text = self.fetcher.fetch_clean(menu_url)
@@ -44,7 +58,10 @@ class MenuProcessor:
             print(f"  Failed to fetch content")
             return False
         
-        print(f"  Fetched {len(text)} chars of content")
+        try:
+            print(f"  Fetched {len(text)} chars of content")
+        except UnicodeEncodeError:
+            print("  Fetched content")
         
         # Reject if content is too short (likely error/loading page)
         if len(text) < 100:

@@ -237,7 +237,7 @@ def fetch_all_places(location: str, radius: int = 800, api_key: str = None,
     all_places = {}
     
     if keywords is None:
-        keywords = ["restaurant", "bar", "happy hour", "pub", "grill", "kitchen"]
+        keywords = ["restaurant", "bar", "happy hour", "pub", "grill", "kitchen", "brewery"]
     
     print("=" * 60)
     print("FETCHING ALL PLACES (text search with pagination)")
@@ -353,10 +353,10 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List
     api_key = api_key or GOOGLE_PLACES_API_KEY
     location = "32.762889,-117.119922"
     
-    radius = 2000  # ~25 min walk
+    radius = 4000  # ~2.5 miles
     
     print(f"Fetching restaurants near {location}")
-    print(f"Radius: {radius}m (~25 min walk), Target: {max_results} places\n")
+    print(f"Radius: {radius}m (~2.5 miles), Target: {max_results} places\n")
     
     # Fetch all places using pagination
     all_places = fetch_all_places(location, radius=radius, api_key=api_key)

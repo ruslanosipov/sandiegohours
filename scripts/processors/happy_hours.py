@@ -27,15 +27,29 @@ class HappyHourProcessor:
         Returns:
             True if successful, False otherwise
         """
+        try:
+            name = restaurant.restaurant_name
+        except UnicodeEncodeError:
+            name = "<Unicode name>"
+        
         if not restaurant.website_url:
-            print(f"  No website for {restaurant.restaurant_name}")
+            try:
+                print(f"  No website for {name}")
+            except UnicodeEncodeError:
+                print("  No website for <Unicode name>")
             return False
         
-        print(f"Processing {restaurant.restaurant_name}...")
+        try:
+            print(f"Processing {name}...")
+        except UnicodeEncodeError:
+            print("Processing <Unicode name>...")
         
         # Find menu/happy hour page
         menu_url = self.fetcher.find_menu_page(restaurant.website_url)
-        print(f"  URL: {menu_url}")
+        try:
+            print(f"  URL: {menu_url}")
+        except UnicodeEncodeError:
+            print("  URL: <Unicode content>")
         
         # Fetch and clean content
         text = self.fetcher.fetch_clean(menu_url)
@@ -43,7 +57,10 @@ class HappyHourProcessor:
             print(f"  Failed to fetch content")
             return False
         
-        print(f"  Fetched {len(text)} chars of content")
+        try:
+            print(f"  Fetched {len(text)} chars of content")
+        except UnicodeEncodeError:
+            print("  Fetched content")
         
         # Send to AI
         try:
@@ -66,7 +83,10 @@ class HappyHourProcessor:
                 # Update restaurant
                 restaurant.happy_hour_times = format_happy_hour_times(result['happy_hours'])
                 restaurant.source = f'Website (AI parsed, {confidence} confidence)'
-                print(f"  [OK] Found: {restaurant.happy_hour_times[:60]}...")
+                try:
+                    print(f"  [OK] Found: {restaurant.happy_hour_times[:60]}...")
+                except UnicodeEncodeError:
+                    print("  [OK] Found happy hours")
                 return True
             else:
                 print(f"  No happy hours found")
