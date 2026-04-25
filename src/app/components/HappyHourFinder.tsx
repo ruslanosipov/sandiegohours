@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { HappyHourPlace } from "@/types/happy-hour";
 import { parseHappyHourTimes, hasHappyHour, formatPriceLevel, getHappyHourStatus, getHappyHourStatusLabel, isHappyHourActive, HappyHourStatus, normalizeHappyHourTimes } from "@/lib/happy-hour-utils";
 import { sortByDistance, formatDistance } from "@/lib/distance-utils";
@@ -30,13 +30,9 @@ function formatDate(dateStr: string): string {
 }
 
 export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
-  const now = new Date();
-  const currentDay = DAYS[now.getDay()];
-  const currentHour = now.getHours();
-  const currentTime = `${currentHour.toString().padStart(2, "0")}:00`;
-
-  const [selectedDay, setSelectedDay] = useState<string>(currentDay);
-  const [selectedTime, setSelectedTime] = useState<string>(currentTime);
+  // Use static initial values to avoid hydration mismatch between server and client.
+  const [selectedDay, setSelectedDay] = useState<string>("Monday");
+  const [selectedTime, setSelectedTime] = useState<string>("12:00");
   const [showOnlyHappyHour, setShowOnlyHappyHour] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<'name' | 'distance'>('name');
@@ -44,6 +40,15 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [expandedHappyHours, setExpandedHappyHours] = useState<Set<string>>(new Set());
+  const [mounted, setMounted] = useState(false);
+
+  // Update date/time on client only after hydration completes
+  useEffect(() => {
+    const now = new Date();
+    setSelectedDay(DAYS[now.getDay()]);
+    setSelectedTime(`${now.getHours().toString().padStart(2, "0")}:00`);
+    setMounted(true);
+  }, []);
 
   // Create a date object from selected day and time for accurate filtering
   const selectedDateTime = useMemo(() => {
@@ -58,6 +63,11 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   }, [selectedDay, selectedTime]);
 
   const handleGetLocation = useCallback(() => {
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      setLocationError('Location access requires a secure connection (HTTPS or localhost).');
+      return;
+    }
+
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by your browser');
       return;
@@ -79,7 +89,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         let message = 'Unable to retrieve your location';
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            message = 'Location access denied';
+            message = 'Location access denied. Please enable location services in your browser settings.';
             break;
           case err.POSITION_UNAVAILABLE:
             message = 'Location information unavailable';
@@ -342,47 +352,54 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                 )}
 
                 {hasHH && (
-                  <details 
-                    className="text-sm mb-3"
-                    open={expandedHappyHours.has(restaurant.restaurant_name)}
-                    onToggle={(e) => {
-                      const newSet = new Set(expandedHappyHours);
-                      if (e.currentTarget.open) {
-                        newSet.add(restaurant.restaurant_name);
-                      } else {
-                        newSet.delete(restaurant.restaurant_name);
-                      }
-                      setExpandedHappyHours(newSet);
-                    }}
-                  >
-                    <summary className={`cursor-pointer font-medium p-2 rounded-md ${isActive ? "bg-green-50 text-green-800 hover:bg-green-100" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}>
-                      Happy Hour
-                      {!expandedHappyHours.has(restaurant.restaurant_name) && (
-                        <span className="ml-2 text-gray-500 font-normal">
-                          {(() => {
-                            const todayLine = normalizeHappyHourTimes(restaurant.happy_hour_times)
-                              .split(" | ")
-                              .find(line => line.toLowerCase().startsWith(selectedDay.toLowerCase()));
-                            return todayLine ? `(${todayLine})` : '';
-                          })()}
-                        </span>
-                      )}
-                    </summary>
-                    <div className={`mt-2 p-3 rounded-md ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
-                      {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => {
-                        const dayName = line.split(':')[0].trim();
-                        const isToday = dayName.toLowerCase() === selectedDay.toLowerCase();
-                        return (
-                          <span 
-                            key={i} 
-                            className={`block leading-snug ${isToday ? 'font-bold text-gray-900' : ''}`}
-                          >
-                            {line}
+                  <div className="text-sm mb-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newSet = new Set(expandedHappyHours);
+                        if (newSet.has(restaurant.restaurant_name)) {
+                          newSet.delete(restaurant.restaurant_name);
+                        } else {
+                          newSet.add(restaurant.restaurant_name);
+                        }
+                        setExpandedHappyHours(newSet);
+                      }}
+                      className={`w-full text-left cursor-pointer font-medium p-2 rounded-md flex items-center justify-between ${isActive ? "bg-green-50 text-green-800 hover:bg-green-100" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
+                    >
+                      <span>
+                        Happy Hour
+                        {!expandedHappyHours.has(restaurant.restaurant_name) && (
+                          <span className="ml-2 text-gray-500 font-normal">
+                            {(() => {
+                              const todayLine = normalizeHappyHourTimes(restaurant.happy_hour_times)
+                                .split(" | ")
+                                .find(line => line.toLowerCase().startsWith(selectedDay.toLowerCase()));
+                              return todayLine ? `(${todayLine})` : '';
+                            })()}
                           </span>
-                        );
-                      })}
-                    </div>
-                  </details>
+                        )}
+                      </span>
+                      <span className="text-gray-400">
+                        {expandedHappyHours.has(restaurant.restaurant_name) ? '▲' : '▼'}
+                      </span>
+                    </button>
+                    {expandedHappyHours.has(restaurant.restaurant_name) && (
+                      <div className={`mt-2 p-3 rounded-md ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
+                        {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => {
+                          const dayName = line.split(':')[0].trim();
+                          const isToday = dayName.toLowerCase() === selectedDay.toLowerCase();
+                          return (
+                            <span
+                              key={i}
+                              className={`block leading-snug ${isToday ? 'font-bold text-gray-900' : ''}`}
+                            >
+                              {line}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {/* AI Menu Summary */}
@@ -422,12 +439,32 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                 </div>
 
                 {restaurant.regular_hours && (
-                  <details className="mt-3 text-sm">
-                    <summary className="text-gray-500 cursor-pointer hover:text-gray-700">Regular Hours</summary>
-                    <p className="mt-2 text-gray-600 pl-2 border-l-2 border-gray-200">
-                      {restaurant.regular_hours.split(" | ").map((line, i) => <span key={i} className="block">{line}</span>)}
-                    </p>
-                  </details>
+                  <div className="mt-3 text-sm">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newSet = new Set(expandedHappyHours);
+                        const key = `${restaurant.restaurant_name}__regular`;
+                        if (newSet.has(key)) {
+                          newSet.delete(key);
+                        } else {
+                          newSet.add(key);
+                        }
+                        setExpandedHappyHours(newSet);
+                      }}
+                      className="text-gray-500 cursor-pointer hover:text-gray-700 flex items-center gap-1"
+                    >
+                      <span>Regular Hours</span>
+                      <span className="text-gray-400">
+                        {expandedHappyHours.has(`${restaurant.restaurant_name}__regular`) ? '▲' : '▼'}
+                      </span>
+                    </button>
+                    {expandedHappyHours.has(`${restaurant.restaurant_name}__regular`) && (
+                      <p className="mt-2 text-gray-600 pl-2 border-l-2 border-gray-200">
+                        {restaurant.regular_hours.split(" | ").map((line, i) => <span key={i} className="block">{line}</span>)}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
