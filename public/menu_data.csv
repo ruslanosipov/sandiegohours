@@ -1,4 +1,78 @@
 restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,menu_summary
-Tajima Ramen Mercury,,,Miso Soup,3.0,All tap beer $3.50 Padres Home Games
-Tajima Ramen Convoy,Hot Sake,4.5,Edamame or Garlic Edamame,5.5,"$3.50 tap beer, Edamame, Karaage, and Cream Cheese Wontons"
-Sushi Kuchi,Coke,3.75,Avocado 2pcs,9.0,"Hot Sake, Sapporo, Plum Wine, Edamame, and House Salad"
+Sushi Kuchi,Coke,3.75,Avocado 2pcs,9.0,"Coke, Edamame, and Avocado"
+Bonchon Convoy,,,$1 Wings Special,1.0,$1 Wings Special
+City Tacos,$2.50 Mexican Beer,2.5,,,10% off all food and $2.50 Mexican beer
+Little Sisters Pizza,select beers,5.0,all appetizers,,"$2 off appetizers, $5 beers, $6 wine"
+Pizza On Pearl North Park,,,Pizza (pepperoni or cheese),45.0,"Pizza, 12 wings, 6 knots, 2L soda for $45"
+La Costa Fusión Cuisine,Wine or Sangria,8.0,12oz Ribeye,25.0,"12oz Ribeye $25, Wine or Sangria $8"
+Great Wall Express,Soft Drinks,1.99,Orange Chicken,3.99,"Orange Chicken, Sweet & Sour Chicken, BBQ Pork Rib, Cream Cheese Wonton"
+Whiskers & Wine Cat Cafe,SODA,3.5,Add-on: Assorted Chocolates,4.0,"SODA $3.50, HOT COCOA $5, MEOWMOSA $12"
+The Rabbit Hole,$6 Draft Beers,6.0,Half-Off Select Apps,,"$6 Draft Beers, $7 Specialty Cocktails, Half-Off Select Apps"
+The Ould Sod,well drinks,5.5,,,$5.50 draft beers and well drinks
+Et Voilà! French Bistro,Boont daylight amber,7.0,Side of fries,5.0,"Baguette et beurre $6, Side of fries $5, and Boont daylight amber $7"
+Savio's Pizza,Soda,1.99,Garlic Bread,5.99,"Garlic Bread, Fries, and Soda"
+The Hangout Restaurant and Bar,,,Wings,1.0,"$1 wings, $3 sliders, $5 bottled beer, $7 cocktails and draft"
+Venice Pizza House Since 1954,Beers,4.0,,,"Beers starting at $4, wine glasses starting at $5"
+Rosie O'Grady's,$5 Drafts,5.0,,,"$5 Drafts, $7 Wells"
+AIR CONDITIONED Lounge,$7 Slushies,7.0,,,$7 slushies and shooters
+Redwing Bar & Grill,,,burger and beer for $7,7.0,burger and beer for $7
+U-31,$4 Wells,4.0,,,$4 Wells
+Encontro North Park,$7 watermelon soju shots,7.0,$7 tapas,7.0,$7 tapas and $7 watermelon soju shots
+Enoteca Buona Forchetta,Buona Forchetta Draft Beers,5.0,Bruschettone (1 Piece),8.0,"Buona Forchetta Draft Beers $5, Calamari $8, Bruschettone $8, and Polpettine $8"
+Buona Forchetta - South Park,Buona Forchetta Draft Beers,5.0,,,"Buona Forchetta Draft Beers $5, Calmari Half Portion $8, Tagliere for 1 person $8, Bruschettone $8, and Polpettine $8"
+Dave & Buster's San Diego,$5 beverages,5.0,,,"$5 beverages including domestic draft beer, wine, and cocktails."
+Ichiban,Small Sake,4.0,,,"Small Sake $4, Large Sake $6, California Roll $5.50, Spicy Tuna $7"
+Urban MO's Bar & Grill,12oz Bud Light Drafts,1.0,,,"$10 mini pitchers, $1 Bud Light Drafts"
+Bronx Pizza,,,Cheese Pizza,17,"Slice Special $7, Slice and salad $7"
+RAKITORI Japanese Pub&Grill,$4 Sapporo,4.0,,,$4 Sapporo and $5 House Sake
+Todo Pa’ La Cruda 3,,,3 SINGLE TACOS,10.99,3 single tacos for $10.99
+Nunu's Tavern,,,Fries,4.5,"Fries, Onion Rings, Frings, Quesadilla, and Pepper Poppers"
+Sisters Pizza,select beers,5.0,all appetizers,,"$2 off appetizers, $5 select beers, $6 house wine"
+Vincenzo Cucina and Lounge,WELL DRINKS,7.0,OYSTERS,1.35,"Oysters $1.35, Calamari Fritti $10, Meatball Lollipops $9, Bruschettone $12"
+Harbor Breakfast,Diet Coke,5.0,Fruit Bowl,7.0,"Diet Coke $5, Fruit Bowl $7"
+Dunkin',,,$8 Meal Deal,8.0,$8 Meal Deal
+The Gold Reserve Kitchen & Bar,$6 Draft Beers,6.0,,,"$6 draft beers, $7 house wine, $8 well drinks, $10 Makers Old Fashioned"
+Mariscos y Miches El Patron,Fountain Drinks,5.0,Tacos de Pescado,3.5,"Tacos de Pescado $3.50, Tacos de Arrachera $3.50, Fountain Drinks $5.00"
+A Brooklyn Pizzeria,Soft Drink,3.0,1 Garlic Knott,1.0,"Garlic Bread, 1 Garlic Knott, and Fries"
+Puerto La Boca,GLASS OF OUR ARGENTINIAN HOUSE WINE,5.0,"20% OFF Any ""For Starts"" from our dinner menu",,"$5 house wine, $5 Quilmes, $6 draft beer, $7 well drinks"
+Taco Loco,$5 Bottled Beer,5.0,,,"$5 Bottled Beer, $6 Draft Beer, $7 Classic Margaritas, all tacos $1 off"
+Ristorante Illando,BEERS,6.0,Bruschetta Toscana,7.0,"Bruschetta Toscana, Polpette Affogate, and Beers"
+Bencotto,,,AGED PARMIGIANO REGGIANO,9.0,"Aged Parmigiano Reggiano, Calamari Fritti, and Aperol Spritz"
+WetStone Winebar- Bankers Hill,,,Bowl of Potato Chips,3.5,"Bowl of Potato Chips $3.50, Gildas $10.50, and Spanish Marcona Almonds $8.50"
+Bub's at the Ballpark,$5 Sidecars,5.0,1/2 Red Baskets,,"$1 Off Drafts, $5 Sidecars, $5 Wells, 1/2 Red Baskets"
+GARAGE Kitchen + Bar,,,$3 apps,3.0,"$3 apps, $6 Bob's Burger, $6 Crazy Bob's Burger"
+The Deck at Moonshine Flats,$6 Wells,6.0,Cheese Quesadilla,,"$6 Wells, $4 Domestic Beer, $12 Domestic Pitchers, 1/2 OFF Select Apps"
+Happy Does Bar,$5 Bud Light,5.0,$3 Crispy Chicken Sliders,3.0,"$3 sliders, $5 beers, $6 wine and seltzer"
+East Village Tavern+Bowl,$7 maggies,7.0,$3 tacos,3.0,"$3 tacos, $3 chips + salsa, $7 maggies, $10 Lalo"
+Tabac,Karak,5.0,Simit,7.0,"Happy hour hookah $16.5, Simit $7.0, Karak $5.0"
+Trailer Park After Dark,WELLS,6.0,Grilled Cheese Sticks,7.0,"Craft Beer $8, Specialty Cocktails $10, Grilled Cheese Sticks $7, Hot Tots $8"
+The Blind Burro,BUENA CERVEZA,5.0,TJ DOG WITH FRIES,7.0,"$5 Buena Cerveza, $7 TJ Dog, $8 tacos and pizza"
+Gaslamplighter Karaoke Cocktail Bar,Each craft cocktail,13.0,Plate of Fries,10.0,"Craft cocktails $13, Fries $10, Grilled Cheese $12, Lé Sideburger $15, Aperitivo Trio $18"
+Altitude Sky Lounge,,,Pretzel Sticks,14.0,"Pretzel Sticks $14, Fried Calamari $18, Pork Belly $15, Grilled Chicken Wings $16"
+Mina Lounge,$4 TEA,4.0,,,"$4 tea, $5 coffee, $7 well shots, sangria, draft beer, and house wine"
+Baja Rick's Cantina,$5 House Margaritas,5.0,Street Tacos,7.0,"$5 House Margaritas, $7 Street Tacos, $10 Coors Light Draft"
+Rockin' Baja Lobster - Gaslamp,$5 House Margaritas,5.0,Street Tacos or Crunchy Tacos! / 5 for $15,3.0,"$5 House Margaritas, $5 Fish Taco, $6 Calamari, $7 Street Tacos"
+Fleming’s Prime Steakhouse & Wine Bar,$9 hand-crafted cocktails,9.0,,,shareable bar bites and $9 hand-crafted cocktails
+Pizza and Pasta on 5th,Patron shots,5.0,,,Patron shots $5
+Hasta Mañana Cantina,DRAFT BEER + WELL COCKTAILS,7.0,INDIVIDUAL STREET TACOS,5.0,"Draft beer, well cocktails, street tacos, and nachos"
+Yalla Habibi,,,REGULAR SALAD,4.99,REGULAR SALAD
+The Harp,1/2 off all Draft Beers,,,,1/2 off all Draft Beers
+Dirty Birds Ocean Beach,$5 Skrewball Peanut Butter Whiskey,5.0,½ Off Traditional Wings,,"½ Off Traditional Wings, $6 Coors Banquet, $5 Skrewball, $7 Cutwater Cans"
+La Doña,,,Bottomless Chips & Salsa,3.0,Bottomless Chips & Salsa
+Johnny Mañanas Ocean Beach,Glass of Wine,2.0,Street Tacos,2.5,"$8 Margarita, $2.50 Tacos, 50% Off Wine Bottles, $2 off Glass of Wine, $7 Michelada"
+Rosaria's Pizza 4,Coca Cola,2.0,Small Salad,2.5,"Small Salad, Coca Cola"
+Peace Pies,Hot Tea,3.0,Chocolate Almond Butter Bar,6.0,"Hot Tea, Chocolate Almond Butter Bar, Alive Apple Pie, Funky Fudge Brownie"
+Northside Tavern,,,House Tacos,4.5,"House Tacos $4.50, Birria Taco $5.50, Buenaveza Bottle $6.00, Espolon $6.50"
+We Be OB,$5 Drafts,5.0,,,$5 Drafts and $1 Off All other Alcohol
+City Tacos,$2.50 Mexican Beer,2.5,,,10% off all food and $2.50 Mexican beer
+Ocean Beach Brewery,2 for 1 House Beers,,$5 Poutine Fries,5.0,"$5 Poutine Fries, Crispy Pickles, Garlicky Hummus, $8 Taco & Pint"
+OB Surf Lodge,$6 All Drafts Beer,6.0,,,"$6 All Drafts Beer, $6 House Wine, $7 Wells, $8 Mai Tai"
+El Sueño,,,Tortilla Service Fresh Flour Tortillas,7.0,Tortilla Service $7
+Tako,,,Sunomono Salad,6.0,"Sunomono Salad $6, Crispy Rice $13, Ceviche Negro $13"
+Bleu Bohème,Café Rue Bourbon,15.0,,,Café Rue Bourbon - $15
+Til-Two Club,Shots,3.0,,,"Wells $4, Drafts $5, Shots $3"
+Bully's East Prime Bistro Sports Bar,,,Filet Street Tacos,3.75,"Margaritas $8, Filet Tacos $3.75, Baja Fish/Shrimp Tacos $3.50"
+Chili's Grill & Bar,$3 Bud Light 16 oz,3.0,,,"$3 beers, $4 beers, $5 wines and beers, $6 margaritas, $7 margaritas"
+Babaz Grill Pizza & Subs,Soda,2.55,Hot Sauce,0.55,"Hot Sauce, Soda"
+Nate's Garden Grill,,,Mixed olives,6.0,"Mixed olives, Organic Pistachios, Roasted Vegetables, Smoked Chicken Chili Cup, Vegetarian Chili Cup"
+Novo Brazil Brewing Mission Valley,$5 PINTS,5.0,,,$5 PINTS EVERY MONDAY
