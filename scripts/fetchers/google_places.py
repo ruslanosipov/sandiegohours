@@ -7,12 +7,14 @@ import requests
 import time
 from typing import List, Optional, Dict, Any
 
+import os
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from storage import Restaurant
 
-GOOGLE_PLACES_API_KEY = "AIzaSyCEsrQU4JQp_pOoLDOHA9GsUaOb5RoxKWk"
+GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY", "")
+
 PLACES_API_BASE = "https://places.googleapis.com/v1"
 
 

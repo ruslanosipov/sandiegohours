@@ -21,7 +21,7 @@ from processors import HappyHourProcessor, MenuProcessor
 
 
 # Configuration
-API_KEY = "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"
+API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 DATA_DIR = Path(__file__).parent.parent / 'public'
 CACHE_DIR = Path(__file__).parent.parent / '.cache'
 PROGRESS_FILE = CACHE_DIR / 'progress.json'
