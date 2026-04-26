@@ -6,6 +6,7 @@ import { hasHappyHour, isHappyHourActive } from "@/lib/happy-hour-utils";
 import { sortByDistance } from "@/lib/distance-utils";
 import RestaurantList from "./RestaurantList";
 import RestaurantMap from "./RestaurantMap";
+import NeighborhoodBadgeBar from "./NeighborhoodBadgeBar";
 
 interface HappyHourFinderProps {
   restaurants: HappyHourPlace[];
@@ -24,6 +25,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const [locationLoading, setLocationLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
   const [hasMountedMap, setHasMountedMap] = useState(false);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const now = new Date();
@@ -85,6 +87,14 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
     setLocationError(null);
   }, []);
 
+  const coveredNeighborhoods = useMemo(() => {
+    const ids = new Set<string>();
+    for (const r of restaurants) {
+      if (r.neighborhood) ids.add(r.neighborhood);
+    }
+    return ids;
+  }, [restaurants]);
+
   const sortedAndFilteredRestaurants = useMemo(() => {
     let filtered = restaurants.filter((restaurant) => {
       const hasHH = hasHappyHour(restaurant);
@@ -93,6 +103,9 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         const nameMatch = restaurant.restaurant_name.toLowerCase().includes(query);
         const addressMatch = restaurant.address.toLowerCase().includes(query);
         if (!nameMatch && !addressMatch) return false;
+      }
+      if (selectedNeighborhood && restaurant.neighborhood !== selectedNeighborhood) {
+        return false;
       }
       if (showOnlyHappyHour && !hasHH) return false;
       if (hasHH) {
@@ -105,7 +118,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
       filtered = sortByDistance(filtered, userLocation.lat, userLocation.lng);
     }
     return filtered;
-  }, [restaurants, selectedDay, selectedTime, showOnlyHappyHour, searchQuery, sortBy, userLocation, selectedDateTime]);
+  }, [restaurants, selectedDay, selectedTime, showOnlyHappyHour, searchQuery, sortBy, userLocation, selectedDateTime, selectedNeighborhood]);
 
   const happyHourCount = restaurants.filter((r) => hasHappyHour(r)).length;
   const activeCount = useMemo(() => {
@@ -199,6 +212,13 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
           </div>
         </div>
       </div>
+
+      {/* Neighborhood Coverage Badges */}
+      <NeighborhoodBadgeBar
+        coveredIds={coveredNeighborhoods}
+        selectedId={selectedNeighborhood}
+        onSelect={setSelectedNeighborhood}
+      />
 
       {/* Stats, Controls & Tabs */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 import HappyHourFinder from './components/HappyHourFinder';
+import { getNeighborhoodId } from './data/neighborhoods';
 
 interface Restaurant {
   restaurant_name: string;
@@ -17,6 +18,7 @@ interface Restaurant {
   freshness_date: string;
   latitude?: string;
   longitude?: string;
+  neighborhood?: string;
   google_maps_url?: string;
   generative_summary?: string;
   cheapest_drink?: string;
@@ -43,6 +45,15 @@ async function getRestaurants(): Promise<Restaurant[]> {
     columns: true,
     skip_empty_lines: true,
   }) as Restaurant[];
+
+  // Assign neighborhoods based on lat/lng
+  for (const restaurant of records) {
+    const lat = parseFloat(restaurant.latitude ?? '');
+    const lng = parseFloat(restaurant.longitude ?? '');
+    if (!isNaN(lat) && !isNaN(lng)) {
+      restaurant.neighborhood = getNeighborhoodId(lat, lng);
+    }
+  }
 
   try {
     const menuCsvPath = path.join(process.cwd(), 'public', 'menu_data.csv');
