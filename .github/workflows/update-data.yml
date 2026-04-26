@@ -43,14 +43,39 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Run Python orchestrator
+      - name: Fetch restaurants by neighborhood
         env:
           PYTHONPATH: ${{ github.workspace }}/scripts
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+        run: |
+          cd scripts
+          for area in north_park south_park normal_heights hillcrest little_italy gaslamp ocean_beach mission_valley; do
+            echo "Fetching $area..."
+            python orchestrator.py --area "$area" --fetch-only
+          done
+
+      - name: Parse happy hours from websites
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           cd scripts
-          python orchestrator.py --full
+          python orchestrator.py --step=parse_happy_hours
+
+      - name: Apply manual overrides
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts
+        run: |
+          cd scripts
+          python orchestrator.py --step=overrides
+
+      - name: Parse menus from websites
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          cd scripts
+          python orchestrator.py --step=parse_menus
 
       - name: Check for CSV changes
         id: check_changes
