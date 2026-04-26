@@ -23,6 +23,7 @@ from fetchers import WebsiteFetcher
 from fetchers.website import AsyncWebsiteFetcher
 from fetchers.google_places import fetch_92116_restaurants
 from fetchers.google_places_async import AsyncGooglePlacesFetcher
+from fetchers.grid import generate_grid, GridCell, get_all_preset_names
 from processors import HappyHourProcessor, MenuProcessor
 from processors.happy_hours_async import AsyncHappyHourProcessor
 from processors.menus_async import AsyncMenuProcessor
@@ -215,7 +216,10 @@ def step_generate_summary(restaurants: list):
 # Async pipeline (highly parallel)
 # ---------------------------------------------------------------------------
 
-async def async_step_fetch_restaurants(storage: CSVManager) -> list:
+async def async_step_fetch_restaurants(
+    storage: CSVManager,
+    grid_cells: list = None,
+) -> list:
     """Fetch restaurants using async Google Places API."""
     print_step("Fetch Restaurants from Google Places (Async)")
     csv_path = DATA_DIR / 'happy_hours.csv'
@@ -229,13 +233,24 @@ async def async_step_fetch_restaurants(storage: CSVManager) -> list:
             api_key=os.environ.get("GOOGLE_PLACES_API_KEY", ""),
             details_concurrency=GOOGLE_PLACES_CONCURRENCY,
         ) as fetcher:
-            restaurants = await fetcher.fetch_restaurants()
+            restaurants = await fetcher.fetch_restaurants(grid_cells=grid_cells)
 
         for r in restaurants:
             r.freshness_date = datetime.now().isoformat()[:10]
 
-        storage.write('happy_hours.csv', restaurants)
-        print(f"Saved {len(restaurants)} restaurants to happy_hours.csv")
+        # Merge into existing CSV instead of overwriting
+        if csv_path.exists() and restaurants:
+            print(f"\nMerging {len(restaurants)} fetched restaurants into existing CSV...")
+            restaurants = storage.merge_by_place_id('happy_hours.csv', restaurants, Restaurant)
+        else:
+            storage.write('happy_hours.csv', restaurants)
+            print(f"Saved {len(restaurants)} restaurants to happy_hours.csv")
+        return restaurants
+    except Exception as e:
+        print(f"{RED}Error fetching from API: {e}{RESET}")
+        print("Falling back to CSV...")
+        restaurants = storage.read('happy_hours.csv', Restaurant)
+        print(f"Loaded {len(restaurants)} restaurants from CSV")
         return restaurants
     except Exception as e:
         print(f"{RED}Error fetching from API: {e}{RESET}")
@@ -330,7 +345,12 @@ async def async_step_parse_menus(restaurants: list, storage: CSVManager) -> list
 # Orchestrator entry point
 # ---------------------------------------------------------------------------
 
-async def run_pipeline_async(start_step: str = 'load', resume: bool = False):
+async def run_pipeline_async(
+    start_step: str = 'load',
+    resume: bool = False,
+    grid_cells: list = None,
+    fetch_only: bool = False,
+):
     """Run the full async processing pipeline."""
     storage = CSVManager(DATA_DIR)
 
@@ -344,12 +364,17 @@ async def run_pipeline_async(start_step: str = 'load', resume: bool = False):
     try:
         start_idx = steps.index(start_step)
         steps_to_run = steps[start_idx:]
+        if fetch_only:
+            steps_to_run = ['fetch']
         print(f"Running steps: {', '.join(steps_to_run)}\n")
 
         restaurants = []
 
         if 'fetch' in steps_to_run:
-            restaurants = await async_step_fetch_restaurants(storage)
+            restaurants = await async_step_fetch_restaurants(storage, grid_cells=grid_cells)
+            if fetch_only:
+                print(f"\n{GREEN}Fetch-only complete. {len(restaurants)} restaurants in CSV.{RESET}")
+                return restaurants
             save_progress(ProcessingState('parse_happy_hours'))
         else:
             restaurants = storage.read('happy_hours.csv', Restaurant)
@@ -392,7 +417,7 @@ def main():
     parser.add_argument(
         '--full',
         action='store_true',
-        help='Run full pipeline from start'
+        help='Run full pipeline from start (full adaptive grid)'
     )
     parser.add_argument(
         '--step',
@@ -404,11 +429,75 @@ def main():
         action='store_true',
         help='Resume from last saved progress'
     )
+    parser.add_argument(
+        '--area',
+        choices=get_all_preset_names(),
+        help='Run on a specific neighborhood preset (fast debug)'
+    )
+    parser.add_argument(
+        '--cell',
+        help='Run on a single grid cell as lat,lng (e.g. 32.762,-117.119)'
+    )
+    parser.add_argument(
+        '--bbox',
+        help='Custom bounding box as south,west,north,east (e.g. 32.64,-117.28,32.88,-117.08)'
+    )
+    parser.add_argument(
+        '--fetch-only',
+        action='store_true',
+        help='Only fetch from Google Places, skip AI parsing (fast debug)'
+    )
 
     args = parser.parse_args()
 
-    if args.full or (not args.step and not args.resume):
-        asyncio.run(run_pipeline_async(start_step='fetch'))
+    # Build grid_cells from CLI flags
+    grid_cells = None
+    if args.area:
+        grid_cells = generate_grid(preset=args.area)
+        print(f"Using neighborhood preset: {args.area}")
+    elif args.cell:
+        try:
+            lat, lng = args.cell.split(',')
+            # Create a small ~1.5x1.5 mile cell around the point
+            lat_f = float(lat)
+            lng_f = float(lng)
+            cell = GridCell(
+                south=lat_f - 0.012,
+                west=lng_f - 0.015,
+                north=lat_f + 0.012,
+                east=lng_f + 0.015,
+            )
+            grid_cells = [cell]
+            print(f"Using single cell around {lat_f},{lng_f}")
+        except ValueError:
+            print(f"{RED}Error: --cell must be lat,lng{RESET}")
+            sys.exit(1)
+    elif args.bbox:
+        try:
+            parts = args.bbox.split(',')
+            if len(parts) != 4:
+                raise ValueError()
+            bbox = {
+                "south": float(parts[0]),
+                "west": float(parts[1]),
+                "north": float(parts[2]),
+                "east": float(parts[3]),
+            }
+            grid_cells = generate_grid(bbox=bbox)
+            print(f"Using custom bounding box")
+        except ValueError:
+            print(f"{RED}Error: --bbox must be south,west,north,east{RESET}")
+            sys.exit(1)
+    elif args.full:
+        grid_cells = generate_grid()
+        print("Using full adaptive grid")
+
+    if args.full or args.area or args.cell or args.bbox:
+        asyncio.run(run_pipeline_async(
+            start_step='fetch',
+            grid_cells=grid_cells,
+            fetch_only=args.fetch_only,
+        ))
     elif args.resume:
         asyncio.run(run_pipeline_async(resume=True))
     elif args.step:

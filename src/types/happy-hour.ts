@@ -12,6 +12,7 @@ export interface HappyHourPlace {
   freshness_date: string;
   latitude?: string;
   longitude?: string;
+  place_id?: string;
   distance?: number; // in miles, calculated at runtime
   // Google Maps data
   google_maps_url?: string;

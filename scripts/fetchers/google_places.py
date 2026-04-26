@@ -69,18 +69,25 @@ def parse_secondary_opening_hours(secondary_hours: List[Dict]) -> Optional[str]:
     return None
 
 
-def search_places_text(location: str, radius: int = 2400, api_key: str = None,
-                       keyword: str = None, page_token: str = None) -> tuple:
+def search_places_text(
+    location: str = None,
+    radius: int = 2400,
+    api_key: str = None,
+    keyword: str = None,
+    page_token: str = None,
+    location_restriction: dict = None,
+) -> tuple:
     """
     Search for places using text search with pagination.
     Uses Places API (New) v1 searchText endpoint.
     
     Args:
-        location: "lat,lng" string
+        location: "lat,lng" string (used with locationBias circle if no restriction)
         radius: Search radius in meters
         api_key: API key
         keyword: Search keyword
         page_token: Next page token for pagination
+        location_restriction: Optional rectangle dict for hard boundary
         
     Returns:
         Tuple of (list of place results, next_page_token)
@@ -93,18 +100,21 @@ def search_places_text(location: str, radius: int = 2400, api_key: str = None,
         "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType,places.location,nextPageToken"
     }
     
-    lat, lng = float(location.split(',')[0]), float(location.split(',')[1])
-    
     body = {
         "textQuery": keyword or "restaurant",
-        "locationBias": {
+        "maxResultCount": 20
+    }
+    
+    if location_restriction:
+        body["locationRestriction"] = location_restriction
+    elif location:
+        lat, lng = float(location.split(',')[0]), float(location.split(',')[1])
+        body["locationBias"] = {
             "circle": {
                 "center": {"latitude": lat, "longitude": lng},
                 "radius": radius
             }
-        },
-        "maxResultCount": 20
-    }
+        }
     
     if page_token:
         body["pageToken"] = page_token
@@ -122,8 +132,14 @@ def search_places_text(location: str, radius: int = 2400, api_key: str = None,
     return places, next_token
 
 
-def search_places_paginated(location: str, radius: int = 2400, api_key: str = None,
-                            keyword: str = None, max_results: int = 60) -> List[Dict]:
+def search_places_paginated(
+    location: str = None,
+    radius: int = 2400,
+    api_key: str = None,
+    keyword: str = None,
+    max_results: int = 60,
+    location_restriction: dict = None,
+) -> List[Dict]:
     """
     Search for places with full pagination support.
     Fetches multiple pages until max_results or no more pages.
@@ -134,6 +150,7 @@ def search_places_paginated(location: str, radius: int = 2400, api_key: str = No
         api_key: API key
         keyword: Search keyword
         max_results: Maximum total results to fetch
+        location_restriction: Optional rectangle dict for hard boundary
         
     Returns:
         List of all place results
@@ -146,7 +163,12 @@ def search_places_paginated(location: str, radius: int = 2400, api_key: str = No
     
     while len(all_places) < max_results and pages < max_pages:
         places, page_token = search_places_text(
-            location, radius, api_key, keyword, page_token
+            location=location,
+            radius=radius,
+            api_key=api_key,
+            keyword=keyword,
+            page_token=page_token,
+            location_restriction=location_restriction,
         )
         
         if not places:
@@ -335,6 +357,7 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
         freshness_date='',
         latitude=str(location.get('latitude', '')) if location else '',
         longitude=str(location.get('longitude', '')) if location else '',
+        place_id=place_data.get('id', ''),
         google_maps_url=google_maps_url,
         generative_summary=generative_summary
     )

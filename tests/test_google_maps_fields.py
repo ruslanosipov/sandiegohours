@@ -37,6 +37,31 @@ def test_restaurant_model_default_values():
     assert r.generative_summary == ""
 
 
+def test_convert_to_restaurant_extracts_place_id():
+    """Test convert_to_restaurant extracts id from API response."""
+    place_data = {
+        'id': 'ChIJabc123',
+        'displayName': {'text': 'Test Restaurant'},
+        'formattedAddress': '123 Main St, San Diego, CA',
+    }
+
+    result = convert_to_restaurant(place_data)
+
+    assert result.place_id == "ChIJabc123"
+
+
+def test_convert_to_restaurant_handles_missing_place_id():
+    """Test convert_to_restaurant handles missing id."""
+    place_data = {
+        'displayName': {'text': 'Test Restaurant'},
+        'formattedAddress': '123 Main St, San Diego, CA',
+    }
+
+    result = convert_to_restaurant(place_data)
+
+    assert result.place_id == ""
+
+
 def test_convert_to_restaurant_extracts_google_maps_url():
     """Test convert_to_restaurant extracts googleMapsUri from API response."""
     place_data = {

@@ -104,3 +104,91 @@ class CSVManager:
             writer.writeheader()
             for row in data:
                 writer.writerow(row)
+
+    def merge_by_place_id(
+        self,
+        filename: str,
+        new_restaurants: List[Any],
+        model_class: Type[T],
+    ) -> List[T]:
+        """
+        Merge new restaurants into existing CSV by place_id.
+        Existing entries with matching place_id are updated (all fields overwritten
+        except AI-extracted fields like happy_hour_times, menu_summary if new data is empty).
+        New entries are appended. Untouched entries keep their old freshness_date.
+
+        Fallback: entries without place_id are matched by restaurant_name to prevent
+        data loss during migration from old schema (no place_id) to new schema.
+
+        Returns the merged list.
+        """
+        existing = self.read(filename, model_class)
+        existing_by_id: Dict[str, Any] = {}
+        legacy_by_name: Dict[str, Any] = {}  # For entries without place_id
+        for r in existing:
+            pid = getattr(r, 'place_id', '') or ''
+            if pid:
+                existing_by_id[pid] = r
+            else:
+                name = getattr(r, 'restaurant_name', '') or ''
+                if name:
+                    legacy_by_name[name] = r
+
+        merged_by_id: Dict[str, Any] = dict(existing_by_id)
+        merged_legacy: Dict[str, Any] = dict(legacy_by_name)
+        updated_count = 0
+        added_count = 0
+        preserved_legacy_count = len(legacy_by_name)
+
+        AI_FIELDS = ('happy_hour_times', 'menu_summary', 'cheapest_drink',
+                     'cheapest_drink_price', 'cheapest_food', 'cheapest_food_price')
+
+        for new_r in new_restaurants:
+            pid = getattr(new_r, 'place_id', '') or ''
+            name = getattr(new_r, 'restaurant_name', '') or ''
+            matched = False
+
+            # Try match by place_id first
+            if pid and pid in merged_by_id:
+                old_r = merged_by_id[pid]
+                for field in model_class.__dataclass_fields__:
+                    if field == 'place_id':
+                        continue
+                    new_val = getattr(new_r, field, None)
+                    if field in AI_FIELDS and not new_val:
+                        continue
+                    if new_val is not None:
+                        setattr(old_r, field, new_val)
+                old_r.freshness_date = new_r.freshness_date
+                updated_count += 1
+                matched = True
+            # Fallback: match legacy entries by name
+            elif name and name in merged_legacy:
+                old_r = merged_legacy[name]
+                for field in model_class.__dataclass_fields__:
+                    if field == 'place_id':
+                        continue
+                    new_val = getattr(new_r, field, None)
+                    if field in AI_FIELDS and not new_val:
+                        continue
+                    if new_val is not None:
+                        setattr(old_r, field, new_val)
+                # Upgrade legacy entry with place_id
+                old_r.place_id = pid
+                old_r.freshness_date = new_r.freshness_date
+                updated_count += 1
+                matched = True
+
+            if not matched:
+                if pid:
+                    merged_by_id[pid] = new_r
+                else:
+                    merged_by_id[id(new_r)] = new_r
+                added_count += 1
+
+        merged = list(merged_by_id.values()) + list(merged_legacy.values())
+        self.write(filename, merged)
+        print(f"  CSV merge: {updated_count} updated, {added_count} added, "
+              f"{preserved_legacy_count - len(merged_legacy)} legacy upgraded, "
+              f"{len(merged)} total")
+        return merged

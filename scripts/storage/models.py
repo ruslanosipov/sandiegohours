@@ -22,6 +22,7 @@ class Restaurant:
     freshness_date: str = ""
     latitude: Optional[str] = None
     longitude: Optional[str] = None
+    place_id: str = ""
 
     # Google Maps data
     google_maps_url: str = ""

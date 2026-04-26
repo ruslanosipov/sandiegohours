@@ -24,6 +24,14 @@ from fetchers.google_places import (
     filter_by_distance,
     calculate_distance_meters,
 )
+from fetchers.grid import (
+    GridCell,
+    subdivide_cell,
+    should_subdivide,
+    get_keywords_for_cell,
+    should_exclude_place,
+    TIER1_KEYWORDS,
+)
 
 GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY", "")
 PLACES_API_BASE = "https://places.googleapis.com/v1"
@@ -55,10 +63,11 @@ class AsyncGooglePlacesFetcher:
 
     async def _search_places_text(
         self,
-        location: str,
+        location: str = None,
         radius: int = 2400,
         keyword: str = None,
         page_token: str = None,
+        location_restriction: dict = None,
     ) -> tuple:
         url = f"{PLACES_API_BASE}/places:searchText"
         headers = {
@@ -69,17 +78,20 @@ class AsyncGooglePlacesFetcher:
                 "places.types,places.primaryType,places.location,nextPageToken"
             ),
         }
-        lat, lng = float(location.split(',')[0]), float(location.split(',')[1])
         body = {
             "textQuery": keyword or "restaurant",
-            "locationBias": {
+            "maxResultCount": 20,
+        }
+        if location_restriction:
+            body["locationRestriction"] = location_restriction
+        elif location:
+            lat, lng = float(location.split(',')[0]), float(location.split(',')[1])
+            body["locationBias"] = {
                 "circle": {
                     "center": {"latitude": lat, "longitude": lng},
                     "radius": radius,
                 }
-            },
-            "maxResultCount": 20,
-        }
+            }
         if page_token:
             body["pageToken"] = page_token
 
@@ -92,10 +104,11 @@ class AsyncGooglePlacesFetcher:
 
     async def _search_places_paginated(
         self,
-        location: str,
+        location: str = None,
         radius: int = 2400,
         keyword: str = None,
         max_results: int = 60,
+        location_restriction: dict = None,
     ) -> List[Dict]:
         all_places = []
         page_token = None
@@ -104,7 +117,11 @@ class AsyncGooglePlacesFetcher:
 
         while len(all_places) < max_results and pages < max_pages:
             places, page_token = await self._search_places_text(
-                location, radius, keyword, page_token
+                location=location,
+                radius=radius,
+                keyword=keyword,
+                page_token=page_token,
+                location_restriction=location_restriction,
             )
             if not places:
                 break
@@ -136,11 +153,11 @@ class AsyncGooglePlacesFetcher:
 
     async def fetch_all_places(
         self,
-        location: str,
+        location: str = None,
         radius: int = 800,
         keywords: List[str] = None,
+        location_restriction: dict = None,
     ) -> List[Dict]:
-        center_lat, center_lng = float(location.split(',')[0]), float(location.split(',')[1])
         all_places: Dict[str, Dict] = {}
 
         if keywords is None:
@@ -153,7 +170,11 @@ class AsyncGooglePlacesFetcher:
         for keyword in keywords:
             print(f"\n[Searching] '{keyword}'")
             places = await self._search_places_paginated(
-                location, radius, keyword=keyword, max_results=60
+                location=location,
+                radius=radius,
+                keyword=keyword,
+                max_results=60,
+                location_restriction=location_restriction,
             )
             for place in places:
                 pid = place.get('id')
@@ -161,27 +182,129 @@ class AsyncGooglePlacesFetcher:
                     all_places[pid] = place
             print(f"  Found {len(places)} places (total unique: {len(all_places)})")
 
-        print(f"\nFiltering by distance ({radius}m radius)...")
-        places_list = list(all_places.values())
-        filtered = filter_by_distance(places_list, center_lat, center_lng, radius)
-        print(f"  Kept {len(filtered)}/{len(places_list)} places within {radius}m")
+        if location and not location_restriction:
+            center_lat, center_lng = float(location.split(',')[0]), float(location.split(',')[1])
+            print(f"\nFiltering by distance ({radius}m radius)...")
+            places_list = list(all_places.values())
+            filtered = filter_by_distance(places_list, center_lat, center_lng, radius)
+            print(f"  Kept {len(filtered)}/{len(places_list)} places within {radius}m")
+            print(f"\n{'=' * 60}")
+            print(f"TOTAL PLACES WITHIN {radius}m: {len(filtered)}")
+            print(f"{'=' * 60}")
+            return filtered
 
         print(f"\n{'=' * 60}")
-        print(f"TOTAL PLACES WITHIN {radius}m: {len(filtered)}")
+        print(f"TOTAL UNIQUE PLACES: {len(all_places)}")
         print(f"{'=' * 60}")
+        return list(all_places.values())
 
+    async def fetch_all_places_for_cell(
+        self,
+        cell: GridCell,
+        keywords: List[str] = None,
+    ) -> List[Dict]:
+        """
+        Fetch all places for a single grid cell using locationRestriction.
+        Returns raw place summaries (with types) for deduplication and filtering.
+        """
+        restriction = cell.to_location_restriction()
+        all_places: Dict[str, Dict] = {}
+
+        for keyword in (keywords or TIER1_KEYWORDS):
+            places = await self._search_places_paginated(
+                location_restriction=restriction,
+                keyword=keyword,
+                max_results=60,
+            )
+            for place in places:
+                pid = place.get('id')
+                if pid and pid not in all_places:
+                    all_places[pid] = place
+
+        return list(all_places.values())
+
+    async def fetch_adaptive_grid(
+        self,
+        grid_cells: List[GridCell],
+    ) -> List[Dict]:
+        """
+        Fetch places across an adaptive grid.
+        Subdivides cells that hit the 60-result cap.
+        Applies type filtering to exclude non-bars.
+        """
+        all_places: Dict[str, Dict] = {}
+        cells_to_process = list(grid_cells)
+
+        print(f"\nStarting adaptive grid search with {len(cells_to_process)} initial cell(s)...")
+
+        while cells_to_process:
+            cell = cells_to_process.pop(0)
+            try:
+                print(f"\n  [Cell] {cell.south:.4f},{cell.west:.4f} to {cell.north:.4f},{cell.east:.4f} "
+                      f"(~{cell.width_miles():.1f}x{cell.height_miles():.1f} mi)")
+            except UnicodeEncodeError:
+                print("\n  [Cell] <Unicode cell info>")
+
+            # Use tier1 keywords for truncation detection
+            places = await self.fetch_all_places_for_cell(cell, keywords=TIER1_KEYWORDS)
+            try:
+                print(f"    Tier-1 found {len(places)} unique places")
+            except UnicodeEncodeError:
+                print("    Tier-1 found <count> unique places")
+
+            if should_subdivide(cell, len(places)):
+                children = subdivide_cell(cell)
+                cells_to_process.extend(children)
+                try:
+                    print(f"    -> Subdividing into {len(children)} smaller cells")
+                except UnicodeEncodeError:
+                    print("    -> Subdividing into smaller cells")
+                continue
+
+            # Cell is finalized — also run tier2 keywords to fill gaps
+            tier2_keywords = [k for k in get_keywords_for_cell(cell) if k not in TIER1_KEYWORDS]
+            if tier2_keywords:
+                tier2_places = await self.fetch_all_places_for_cell(cell, keywords=tier2_keywords)
+                print(f"    Tier-2 found {len(tier2_places)} unique places")
+                for place in tier2_places:
+                    pid = place.get('id')
+                    if pid and pid not in all_places:
+                        all_places[pid] = place
+
+            for place in places:
+                pid = place.get('id')
+                if pid and pid not in all_places:
+                    all_places[pid] = place
+
+        # Type filtering: exclude coffee shops, gas stations, etc.
+        filtered = []
+        excluded_count = 0
+        for place in all_places.values():
+            types = place.get('types', []) or []
+            if should_exclude_place(types):
+                excluded_count += 1
+                continue
+            filtered.append(place)
+
+        print(f"\n{'='*60}")
+        print(f"Grid complete: {len(all_places)} raw, {excluded_count} excluded by type, {len(filtered)} kept")
+        print(f"{'='*60}")
         return filtered
 
     async def fetch_restaurants(
         self,
+        grid_cells: List[GridCell] = None,
         location: str = "32.762889,-117.119922",
         radius: int = 4000,
         max_results: int = 200,
     ) -> List[Restaurant]:
-        print(f"Fetching restaurants near {location}")
-        print(f"Radius: {radius}m (~2.5 miles), Target: {max_results} places\n")
-
-        all_places = await self.fetch_all_places(location, radius=radius)
+        if grid_cells:
+            print(f"Fetching restaurants across {len(grid_cells)} grid cell(s)...\n")
+            all_places = await self.fetch_adaptive_grid(grid_cells)
+        else:
+            print(f"Fetching restaurants near {location}")
+            print(f"Radius: {radius}m (~2.5 miles), Target: {max_results} places\n")
+            all_places = await self.fetch_all_places(location, radius=radius)
 
         if len(all_places) > max_results:
             print(f"\nLimiting to {max_results} places (found {len(all_places)})")

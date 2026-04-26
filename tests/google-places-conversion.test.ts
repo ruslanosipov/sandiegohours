@@ -38,6 +38,7 @@ interface Restaurant {
   freshness_date: string;
   latitude: string;
   longitude: string;
+  place_id: string;
   google_maps_url: string;
   generative_summary: string;
 }
@@ -93,6 +94,7 @@ function convertToRestaurant(placeData: GooglePlaceV1): Restaurant {
     freshness_date: '',
     latitude: String(location.latitude || ''),
     longitude: String(location.longitude || ''),
+    place_id: placeData.id || '',
     google_maps_url: googleMapsUrl,
     generative_summary: generativeSummary,
   };
@@ -382,5 +384,28 @@ describe('Google Places API V1 Conversion', () => {
     expect(result.address).toBe('123 Main St, San Diego, CA');
     expect(result.google_maps_url).toBe('https://www.google.com/maps/place/Test+Restaurant');
     expect(result.generative_summary).toBe('A cozy neighborhood spot with great happy hour deals.');
+  });
+
+  it('extracts place_id from API response', () => {
+    const placeData: GooglePlaceV1 = {
+      id: 'ChIJabc123',
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.place_id).toBe('ChIJabc123');
+  });
+
+  it('handles missing place_id', () => {
+    const placeData: GooglePlaceV1 = {
+      displayName: { text: 'Test Bar' },
+      formattedAddress: '123 Main St, San Diego, CA',
+    };
+
+    const result = convertToRestaurant(placeData);
+
+    expect(result.place_id).toBe('');
   });
 });
