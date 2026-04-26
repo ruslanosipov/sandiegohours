@@ -18,15 +18,31 @@ from typing import Optional
 
 from storage import CSVManager, Restaurant, ProcessingState
 from ai import OpenRouterClient
-from ai.openrouter import AsyncOpenRouterClient
 from fetchers import WebsiteFetcher
-from fetchers.website import AsyncWebsiteFetcher
 from fetchers.google_places import fetch_92116_restaurants
 from fetchers.google_places_async import AsyncGooglePlacesFetcher
 from fetchers.grid import generate_grid, GridCell, get_all_preset_names
 from processors import HappyHourProcessor, MenuProcessor
-from processors.happy_hours_async import AsyncHappyHourProcessor
-from processors.menus_async import AsyncMenuProcessor
+
+try:
+    from ai.openrouter import AsyncOpenRouterClient
+except ImportError:
+    AsyncOpenRouterClient = None  # httpx not available
+
+try:
+    from fetchers.website import AsyncWebsiteFetcher
+except ImportError:
+    AsyncWebsiteFetcher = None  # httpx not available
+
+try:
+    from processors.happy_hours_async import AsyncHappyHourProcessor
+except ImportError:
+    AsyncHappyHourProcessor = None  # httpx not available
+
+try:
+    from processors.menus_async import AsyncMenuProcessor
+except ImportError:
+    AsyncMenuProcessor = None  # httpx not available
 
 
 # Configuration
@@ -227,6 +243,9 @@ async def async_step_fetch_restaurants(
         print(f"Found existing {csv_path}")
         print("Refreshing from Google Places API (using --full)...")
 
+    if AsyncGooglePlacesFetcher is None:
+        raise RuntimeError("httpx is required for async fetching. Install: pip install httpx")
+
     print("Fetching from Google Places API...")
     try:
         async with AsyncGooglePlacesFetcher(
@@ -262,6 +281,9 @@ async def async_step_fetch_restaurants(
 
 async def async_step_parse_happy_hours(restaurants: list, storage: CSVManager) -> list:
     """Parse happy hours concurrently using AI."""
+    if AsyncOpenRouterClient is None or AsyncWebsiteFetcher is None or AsyncHappyHourProcessor is None:
+        raise RuntimeError("httpx is required for async AI parsing. Install: pip install httpx")
+
     print_step("Parse Happy Hours from Websites (Async)")
     to_process = [r for r in restaurants if not r.happy_hour_times]
     print(f"Processing {len(to_process)} restaurants without happy hour data\n")
@@ -297,6 +319,9 @@ async def async_step_parse_happy_hours(restaurants: list, storage: CSVManager) -
 
 async def async_step_parse_menus(restaurants: list, storage: CSVManager) -> list:
     """Parse menus concurrently using AI."""
+    if AsyncOpenRouterClient is None or AsyncWebsiteFetcher is None or AsyncMenuProcessor is None:
+        raise RuntimeError("httpx is required for async AI parsing. Install: pip install httpx")
+
     print_step("Parse Menus (Async)")
     to_process = [r for r in restaurants if not r.menu_summary and r.website_url]
     print(f"Processing {len(to_process)} restaurants without menu data\n")

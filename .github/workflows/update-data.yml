@@ -38,7 +38,7 @@ jobs:
           node-version: 20
 
       - name: Install Python dependencies
-        run: pip install requests
+        run: pip install requests httpx
 
       - name: Install Node dependencies
         run: npm ci
