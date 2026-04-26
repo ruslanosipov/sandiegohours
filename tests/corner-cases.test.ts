@@ -8,7 +8,7 @@ describe('Closed day handling', () => {
     const times = 'Sunday: Closed | Monday: 3:00 PM - 6:00 PM';
     
     const status = getHappyHourStatus(times, now);
-    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR_TODAY);
+    expect(status).toBe(HappyHourStatus.CLOSED_TODAY);
   });
 
   it('shows ACTIVE when today has happy hour (not Closed)', () => {
@@ -78,7 +78,7 @@ describe('Across midnight handling', () => {
     const times = 'Sunday: 10:00 PM - 12:00 AM | Monday: Closed';
     
     const status = getHappyHourStatus(times, now);
-    expect(status).toBe(HappyHourStatus.NO_HAPPY_HOUR_TODAY); // Monday is Closed
+    expect(status).toBe(HappyHourStatus.CLOSED_TODAY); // Monday is Closed
   });
 });
 

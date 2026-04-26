@@ -32,7 +32,6 @@ interface MenuData {
 }
 
 async function getRestaurants(): Promise<Restaurant[]> {
-  // Load main restaurant data
   const csvPath = path.join(process.cwd(), 'public', 'happy_hours.csv');
   const fileContent = await fs.readFile(csvPath, 'utf-8');
 
@@ -41,7 +40,6 @@ async function getRestaurants(): Promise<Restaurant[]> {
     skip_empty_lines: true,
   }) as Restaurant[];
 
-  // Load menu data
   try {
     const menuCsvPath = path.join(process.cwd(), 'public', 'menu_data.csv');
     const menuContent = await fs.readFile(menuCsvPath, 'utf-8');
@@ -50,10 +48,8 @@ async function getRestaurants(): Promise<Restaurant[]> {
       skip_empty_lines: true,
     }) as MenuData[];
 
-    // Create lookup map for menu data
     const menuMap = new Map(menuRecords.map(m => [m.restaurant_name, m]));
 
-    // Merge menu data into restaurants
     for (const restaurant of records) {
       const menu = menuMap.get(restaurant.restaurant_name);
       if (menu) {
@@ -65,7 +61,6 @@ async function getRestaurants(): Promise<Restaurant[]> {
       }
     }
   } catch (error) {
-    // menu_data.csv might not exist yet
     console.log('Menu data not loaded yet:', error);
   }
 
@@ -76,35 +71,19 @@ export default async function Home() {
   const restaurants = await getRestaurants();
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Banner with logo and drinks */}
-      <div className="bg-white py-6">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-4">
-            <img 
-              src="/drinks.png" 
-              alt="Drinks" 
-              className="h-24 w-auto"
-            />
-            <img 
-              src="/logo.png" 
-              alt="San Diego Happy Hour" 
-              className="h-20 w-auto"
-            />
-          </div>
+    <main className="min-h-screen bg-white">
+      {/* Banner */}
+      <div className="bg-white py-6 md:py-10">
+        <div className="max-w-6xl mx-auto px-4 flex justify-center">
+          <img
+            src="/banner.png"
+            alt="North Park Happy Hour"
+            className="w-full max-w-2xl h-auto"
+          />
         </div>
       </div>
 
-      {/* Tagline */}
-      <div className="bg-brand-teal py-4">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-lg text-white font-semibold">
-            Find the best happy hours in Normal Heights, North Park & surrounding areas
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 pb-12">
         <HappyHourFinder restaurants={restaurants} />
       </div>
     </main>

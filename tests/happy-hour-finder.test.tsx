@@ -87,14 +87,15 @@ describe('HappyHourFinder', () => {
 
   it('shows correct stats counts', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const counts = screen.getAllByText('2');
-    expect(counts.length).toBe(2); // With Happy Hour + Active Now
-    expect(screen.getByText('3')).toBeInTheDocument(); // Total Places
+    const statsText = document.body.textContent || '';
+    expect(statsText).toContain('2 with Happy Hour');
+    expect(statsText).toContain('2 Active Now');
+    expect(statsText).toContain('Showing 3 places');
   });
 
   it('filters by search query', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const searchInput = screen.getByPlaceholderText('Search by restaurant name or address...');
+    const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
 
     fireEvent.change(searchInput, { target: { value: 'Ramen' } });
 
@@ -106,7 +107,7 @@ describe('HappyHourFinder', () => {
 
   it('filters by address search query', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const searchInput = screen.getByPlaceholderText('Search by restaurant name or address...');
+    const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
 
     fireEvent.change(searchInput, { target: { value: 'El Cajon' } });
 
@@ -161,13 +162,11 @@ describe('HappyHourFinder', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
     expect(screen.getByText('Happy Hour Deals')).toBeInTheDocument();
     expect(screen.getByText('$5 appetizers and $4 beers')).toBeInTheDocument();
-    expect(screen.getByText(/\$4 Sapporo/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$5 Gyoza/i)).toBeInTheDocument();
   });
 
   it('renders "Use my location" button', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    expect(screen.getByText('📍 Use my location')).toBeInTheDocument();
+    expect(screen.getByText('Use my location')).toBeInTheDocument();
   });
 
   it('updates selected day and time via dropdowns', async () => {

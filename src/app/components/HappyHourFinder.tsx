@@ -13,10 +13,18 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 
 function formatSource(source: string): string {
   if (!source) return "Unknown";
-  if (source.includes("google_maps_api")) return "Google Maps API";
-  if (source.includes("website")) return "Website";
+  if (source.includes("google") || source.includes("Google")) return "Google Maps";
+  if (source.includes("website") || source.includes("Website") || source.includes("AI")) return "Website";
   if (source === "Manual") return "Manual";
   return source;
+}
+
+function simplifyAddress(address: string): string {
+  if (!address) return "";
+  return address
+    .replace(/,\s*San Diego,?\s*(CA)?\s*\d{5}(-\d{4})?/i, "")
+    .replace(/,\s*CA\s*$/i, "")
+    .trim();
 }
 
 function formatDate(dateStr: string): string {
@@ -29,8 +37,18 @@ function formatDate(dateStr: string): string {
   }
 }
 
+/**
+ * Extract price (leading $number) and name from a deal string like "$4 Sapporo"
+ */
+function splitPriceAndName(dealStr: string): { price: string; name: string } {
+  const match = dealStr.match(/^(\$[\d.]+)\s*(.*)$/);
+  if (match) {
+    return { price: match[1], name: match[2] || "" };
+  }
+  return { price: "", name: dealStr };
+}
+
 export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
-  // Use static initial values to avoid hydration mismatch between server and client.
   const [selectedDay, setSelectedDay] = useState<string>("Monday");
   const [selectedTime, setSelectedTime] = useState<string>("12:00");
   const [showOnlyHappyHour, setShowOnlyHappyHour] = useState(false);
@@ -40,17 +58,13 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [expandedHappyHours, setExpandedHappyHours] = useState<Set<string>>(new Set());
-  const [mounted, setMounted] = useState(false);
 
-  // Update date/time on client only after hydration completes
   useEffect(() => {
     const now = new Date();
     setSelectedDay(DAYS[now.getDay()]);
     setSelectedTime(`${now.getHours().toString().padStart(2, "0")}:00`);
-    setMounted(true);
   }, []);
 
-  // Create a date object from selected day and time for accurate filtering
   const selectedDateTime = useMemo(() => {
     const date = new Date();
     const dayIndex = DAYS.indexOf(selectedDay);
@@ -67,21 +81,15 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
       setLocationError('Location access requires a secure connection (HTTPS or localhost).');
       return;
     }
-
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by your browser');
       return;
     }
-
     setLocationLoading(true);
     setLocationError(null);
-
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
         setSortBy('distance');
         setLocationLoading(false);
       },
@@ -114,99 +122,74 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const sortedAndFilteredRestaurants = useMemo(() => {
     let filtered = restaurants.filter((restaurant) => {
       const hasHH = hasHappyHour(restaurant);
-
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const nameMatch = restaurant.restaurant_name.toLowerCase().includes(query);
         const addressMatch = restaurant.address.toLowerCase().includes(query);
         if (!nameMatch && !addressMatch) return false;
       }
-
-      if (showOnlyHappyHour && !hasHH) {
-        return false;
-      }
-
-      // Use actual time-based filtering with selectedDateTime
-      if (!selectedDay || !selectedTime) return true;
-
+      if (showOnlyHappyHour && !hasHH) return false;
       if (hasHH) {
         const isActive = isHappyHourActive(restaurant.happy_hour_times, selectedDateTime);
         if (showOnlyHappyHour) return isActive;
-        return true;
       }
-
-      return !showOnlyHappyHour;
+      return !showOnlyHappyHour || hasHH;
     });
-
     if (sortBy === 'distance' && userLocation) {
       filtered = sortByDistance(filtered, userLocation.lat, userLocation.lng);
     }
-
     return filtered;
   }, [restaurants, selectedDay, selectedTime, showOnlyHappyHour, searchQuery, sortBy, userLocation, selectedDateTime]);
 
   const happyHourCount = restaurants.filter((r) => hasHappyHour(r)).length;
-  
   const activeCount = useMemo(() => {
-    return sortedAndFilteredRestaurants.filter((r) => 
+    return sortedAndFilteredRestaurants.filter((r) =>
       isHappyHourActive(r.happy_hour_times, selectedDateTime)
     ).length;
   }, [sortedAndFilteredRestaurants, selectedDateTime]);
 
   return (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 text-center border-2 border-brand-teal">
-          <div className="text-3xl font-bold text-brand-teal">{restaurants.length}</div>
-          <div className="text-gray-600 text-sm">Total Places</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 text-center border-2 border-brand-yellow">
-          <div className="text-3xl font-bold text-brand-orange">{happyHourCount}</div>
-          <div className="text-gray-600 text-sm">With Happy Hour</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 text-center border-2 border-brand-orange">
-          <div className="text-3xl font-bold text-brand-orange">{activeCount}</div>
-          <div className="text-gray-600 text-sm">Active Now</div>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Search</h2>
-        <input
-          type="text"
-          placeholder="Search by restaurant name or address..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Filter by Time</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="day-select" className="block text-sm font-medium text-gray-700 mb-1">Day</label>
+    <div className="space-y-8">
+      {/* Search & Filters */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div className="flex flex-col md:flex-row flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[200px]">
+            <label htmlFor="search-input" className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+              Search
+            </label>
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Restaurant name or address..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors"
+            />
+          </div>
+          <div className="w-full md:w-auto">
+            <label htmlFor="day-select" className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+              Day
+            </label>
             <select
               id="day-select"
               value={selectedDay}
               onChange={(e) => setSelectedDay(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full md:w-auto bg-white border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors"
             >
               {DAYS.map((day) => (
                 <option key={day} value={day}>{day}</option>
               ))}
             </select>
           </div>
-          <div>
-            <label htmlFor="time-select" className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+          <div className="w-full md:w-auto">
+            <label htmlFor="time-select" className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+              Time
+            </label>
             <select
               id="time-select"
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full md:w-auto bg-white border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors"
             >
               {Array.from({ length: 24 }, (_, i) => (
                 <option key={i} value={`${i.toString().padStart(2, "0")}:00`}>
@@ -215,14 +198,14 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
               ))}
             </select>
           </div>
-          <div className="flex items-end">
-            <label htmlFor="hh-only-toggle" className="flex items-center space-x-2 cursor-pointer">
+          <div className="pb-0.5">
+            <label htmlFor="hh-only-toggle" className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 id="hh-only-toggle"
                 type="checkbox"
                 checked={showOnlyHappyHour}
                 onChange={(e) => setShowOnlyHappyHour(e.target.checked)}
-                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-600"
               />
               <span className="text-sm text-gray-700">Only show places with happy hour</span>
             </label>
@@ -230,21 +213,23 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         </div>
       </div>
 
-      {/* Results count and location */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="text-sm text-gray-600">
+      {/* Stats & Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <p className="text-sm text-gray-500">
           Showing {sortedAndFilteredRestaurants.length} {sortedAndFilteredRestaurants.length === 1 ? "place" : "places"}
-          {searchQuery && ` for "${searchQuery}"`}
-        </div>
-        
+          {sortedAndFilteredRestaurants.length > 0 && (
+            <> · {happyHourCount} with Happy Hour · <span className="text-emerald-600 font-bold">{activeCount} Active Now</span></>
+          )}
+        </p>
+
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <label htmlFor="sort-select" className="text-sm text-gray-600">Sort by:</label>
+            <label htmlFor="sort-select" className="text-sm text-gray-500">Sort by</label>
             <select
               id="sort-select"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'name' | 'distance')}
-              className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="text-sm bg-white border border-gray-200 rounded-md px-2 py-1 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors"
             >
               <option value="name">Name</option>
               <option value="distance" disabled={!userLocation}>Distance</option>
@@ -255,25 +240,25 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
             <button
               onClick={handleGetLocation}
               disabled={locationLoading}
-              className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-md hover:bg-purple-200 disabled:opacity-50 flex items-center gap-1"
+              className="text-sm bg-emerald-600 text-white px-3 py-1.5 rounded-md hover:bg-emerald-700 disabled:opacity-50 transition-colors"
             >
-              {locationLoading ? <><span className="animate-spin">⌛</span> Getting location...</> : <>📍 Use my location</>}
+              {locationLoading ? "Getting location..." : "Use my location"}
             </button>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-green-600">📍 Location active</span>
-              <button onClick={handleClearLocation} className="text-sm text-gray-500 hover:text-gray-700">✕</button>
+              <span className="text-sm text-emerald-600 font-medium">Location active</span>
+              <button onClick={handleClearLocation} className="text-sm text-gray-400 hover:text-gray-600">Clear</button>
             </div>
           )}
         </div>
       </div>
-      
+
       {locationError && (
-        <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md">{locationError}</div>
+        <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{locationError}</div>
       )}
 
       {/* Restaurant Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedAndFilteredRestaurants.map((restaurant, index) => {
           const hasHH = hasHappyHour(restaurant);
           const status = getHappyHourStatus(restaurant.happy_hour_times, selectedDateTime);
@@ -285,74 +270,57 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
           return (
             <div
               key={index}
-              className={`bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg ${isActive ? "ring-2 ring-brand-yellow" : ""}`}
+              className={`bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col ${isActive ? "ring-1 ring-emerald-600" : ""}`}
             >
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-bold text-lg text-gray-900 leading-tight">{restaurant.restaurant_name}</h3>
-                  {hasHH && (
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusLabel.colorClass}`}>
-                      {statusLabel.text}
-                    </span>
+              <div className="p-6 flex flex-col flex-1">
+                {/* Header: Name + Status */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight">
+                    {restaurant.restaurant_name}
+                  </h3>
+                  {hasHH && statusLabel.text && (
+                    statusLabel.boxClass ? (
+                      <span className={`text-xs whitespace-nowrap mt-0.5 px-2 py-1 rounded-md border ${statusLabel.boxClass} ${statusLabel.colorClass}`}>
+                        {statusLabel.text}
+                      </span>
+                    ) : (
+                      <span className={`text-xs whitespace-nowrap mt-1 ${statusLabel.colorClass}`}>
+                        {statusLabel.text}
+                      </span>
+                    )
                   )}
                   {!hasHH && (
-                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-red-100 text-red-700">No Happy Hour</span>
+                    <span className="text-xs text-gray-400 mt-1 whitespace-nowrap">No Happy Hour</span>
                   )}
                 </div>
 
                 {/* Generative Summary */}
                 {restaurant.generative_summary && (
-                  <p className="text-sm text-gray-600 italic mb-3">{restaurant.generative_summary}</p>
+                  <p className="text-sm text-gray-500 italic mb-3">{restaurant.generative_summary}</p>
                 )}
 
-                <div className="flex items-center text-sm text-gray-600 mb-2">
-                  <span className="font-medium">{restaurant.rating}★</span>
-                  <span className="mx-1">·</span>
+                {/* Meta line */}
+                <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5 text-sm text-gray-500 mb-4">
+                  <span className="font-medium text-gray-700">{restaurant.rating}</span>
+                  <span className="text-gray-400">·</span>
                   <span>{restaurant.review_count} reviews</span>
                   {restaurant.price_level && (
-                    <><span className="mx-1">·</span><span className="text-gray-500">{formatPriceLevel(restaurant.price_level)}</span></>
+                    <>
+                      <span className="text-gray-400">·</span>
+                      <span>{formatPriceLevel(restaurant.price_level)}</span>
+                    </>
                   )}
                   {restaurant.distance !== undefined && restaurant.distance !== Infinity && (
-                    <><span className="mx-1">·</span><span className="text-green-600 font-medium">{formatDistance(restaurant.distance)}</span></>
+                    <>
+                      <span className="text-gray-400">·</span>
+                      <span className="text-emerald-600 font-medium">{formatDistance(restaurant.distance)}</span>
+                    </>
                   )}
                 </div>
 
-                {/* Clickable Address with Map Icon */}
-                {restaurant.google_maps_url ? (
-                  <a
-                    href={restaurant.google_maps_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-gray-700 mb-3 flex items-center gap-1 hover:text-blue-600 transition-colors group"
-                  >
-                    <svg
-                      className="w-4 h-4 text-gray-400 group-hover:text-blue-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span className="group-hover:underline">{restaurant.address}</span>
-                  </a>
-                ) : (
-                  <p className="text-sm text-gray-700 mb-3">{restaurant.address}</p>
-                )}
-
+                {/* Happy Hour Accordion */}
                 {hasHH && (
-                  <div className="text-sm mb-3">
+                  <div className="mb-4">
                     <button
                       type="button"
                       onClick={() => {
@@ -364,34 +332,34 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                         }
                         setExpandedHappyHours(newSet);
                       }}
-                      className={`w-full text-left cursor-pointer font-medium p-2 rounded-md flex items-center justify-between ${isActive ? "bg-green-50 text-green-800 hover:bg-green-100" : "bg-gray-50 text-gray-700 hover:bg-gray-100"}`}
+                      className="w-full text-left py-2 border-b border-gray-100 flex items-start justify-between text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     >
-                      <span>
-                        Happy Hour
+                      <span className="flex flex-col">
+                        <span>Happy Hour</span>
                         {!expandedHappyHours.has(restaurant.restaurant_name) && (
-                          <span className="ml-2 text-gray-500 font-normal">
+                          <span className="text-gray-400 font-normal text-xs mt-0.5">
                             {(() => {
                               const todayLine = normalizeHappyHourTimes(restaurant.happy_hour_times)
                                 .split(" | ")
                                 .find(line => line.toLowerCase().startsWith(selectedDay.toLowerCase()));
-                              return todayLine ? `(${todayLine})` : '';
+                              return todayLine ? todayLine : '';
                             })()}
                           </span>
                         )}
                       </span>
-                      <span className="text-gray-400">
-                        {expandedHappyHours.has(restaurant.restaurant_name) ? '▲' : '▼'}
+                      <span className="text-gray-400 text-lg leading-none mt-0.5">
+                        {expandedHappyHours.has(restaurant.restaurant_name) ? '−' : '+'}
                       </span>
                     </button>
                     {expandedHappyHours.has(restaurant.restaurant_name) && (
-                      <div className={`mt-2 p-3 rounded-md ${isActive ? "bg-green-50 text-green-800" : "bg-gray-50 text-gray-800"}`}>
+                      <div className="py-3 space-y-1 text-sm text-gray-600">
                         {normalizeHappyHourTimes(restaurant.happy_hour_times).split(" | ").map((line, i) => {
                           const dayName = line.split(':')[0].trim();
                           const isToday = dayName.toLowerCase() === selectedDay.toLowerCase();
                           return (
                             <span
                               key={i}
-                              className={`block leading-snug ${isToday ? 'font-bold text-gray-900' : ''}`}
+                              className={`block leading-snug ${isToday ? 'font-medium text-gray-900' : ''}`}
                             >
                               {line}
                             </span>
@@ -402,70 +370,86 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
                   </div>
                 )}
 
-                {/* AI Menu Summary */}
-                {(restaurant.menu_summary || restaurant.cheapest_drink || restaurant.cheapest_food) && (
-                  <div className="bg-purple-50 p-3 rounded-md mb-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-purple-600 text-lg">🍽️</span>
-                      <span className="font-medium text-purple-900">Happy Hour Deals</span>
-                    </div>
-                    {restaurant.menu_summary && (
-                      <p className="text-sm text-purple-800 mb-2">{restaurant.menu_summary}</p>
-                    )}
-                    <div className="flex flex-wrap gap-3 text-sm">
-                      {restaurant.cheapest_drink && (
-                        <span className="bg-white px-2 py-1 rounded text-purple-700">
-                          🍺 {restaurant.cheapest_drink}
-                        </span>
-                      )}
-                      {restaurant.cheapest_food && (
-                        <span className="bg-white px-2 py-1 rounded text-purple-700">
-                          🍔 {restaurant.cheapest_food}
-                        </span>
-                      )}
-                    </div>
+                {/* Deals */}
+                {restaurant.menu_summary && (
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-md p-3 mb-4">
+                    <h4 className="text-xs font-semibold text-emerald-800 uppercase tracking-wide mb-1">
+                      Happy Hour Deals
+                    </h4>
+                    <p className="text-sm text-emerald-900 font-medium">{restaurant.menu_summary}</p>
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2 text-sm">
-                  {restaurant.phone_number && <a href={`tel:${restaurant.phone_number}`} className="text-blue-600 hover:text-blue-800 hover:underline">{restaurant.phone_number}</a>}
-                  {restaurant.phone_number && restaurant.website_url && <span className="text-gray-400">·</span>}
-                  {restaurant.website_url && <a href={restaurant.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline">Website</a>}
-                </div>
-
-                <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 flex justify-between">
-                  <span>Source: {source}</span>
-                  {updatedDate && <span>Updated: {updatedDate}</span>}
-                </div>
-
-                {restaurant.regular_hours && (
-                  <div className="mt-3 text-sm">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newSet = new Set(expandedHappyHours);
-                        const key = `${restaurant.restaurant_name}__regular`;
-                        if (newSet.has(key)) {
-                          newSet.delete(key);
-                        } else {
-                          newSet.add(key);
-                        }
-                        setExpandedHappyHours(newSet);
-                      }}
-                      className="text-gray-500 cursor-pointer hover:text-gray-700 flex items-center gap-1"
+                {/* Footer: Address, Phone, Website, Source, Regular Hours */}
+                <div className="mt-auto pt-4 border-t border-gray-100">
+                  {/* Address */}
+                  {restaurant.google_maps_url ? (
+                    <a
+                      href={restaurant.google_maps_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-gray-500 hover:text-emerald-600 hover:underline mb-2 flex items-start gap-1.5 group"
                     >
-                      <span>Regular Hours</span>
-                      <span className="text-gray-400">
-                        {expandedHappyHours.has(`${restaurant.restaurant_name}__regular`) ? '▲' : '▼'}
-                      </span>
-                    </button>
-                    {expandedHappyHours.has(`${restaurant.restaurant_name}__regular`) && (
-                      <p className="mt-2 text-gray-600 pl-2 border-l-2 border-gray-200">
-                        {restaurant.regular_hours.split(" | ").map((line, i) => <span key={i} className="block">{line}</span>)}
-                      </p>
+                      <svg className="w-4 h-4 mt-0.5 text-gray-400 group-hover:text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{simplifyAddress(restaurant.address)}</span>
+                    </a>
+                  ) : (
+                    <p className="text-sm text-gray-500 mb-2">{simplifyAddress(restaurant.address)}</p>
+                  )}
+
+                  {/* Contact Links */}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm mb-3">
+                    {restaurant.phone_number && (
+                      <a href={`tel:${restaurant.phone_number}`} className="text-gray-500 hover:text-emerald-600 underline decoration-gray-300 hover:decoration-emerald-600 transition-colors">
+                        {restaurant.phone_number}
+                      </a>
+                    )}
+                    {restaurant.website_url && (
+                      <a href={restaurant.website_url} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-emerald-600 underline decoration-gray-300 hover:decoration-emerald-600 transition-colors">
+                        Website
+                      </a>
                     )}
                   </div>
-                )}
+
+                  {/* Source */}
+                  <div className="text-xs text-gray-400 mb-3">
+                    Source: {source}
+                    {updatedDate && ` · Updated ${updatedDate}`}
+                  </div>
+
+                  {/* Regular Hours */}
+                  {restaurant.regular_hours && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newSet = new Set(expandedHappyHours);
+                          const key = `${restaurant.restaurant_name}__regular`;
+                          if (newSet.has(key)) {
+                            newSet.delete(key);
+                          } else {
+                            newSet.add(key);
+                          }
+                          setExpandedHappyHours(newSet);
+                        }}
+                        className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 transition-colors"
+                      >
+                        <span>Regular Hours</span>
+                        <span>{expandedHappyHours.has(`${restaurant.restaurant_name}__regular`) ? '−' : '+'}</span>
+                      </button>
+                      {expandedHappyHours.has(`${restaurant.restaurant_name}__regular`) && (
+                        <div className="mt-2 text-xs text-gray-500 space-y-0.5">
+                          {restaurant.regular_hours.split(" | ").map((line, i) => (
+                            <span key={i} className="block">{line}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -473,9 +457,9 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
       </div>
 
       {sortedAndFilteredRestaurants.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg">No places found.</p>
-          <p className="mt-2">Try changing your search or filters</p>
+        <div className="text-center py-16 text-gray-500">
+          <p className="text-lg text-gray-900">No places found.</p>
+          <p className="mt-2 text-gray-500">Try changing your search or filters</p>
         </div>
       )}
     </div>

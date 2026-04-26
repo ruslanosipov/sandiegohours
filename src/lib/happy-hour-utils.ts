@@ -5,6 +5,7 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 export enum HappyHourStatus {
   NO_HAPPY_HOUR = 'NO_HAPPY_HOUR',
   NO_HAPPY_HOUR_TODAY = 'NO_HAPPY_HOUR_TODAY',
+  CLOSED_TODAY = 'CLOSED_TODAY',
   ACTIVE = 'ACTIVE',
   LATER_TODAY = 'LATER_TODAY',
   PASSED_TODAY = 'PASSED_TODAY',
@@ -371,8 +372,8 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
   
   // Map status to enum
   if (todayStatus === 'closed') {
-    // Has happy hour info but closed today
-    return HappyHourStatus.NO_HAPPY_HOUR_TODAY;
+    // Explicitly closed today
+    return HappyHourStatus.CLOSED_TODAY;
   }
   
   if (todayStatus === 'none') {
@@ -404,20 +405,22 @@ export function getHappyHourStatus(happyHourTimes: string, now: Date = new Date(
 /**
  * Get a display label for the happy hour status
  */
-export function getHappyHourStatusLabel(status: HappyHourStatus): { text: string; colorClass: string } {
+export function getHappyHourStatusLabel(status: HappyHourStatus): { text: string; colorClass: string; boxClass: string } {
   switch (status) {
     case HappyHourStatus.ACTIVE:
-      return { text: "Happy Hour Now!", colorClass: "bg-green-100 text-green-700" };
-    case HappyHourStatus.NO_HAPPY_HOUR:
-      return { text: "No Happy Hour", colorClass: "bg-red-100 text-red-700" };
-    case HappyHourStatus.NO_HAPPY_HOUR_TODAY:
-      return { text: "No Happy Hour Today", colorClass: "bg-gray-100 text-gray-700" };
+      return { text: "Happy Hour Now", colorClass: "text-emerald-700 font-semibold", boxClass: "bg-emerald-50 border-emerald-200" };
     case HappyHourStatus.LATER_TODAY:
-      return { text: "Happy Hour Later", colorClass: "bg-blue-100 text-blue-700" };
+      return { text: "Happy Hour Later", colorClass: "text-emerald-700 font-semibold", boxClass: "bg-emerald-50 border-emerald-200" };
+    case HappyHourStatus.NO_HAPPY_HOUR:
+      return { text: "No Happy Hour", colorClass: "text-gray-400", boxClass: "" };
+    case HappyHourStatus.NO_HAPPY_HOUR_TODAY:
+      return { text: "No Happy Hour Today", colorClass: "text-gray-400", boxClass: "" };
+    case HappyHourStatus.CLOSED_TODAY:
+      return { text: "Closed Today", colorClass: "text-gray-400", boxClass: "" };
     case HappyHourStatus.PASSED_TODAY:
-      return { text: "Happy Hour Passed", colorClass: "bg-gray-100 text-gray-700" };
+      return { text: "Happy Hour Ended", colorClass: "text-gray-400", boxClass: "" };
     default:
-      return { text: "", colorClass: "" };
+      return { text: "", colorClass: "", boxClass: "" };
   }
 }
 

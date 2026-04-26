@@ -34,7 +34,7 @@ describe('HappyHourFinder - Missing Data Display', () => {
 
     expect(screen.getByText('No Rating Bar')).toBeInTheDocument();
     // Should not crash, should still display the card
-    expect(screen.getByText('123 Main St, San Diego, CA 92116')).toBeInTheDocument();
+    expect(screen.getByText('123 Main St')).toBeInTheDocument();
   });
 
   it('shows restaurant even when review count is missing', () => {

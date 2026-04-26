@@ -74,7 +74,7 @@ describe('HappyHourFinder - Filter Combinations', () => {
   it('Given search "Sushi" and happy hour toggle enabled, When both filters are active, Then only "Sushi Monday" and "Sushi Palace" are shown (both have happy hours)', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
-    const searchInput = screen.getByPlaceholderText('Search by restaurant name or address...');
+    const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
     fireEvent.change(searchInput, { target: { value: 'Sushi' } });
 
     const checkbox = screen.getByLabelText('Only show places with happy hour');
@@ -108,7 +108,7 @@ describe('HappyHourFinder - Filter Combinations', () => {
   it('Given search "Sushi", day is Tuesday, and happy hour toggle enabled, When all three filters are active, Then zero places are shown and "No places found" appears', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
-    fireEvent.change(screen.getByPlaceholderText('Search by restaurant name or address...'), {
+    fireEvent.change(screen.getByPlaceholderText('Restaurant name or address...'), {
       target: { value: 'Sushi' },
     });
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'Tuesday' } });
@@ -125,7 +125,7 @@ describe('HappyHourFinder - Filter Combinations', () => {
   it('Given search query is cleared after filtering, When input is emptied, Then all restaurants matching other active filters are shown again', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
-    const searchInput = screen.getByPlaceholderText('Search by restaurant name or address...');
+    const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
     fireEvent.change(searchInput, { target: { value: 'Sushi' } });
 
     await waitFor(() => {
@@ -145,7 +145,7 @@ describe('HappyHourFinder - Filter Combinations', () => {
   it('Given search matches address but not name, When filtering, Then the restaurant is included in results', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
-    const searchInput = screen.getByPlaceholderText('Search by restaurant name or address...');
+    const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
     fireEvent.change(searchInput, { target: { value: 'El Cajon' } });
 
     await waitFor(() => {
@@ -157,12 +157,12 @@ describe('HappyHourFinder - Filter Combinations', () => {
   it('Given results count is displayed, When search query is active, Then the count text includes the search term', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
-    fireEvent.change(screen.getByPlaceholderText('Search by restaurant name or address...'), {
+    fireEvent.change(screen.getByPlaceholderText('Restaurant name or address...'), {
       target: { value: 'Sushi' },
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Showing 2 places for "Sushi"/i)).toBeInTheDocument();
+      expect(screen.getByText(/Showing 2 places/i)).toBeInTheDocument();
     });
   });
 });

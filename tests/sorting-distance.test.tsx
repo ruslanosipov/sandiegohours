@@ -68,18 +68,18 @@ describe('HappyHourFinder - Sorting by Distance', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
     // Trigger geolocation
-    fireEvent.click(screen.getByText('📍 Use my location'));
+    fireEvent.click(screen.getByText('Use my location'));
     const successCallback = mockGetCurrentPosition.mock.calls[0][0];
     successCallback({
       coords: { latitude: 32.761, longitude: -117.121, accuracy: 10 },
     });
 
     await waitFor(() => {
-      expect(screen.getByText('📍 Location active')).toBeInTheDocument();
+      expect(screen.getByText('Location active')).toBeInTheDocument();
     });
 
     // Select Distance sort
-    fireEvent.change(screen.getByLabelText('Sort by:'), { target: { value: 'distance' } });
+    fireEvent.change(screen.getByLabelText('Sort by'), { target: { value: 'distance' } });
 
     // Nearby Bar should appear before Faraway Pub
     const headings = screen.getAllByRole('heading');
@@ -92,24 +92,24 @@ describe('HappyHourFinder - Sorting by Distance', () => {
   it('Given location is active and sorting by distance, When the user clears location, Then sort reverts to "Name"', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
 
-    fireEvent.click(screen.getByText('📍 Use my location'));
+    fireEvent.click(screen.getByText('Use my location'));
     const successCallback = mockGetCurrentPosition.mock.calls[0][0];
     successCallback({
       coords: { latitude: 32.761, longitude: -117.121, accuracy: 10 },
     });
 
     await waitFor(() => {
-      expect(screen.getByText('📍 Location active')).toBeInTheDocument();
+      expect(screen.getByText('Location active')).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText('Sort by:'), { target: { value: 'distance' } });
+    fireEvent.change(screen.getByLabelText('Sort by'), { target: { value: 'distance' } });
 
     // Clear location
-    fireEvent.click(screen.getByText('✕'));
+    fireEvent.click(screen.getByText('Clear'));
 
     await waitFor(() => {
-      expect(screen.getByText('📍 Use my location')).toBeInTheDocument();
-      expect(screen.getByLabelText('Sort by:')).toHaveValue('name');
+      expect(screen.getByText('Use my location')).toBeInTheDocument();
+      expect(screen.getByLabelText('Sort by')).toHaveValue('name');
     });
   });
 });

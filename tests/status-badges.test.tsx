@@ -33,7 +33,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     vi.useRealTimers();
   });
 
-  it('Given a restaurant has an active happy hour for the selected day/time, When the card renders, Then it displays a green "Happy Hour Now!" badge and a yellow ring border around the card', () => {
+  it('Given a restaurant has an active happy hour for the selected day/time, When the card renders, Then it displays a green "Happy Hour Now" badge and an emerald ring border around the card', () => {
     const restaurants: HappyHourPlace[] = [
       createRestaurant({
         restaurant_name: 'Active Bar',
@@ -43,15 +43,13 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
 
     const { container } = render(<HappyHourFinder restaurants={restaurants} />);
 
-    // Badge text
-    expect(screen.getByText('Happy Hour Now!')).toBeInTheDocument();
+    expect(screen.getByText('Happy Hour Now')).toBeInTheDocument();
 
-    // Yellow ring border on card
-    const card = container.querySelector('.ring-brand-yellow');
+    const card = container.querySelector('.ring-emerald-600');
     expect(card).not.toBeNull();
   });
 
-  it('Given a restaurant has no happy hour data at all, When the card renders, Then it displays a red "No Happy Hour" badge', () => {
+  it('Given a restaurant has no happy hour data at all, When the card renders, Then it displays a gray "No Happy Hour" badge', () => {
     const restaurants: HappyHourPlace[] = [
       createRestaurant({
         restaurant_name: 'No HH Bar',
@@ -61,15 +59,12 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
 
     render(<HappyHourFinder restaurants={restaurants} />);
 
-    expect(screen.getByText('No Happy Hour')).toBeInTheDocument();
-
-    // Verify it's styled as red
     const badge = screen.getByText('No Happy Hour');
-    expect(badge.className).toContain('bg-red-100');
-    expect(badge.className).toContain('text-red-700');
+    expect(badge).toBeInTheDocument();
+    expect(badge.className).toContain('text-gray-400');
   });
 
-  it('Given a restaurant is closed today for happy hour, When the card renders, Then it displays a gray "No Happy Hour Today" badge', () => {
+  it('Given a restaurant is closed today for happy hour, When the card renders, Then it displays a gray "Closed Today" badge', () => {
     const restaurants: HappyHourPlace[] = [
       createRestaurant({
         restaurant_name: 'Closed Today Bar',
@@ -79,10 +74,10 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
 
     render(<HappyHourFinder restaurants={restaurants} />);
 
-    expect(screen.getByText('No Happy Hour Today')).toBeInTheDocument();
+    expect(screen.getByText('Closed Today')).toBeInTheDocument();
   });
 
-  it('Given a restaurant\'s happy hour will happen later today, When the card renders, Then it displays a blue "Happy Hour Later" badge', () => {
+  it('Given a restaurant\'s happy hour will happen later today, When the card renders, Then it displays an amber "Happy Hour Later" badge', () => {
     const restaurants: HappyHourPlace[] = [
       createRestaurant({
         restaurant_name: 'Later Bar',
@@ -95,7 +90,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     expect(screen.getByText('Happy Hour Later')).toBeInTheDocument();
   });
 
-  it('Given a restaurant\'s happy hour has already passed today, When the card renders, Then it displays a gray "Happy Hour Passed" badge', () => {
+  it('Given a restaurant\'s happy hour has already passed today, When the card renders, Then it displays a gray "Happy Hour Ended" badge', () => {
     const restaurants: HappyHourPlace[] = [
       createRestaurant({
         restaurant_name: 'Passed Bar',
@@ -105,7 +100,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
 
     render(<HappyHourFinder restaurants={restaurants} />);
 
-    expect(screen.getByText('Happy Hour Passed')).toBeInTheDocument();
+    expect(screen.getByText('Happy Hour Ended')).toBeInTheDocument();
   });
 
   it('Given multiple restaurants with different statuses, When the cards render, Then each badge reflects its correct status', () => {
@@ -126,13 +121,11 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
 
     render(<HappyHourFinder restaurants={restaurants} />);
 
-    // Verify restaurant names are present (use heading role to disambiguate from stat labels)
     expect(screen.getByRole('heading', { name: 'Active Now' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'None Today' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'No Data' })).toBeInTheDocument();
 
-    // Verify all three badge types appear
-    expect(screen.getByText('Happy Hour Now!')).toBeInTheDocument();
+    expect(screen.getByText('Happy Hour Now')).toBeInTheDocument();
     expect(screen.getByText('No Happy Hour Today')).toBeInTheDocument();
     expect(screen.getByText('No Happy Hour')).toBeInTheDocument();
   });

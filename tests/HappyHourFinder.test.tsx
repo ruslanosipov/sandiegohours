@@ -31,8 +31,7 @@ describe('HappyHourFinder - Stats Display', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    expect(screen.getByText('3')).toBeInTheDocument();
-    expect(screen.getByText('Total Places')).toBeInTheDocument();
+    expect(screen.getByText(/Showing 3 places/i)).toBeInTheDocument();
   });
 
   it('displays how many places offer happy hour', () => {
@@ -44,8 +43,7 @@ describe('HappyHourFinder - Stats Display', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('With Happy Hour')).toBeInTheDocument();
+    expect(screen.getByText(/2 with Happy Hour/i)).toBeInTheDocument();
   });
 
   it('displays active happy hour count for selected day/time', () => {
@@ -55,9 +53,8 @@ describe('HappyHourFinder - Stats Display', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    // Shows active count stat with label
-    const activeNowLabel = screen.getByText('Active Now');
-    expect(activeNowLabel).toBeInTheDocument();
+    // Shows active count in stats line
+    expect(screen.getByText(/0 Active Now/i)).toBeInTheDocument();
   });
 });
 
@@ -81,7 +78,7 @@ describe('HappyHourFinder - Restaurant Display', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    expect(screen.getByText('456 Broadway, San Diego, CA 92101')).toBeInTheDocument();
+    expect(screen.getByText('456 Broadway')).toBeInTheDocument();
   });
 
   it('shows star rating for each place', () => {
@@ -186,7 +183,7 @@ describe('HappyHourFinder - Search Behavior', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    const searchInput = screen.getByPlaceholderText(/Search by restaurant name/);
+    const searchInput = screen.getByPlaceholderText(/Restaurant name or address/);
     fireEvent.change(searchInput, { target: { value: 'Downtown' } });
     
     expect(screen.getByText('Downtown Brewing')).toBeInTheDocument();
@@ -201,7 +198,7 @@ describe('HappyHourFinder - Search Behavior', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    const searchInput = screen.getByPlaceholderText(/Search by restaurant name/);
+    const searchInput = screen.getByPlaceholderText(/Restaurant name or address/);
     fireEvent.change(searchInput, { target: { value: 'Adams' } });
     
     expect(screen.getByText('123 Adams Ave, San Diego')).toBeInTheDocument();
@@ -213,7 +210,7 @@ describe('HappyHourFinder - Search Behavior', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
-    const searchInput = screen.getByPlaceholderText(/Search by restaurant name/);
+    const searchInput = screen.getByPlaceholderText(/Restaurant name or address/);
     fireEvent.change(searchInput, { target: { value: 'NonExistentXYZ' } });
     
     expect(screen.getByText(/No places found/)).toBeInTheDocument();
@@ -282,7 +279,7 @@ describe('HappyHourFinder - Day and Time Selection', () => {
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '16:00' } });
     
     // Should now show an active place
-    expect(screen.getByText('Active Now')).toBeInTheDocument();
+    expect(screen.getByText('Happy Hour Now')).toBeInTheDocument();
   });
 });
 
@@ -291,9 +288,7 @@ describe('HappyHourFinder - Edge Cases', () => {
     render(<HappyHourFinder restaurants={[]} />);
     
     // Total places is 0
-    const zeroElements = screen.getAllByText('0');
-    expect(zeroElements.length).toBeGreaterThan(0);
-    expect(screen.getByText('Total Places')).toBeInTheDocument();
+    expect(screen.getByText(/Showing 0 places/i)).toBeInTheDocument();
     expect(screen.getByText(/No places found/)).toBeInTheDocument();
   });
 

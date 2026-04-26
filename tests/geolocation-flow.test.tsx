@@ -45,7 +45,7 @@ describe('HappyHourFinder - Geolocation Flow', () => {
 
   it('Given the user is on a secure connection, When they click "Use my location" and grant permission, Then sort switches to "Distance", a location badge appears, and the button becomes a clear button', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const locationButton = screen.getByText('📍 Use my location');
+    const locationButton = screen.getByText('Use my location');
 
     // Click triggers geolocation
     fireEvent.click(locationButton);
@@ -60,8 +60,8 @@ describe('HappyHourFinder - Geolocation Flow', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('📍 Location active')).toBeInTheDocument();
-      expect(screen.getByText('✕')).toBeInTheDocument();
+      expect(screen.getByText('Location active')).toBeInTheDocument();
+      expect(screen.getByText('Clear')).toBeInTheDocument();
     });
   });
 
@@ -73,7 +73,7 @@ describe('HappyHourFinder - Geolocation Flow', () => {
     });
 
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const locationButton = screen.getByText('📍 Use my location');
+    const locationButton = screen.getByText('Use my location');
 
     fireEvent.click(locationButton);
 
@@ -83,7 +83,7 @@ describe('HappyHourFinder - Geolocation Flow', () => {
 
   it('Given the user denies location permission, When the geolocation error callback fires with PERMISSION_DENIED, Then a specific error message about enabling location services is displayed', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const locationButton = screen.getByText('📍 Use my location');
+    const locationButton = screen.getByText('Use my location');
 
     fireEvent.click(locationButton);
 
@@ -104,7 +104,7 @@ describe('HappyHourFinder - Geolocation Flow', () => {
 
   it('Given location is active, When the user clicks the clear (x) button, Then the location badge disappears, sort resets to "Name", and the "Use my location" button reappears', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const locationButton = screen.getByText('📍 Use my location');
+    const locationButton = screen.getByText('Use my location');
 
     fireEvent.click(locationButton);
 
@@ -114,15 +114,15 @@ describe('HappyHourFinder - Geolocation Flow', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('📍 Location active')).toBeInTheDocument();
+      expect(screen.getByText('Location active')).toBeInTheDocument();
     });
 
-    const clearButton = screen.getByText('✕');
+    const clearButton = screen.getByText('Clear');
     fireEvent.click(clearButton);
 
     await waitFor(() => {
-      expect(screen.queryByText('📍 Location active')).not.toBeInTheDocument();
-      expect(screen.getByText('📍 Use my location')).toBeInTheDocument();
+      expect(screen.queryByText('Location active')).not.toBeInTheDocument();
+      expect(screen.getByText('Use my location')).toBeInTheDocument();
     });
   });
 
@@ -130,7 +130,7 @@ describe('HappyHourFinder - Geolocation Flow', () => {
     vi.stubGlobal('navigator', {});
 
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const locationButton = screen.getByText('📍 Use my location');
+    const locationButton = screen.getByText('Use my location');
 
     fireEvent.click(locationButton);
 
@@ -139,7 +139,7 @@ describe('HappyHourFinder - Geolocation Flow', () => {
 
   it('Given the location request times out, When the geolocation error callback fires with TIMEOUT, Then the error message "Location request timed out" is displayed', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const locationButton = screen.getByText('📍 Use my location');
+    const locationButton = screen.getByText('Use my location');
 
     fireEvent.click(locationButton);
 

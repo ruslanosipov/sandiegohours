@@ -10,11 +10,10 @@ module.exports = {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
-        // Brand colors from banner
-        'brand-teal': '#5DB5A4',
-        'brand-yellow': '#F4C430',
-        'brand-orange': '#E8913A',
-        'brand-cream': '#FFF8E7',
+      },
+      fontFamily: {
+        montserrat: ['var(--font-montserrat)', 'sans-serif'],
+        inter: ['var(--font-inter)', 'sans-serif'],
       },
     },
   },
