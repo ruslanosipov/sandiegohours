@@ -88,9 +88,15 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   }, []);
 
   const coveredNeighborhoods = useMemo(() => {
-    const ids = new Set<string>();
+    const counts = new Map<string, number>();
     for (const r of restaurants) {
-      if (r.neighborhood) ids.add(r.neighborhood);
+      if (r.neighborhood) {
+        counts.set(r.neighborhood, (counts.get(r.neighborhood) ?? 0) + 1);
+      }
+    }
+    const ids = new Set<string>();
+    for (const [id, count] of counts) {
+      if (count >= 50) ids.add(id);
     }
     return ids;
   }, [restaurants]);
