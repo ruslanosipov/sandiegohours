@@ -53,3 +53,7 @@ node_modules/
 check_menu.py
 check_status.py
 temp_hh.txt
+
+# logs
+.log/
+*.log
