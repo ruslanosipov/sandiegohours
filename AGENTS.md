@@ -28,13 +28,32 @@ Google Places API → Python Pipeline → CSV Storage → Next.js Frontend
 ### Python Pipeline
 ```
 scripts/orchestrator.py
-  ├── fetchers/google_places.py    # Google Places API v1 with pagination
-  ├── fetchers/website_fetcher.py  # Website scraping with caching
-  ├── processors/happy_hour.py     # AI happy hour extraction
-  ├── processors/menu.py           # AI menu/deals extraction
-  ├── storage/csv_manager.py       # CSV read/write
-  └── ai/openrouter.py             # OpenRouter API client
+  ├── fetchers/google_places.py           # Google Places API v1 (sync)
+  ├── fetchers/google_places_async.py     # Parallel Place Details (async)
+  ├── fetchers/website.py                 # Website scraping with caching
+  ├── fetchers/website_fetcher.py         # (legacy alias)
+  ├── processors/happy_hours.py           # AI happy hour extraction (sync)
+  ├── processors/happy_hours_async.py    # Parallel AI extraction (async)
+  ├── processors/menus.py                 # AI menu/deals extraction (sync)
+  ├── processors/menus_async.py           # Parallel AI extraction (async)
+  ├── storage/csv_manager.py              # CSV read/write
+  └── ai/openrouter.py                    # OpenRouter client (sync + async)
 ```
+
+#### Async Parallelization
+The pipeline now runs **fully async** via `httpx`:
+- **Google Places Place Details**: Up to **10 concurrent** requests (cap under ~600/min default quota).
+- **OpenRouter AI parsing**: Up to **50 concurrent** requests (well within high-tier limits).
+- **Website priority-path checks**: Every restaurant's `/happy-hour`, `/specials`, etc. are probed in parallel using `asyncio.gather`.
+
+Tunables at the top of `scripts/orchestrator.py`:
+```python
+GOOGLE_PLACES_CONCURRENCY = 10
+OPENROUTER_CONCURRENCY = 50
+WEBSITE_FETCH_DELAY = 0.0   # optional delay between site fetches
+```
+
+All original sync APIs remain untouched for backward compatibility and testing.
 
 ### Frontend
 ```
