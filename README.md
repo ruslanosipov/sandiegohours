@@ -65,4 +65,4 @@ python scripts/orchestrator.py --full
 
 ## License
 
-MIT
+All Rights Reserved
