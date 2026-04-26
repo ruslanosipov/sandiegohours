@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "North Park Happy Hours",
-  description: "Find the best happy hours in Normal Heights, North Park & surrounding areas",
+  title: "San Diego Happy Hours",
+  description: "Find the best happy hours across San Diego neighborhoods",
 };
 
 export const viewport: Viewport = {
