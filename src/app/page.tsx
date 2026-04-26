@@ -15,6 +15,10 @@ interface Restaurant {
   price_level: string;
   source: string;
   freshness_date: string;
+  latitude?: string;
+  longitude?: string;
+  google_maps_url?: string;
+  generative_summary?: string;
   cheapest_drink?: string;
   cheapest_drink_price?: number;
   cheapest_food?: string;
