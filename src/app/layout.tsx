@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -38,6 +39,20 @@ export default function RootLayout({
       lang="en"
       className={`${montserrat.variable} ${inter.variable} h-full antialiased`}
     >
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ERQFDKTPH3"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-ERQFDKTPH3');
+          `}
+        </Script>
+      </head>
       <body className="min-h-full flex flex-col font-inter">{children}</body>
     </html>
   );
