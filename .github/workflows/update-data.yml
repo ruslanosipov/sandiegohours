@@ -41,6 +41,20 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Restore Google API cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/google_api
+          key: google-api-${{ runner.os }}-${{ hashFiles('public/happy_hours.csv') }}
+          restore-keys: google-api-${{ runner.os }}-
+
+      - name: Restore website cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/websites
+          key: websites-${{ runner.os }}-${{ hashFiles('public/happy_hours.csv') }}
+          restore-keys: websites-${{ runner.os }}-
+
       - name: Fetch restaurants by neighborhood
         env:
           PYTHONPATH: ${{ github.workspace }}/scripts

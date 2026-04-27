@@ -75,8 +75,8 @@ def test_convert_to_restaurant_extracts_google_maps_url():
     assert result.google_maps_url == "https://www.google.com/maps/place/Test+Restaurant"
 
 
-def test_convert_to_restaurant_extracts_generative_summary():
-    """Test convert_to_restaurant extracts editorialSummary from API response."""
+def test_convert_to_restaurant_ignores_editorial_summary():
+    """Test convert_to_restaurant no longer extracts editorialSummary (cost optimization)."""
     place_data = {
         'displayName': {'text': 'Test Restaurant'},
         'formattedAddress': '123 Main St, San Diego, CA',
@@ -87,7 +87,7 @@ def test_convert_to_restaurant_extracts_generative_summary():
 
     result = convert_to_restaurant(place_data)
 
-    assert result.generative_summary == "A popular local spot known for craft beers and pub grub."
+    assert result.generative_summary == ""
 
 
 def test_convert_to_restaurant_handles_missing_google_maps_url():
@@ -102,24 +102,11 @@ def test_convert_to_restaurant_handles_missing_google_maps_url():
     assert result.google_maps_url == ""
 
 
-def test_convert_to_restaurant_handles_missing_generative_summary():
-    """Test convert_to_restaurant handles missing generativeSummary."""
+def test_convert_to_restaurant_generative_summary_always_empty():
+    """Test convert_to_restaurant always returns empty generative_summary."""
     place_data = {
         'displayName': {'text': 'Test Restaurant'},
         'formattedAddress': '123 Main St, San Diego, CA',
-    }
-
-    result = convert_to_restaurant(place_data)
-
-    assert result.generative_summary == ""
-
-
-def test_convert_to_restaurant_handles_empty_generative_summary():
-    """Test convert_to_restaurant handles empty editorialSummary object."""
-    place_data = {
-        'displayName': {'text': 'Test Restaurant'},
-        'formattedAddress': '123 Main St, San Diego, CA',
-        'editorialSummary': {},
     }
 
     result = convert_to_restaurant(place_data)
@@ -136,7 +123,7 @@ def test_csv_manager_roundtrip_with_new_fields(tmp_path):
             restaurant_name="Bar A",
             address="123 Main St",
             google_maps_url="https://www.google.com/maps/place/Bar+A",
-            generative_summary="Great happy hour deals on tacos and margaritas."
+            generative_summary=""
         ),
         Restaurant(
             restaurant_name="Bar B",
@@ -151,7 +138,7 @@ def test_csv_manager_roundtrip_with_new_fields(tmp_path):
 
     assert len(result) == 2
     assert result[0].google_maps_url == "https://www.google.com/maps/place/Bar+A"
-    assert result[0].generative_summary == "Great happy hour deals on tacos and margaritas."
     # Empty strings in CSV become None when read back (CSVManager behavior)
+    assert result[0].generative_summary is None
     assert result[1].google_maps_url is None
     assert result[1].generative_summary is None

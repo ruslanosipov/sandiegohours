@@ -22,7 +22,6 @@ const mockRestaurants: HappyHourPlace[] = [
     latitude: '32.7631057',
     longitude: '-117.1210771',
     google_maps_url: 'https://maps.google.com/?cid=123',
-    generative_summary: 'Upscale pub food & craft cocktails.',
   },
   {
     restaurant_name: 'Rudford\'s Restaurant',
@@ -55,7 +54,6 @@ const mockRestaurants: HappyHourPlace[] = [
     latitude: '32.7631174',
     longitude: '-117.1211899',
     google_maps_url: 'https://maps.google.com/?cid=789',
-    generative_summary: 'Small Japanese place with ramen and sushi.',
     menu_summary: '$5 appetizers and $4 beers',
     cheapest_drink: '$4 Sapporo',
     cheapest_food: '$5 Gyoza',

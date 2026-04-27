@@ -21,7 +21,7 @@ interface GooglePlaceV1 {
   priceLevel?: string;
   location?: { latitude?: number; longitude?: number };
   googleMapsUri?: string;
-  editorialSummary?: { text?: string };
+  // editorialSummary removed (cost optimization: drops Enterprise+Atmosphere SKU)
 }
 
 interface Restaurant {
@@ -77,8 +77,8 @@ function convertToRestaurant(placeData: GooglePlaceV1): Restaurant {
   // Extract Google Maps URL
   const googleMapsUrl = placeData.googleMapsUri || '';
 
-  // Extract editorial summary (one-sentence description)
-  const generativeSummary = placeData.editorialSummary?.text || '';
+  // editorialSummary removed (cost optimization: drops Enterprise+Atmosphere SKU)
+  const generativeSummary = '';
 
   return {
     restaurant_name: name,
@@ -298,7 +298,7 @@ describe('Google Places API V1 Conversion', () => {
     expect(result.google_maps_url).toBe('https://www.google.com/maps/place/Test+Bar');
   });
 
-  it('extracts editorialSummary text', () => {
+  it('ignores editorialSummary (cost optimization)', () => {
     const placeData: GooglePlaceV1 = {
       displayName: { text: 'Test Bar' },
       formattedAddress: '123 Main St, San Diego, CA',
@@ -309,7 +309,7 @@ describe('Google Places API V1 Conversion', () => {
 
     const result = convertToRestaurant(placeData);
 
-    expect(result.generative_summary).toBe('A popular local spot known for craft beers and pub grub.');
+    expect(result.generative_summary).toBe('');
   });
 
   it('handles missing googleMapsUri', () => {
@@ -373,9 +373,7 @@ describe('Google Places API V1 Conversion', () => {
       priceLevel: 'PRICE_LEVEL_MODERATE',
       location: { latitude: 32.7157, longitude: -117.1611 },
       googleMapsUri: 'https://www.google.com/maps/place/Test+Restaurant',
-      editorialSummary: {
-        text: 'A cozy neighborhood spot with great happy hour deals.',
-      },
+      // editorialSummary intentionally omitted (cost optimization)
     };
 
     const result = convertToRestaurant(placeData);
@@ -383,7 +381,7 @@ describe('Google Places API V1 Conversion', () => {
     expect(result.restaurant_name).toBe('Test Restaurant');
     expect(result.address).toBe('123 Main St, San Diego, CA');
     expect(result.google_maps_url).toBe('https://www.google.com/maps/place/Test+Restaurant');
-    expect(result.generative_summary).toBe('A cozy neighborhood spot with great happy hour deals.');
+    expect(result.generative_summary).toBe('');
   });
 
   it('extracts place_id from API response', () => {

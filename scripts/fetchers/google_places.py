@@ -34,7 +34,7 @@ def get_place_details_new(place_id: str, api_key: str) -> Optional[Dict[str, Any
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key,
-        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours,rating,userRatingCount,priceLevel,location,googleMapsUri,editorialSummary"
+        "X-Goog-FieldMask": "id,displayName,formattedAddress,types,nationalPhoneNumber,websiteUri,regularOpeningHours,currentSecondaryOpeningHours,rating,userRatingCount,priceLevel,location,googleMapsUri"
     }
     
     response = requests.get(url, headers=headers, timeout=30)
@@ -97,7 +97,7 @@ def search_places_text(
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key or GOOGLE_PLACES_API_KEY,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.types,places.primaryType,places.location,nextPageToken"
+        "X-Goog-FieldMask": "places.id,nextPageToken"
     }
     
     body = {
@@ -282,17 +282,11 @@ def fetch_all_places(location: str, radius: int = 800, api_key: str = None,
         
         print(f"  Found {len(places)} places (total unique: {len(all_places)})")
     
-    # Filter by distance
-    print(f"\nFiltering by distance ({radius}m radius)...")
-    places_list = list(all_places.values())
-    filtered = filter_by_distance(places_list, center_lat, center_lng, radius)
-    print(f"  Kept {len(filtered)}/{len(places_list)} places within {radius}m")
-    
     print(f"\n{'=' * 60}")
-    print(f"TOTAL PLACES WITHIN {radius}m: {len(filtered)}")
+    print(f"TOTAL UNIQUE PLACES FOUND: {len(all_places)}")
     print(f"{'=' * 60}")
-    
-    return filtered
+
+    return list(all_places.values())
 
 
 def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
@@ -337,12 +331,6 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
     # Extract Google Maps URL
     google_maps_url = place_data.get('googleMapsUri', '')
 
-    # Extract editorial summary (one-sentence description)
-    generative_summary = ""
-    summary_obj = place_data.get('editorialSummary', {})
-    if summary_obj and isinstance(summary_obj, dict):
-        generative_summary = summary_obj.get('text', '')
-
     return Restaurant(
         restaurant_name=name,
         address=address,
@@ -359,7 +347,7 @@ def convert_to_restaurant(place_data: Dict[str, Any]) -> Restaurant:
         longitude=str(location.get('longitude', '')) if location else '',
         place_id=place_data.get('id', ''),
         google_maps_url=google_maps_url,
-        generative_summary=generative_summary
+        generative_summary=''
     )
 
 
@@ -392,19 +380,18 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List
         all_places = all_places[:max_results]
     
     print(f"\nProcessing {len(all_places)} places for details...")
-    
+
     restaurants = []
     hh_count = 0
-    
+
     for i, place_summary in enumerate(all_places, 1):
         place_id = place_summary.get('id')
-        name = place_summary.get('displayName', {}).get('text', 'Unknown')
 
         # Safe print for Windows console encoding
         try:
-            print(f"[{i}/{len(all_places)}] {name}...")
+            print(f"[{i}/{len(all_places)}] {place_id}...")
         except UnicodeEncodeError:
-            print(f"[{i}/{len(all_places)}] <Unicode name>...")
+            print(f"[{i}/{len(all_places)}] <Unicode id>...")
 
         details = get_place_details_new(place_id, api_key)
         if not details:
@@ -421,13 +408,33 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List
         except Exception as e:
             print(f"    Error: {e}")
             continue
-    
+
+    # Filter by distance now that we have coordinates from Place Details
+    print(f"\nFiltering by distance ({radius}m radius)...")
+    center_lat, center_lng = float(location.split(',')[0]), float(location.split(',')[1])
+    filtered_restaurants = []
+    for r in restaurants:
+        if r.latitude and r.longitude:
+            dist = calculate_distance_meters(center_lat, center_lng, float(r.latitude), float(r.longitude))
+            if dist <= radius:
+                filtered_restaurants.append(r)
+        else:
+            # Keep places with missing coordinates (conservative)
+            filtered_restaurants.append(r)
+
+    print(f"  Kept {len(filtered_restaurants)}/{len(restaurants)} places within {radius}m")
+
+    # Limit if needed
+    if len(filtered_restaurants) > max_results:
+        print(f"\nLimiting to {max_results} places (found {len(filtered_restaurants)})")
+        filtered_restaurants = filtered_restaurants[:max_results]
+
     print(f"\n{'='*60}")
-    print(f"Total: {len(restaurants)} restaurants")
+    print(f"Total: {len(filtered_restaurants)} restaurants")
     print(f"With happy hours: {hh_count}")
     print(f"{'='*60}")
-    
-    return restaurants
+
+    return filtered_restaurants
 
 
 if __name__ == '__main__':

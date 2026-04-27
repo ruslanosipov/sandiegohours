@@ -17,6 +17,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "San Diego Happy Hours",
   description: "Find the best happy hours across San Diego neighborhoods",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {

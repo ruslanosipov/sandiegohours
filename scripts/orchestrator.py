@@ -22,6 +22,7 @@ from fetchers import WebsiteFetcher
 from fetchers.google_places import fetch_92116_restaurants
 from fetchers.google_places_async import AsyncGooglePlacesFetcher
 from fetchers.grid import generate_grid, GridCell, get_all_preset_names
+from fetchers.google_cache import GoogleAPICache
 from processors import HappyHourProcessor, MenuProcessor
 
 try:
@@ -232,30 +233,82 @@ def step_generate_summary(restaurants: list):
 # Async pipeline (highly parallel)
 # ---------------------------------------------------------------------------
 
+def _get_fresh_place_ids(existing_restaurants: list, stale_days: int) -> set:
+    """Return place_ids that are fresh enough to skip re-fetching."""
+    if stale_days <= 0:
+        return set()
+    cutoff = datetime.now().timestamp() - (stale_days * 86400)
+    fresh_ids = set()
+    for r in existing_restaurants:
+        pid = getattr(r, 'place_id', '') or ''
+        if not pid:
+            continue
+        fd = getattr(r, 'freshness_date', '') or ''
+        if not fd:
+            continue
+        try:
+            # freshness_date is ISO date string like "2024-01-15"
+            ts = datetime.strptime(fd, "%Y-%m-%d").timestamp()
+            if ts >= cutoff:
+                fresh_ids.add(pid)
+        except ValueError:
+            continue
+    return fresh_ids
+
+
 async def async_step_fetch_restaurants(
     storage: CSVManager,
     grid_cells: list = None,
+    stale_days: int = 0,
+    invalidate_cache: bool = False,
 ) -> list:
     """Fetch restaurants using async Google Places API."""
     print_step("Fetch Restaurants from Google Places (Async)")
     csv_path = DATA_DIR / 'happy_hours.csv'
+    existing_restaurants = []
     if csv_path.exists():
         print(f"Found existing {csv_path}")
-        print("Refreshing from Google Places API (using --full)...")
+        existing_restaurants = storage.read('happy_hours.csv', Restaurant)
 
     if AsyncGooglePlacesFetcher is None:
         raise RuntimeError("httpx is required for async fetching. Install: pip install httpx")
+
+    # Setup cache
+    google_cache = GoogleAPICache(CACHE_DIR / 'google_api')
+    if invalidate_cache:
+        print("Invalidating Google API cache...")
+        google_cache.invalidate_all()
+
+    # Determine which places are fresh enough to skip
+    skip_place_ids = _get_fresh_place_ids(existing_restaurants, stale_days)
+    if skip_place_ids:
+        print(f"Skipping {len(skip_place_ids)} fresh places (stale_days={stale_days})")
 
     print("Fetching from Google Places API...")
     try:
         async with AsyncGooglePlacesFetcher(
             api_key=os.environ.get("GOOGLE_PLACES_API_KEY", ""),
             details_concurrency=GOOGLE_PLACES_CONCURRENCY,
+            cache=google_cache,
         ) as fetcher:
-            restaurants = await fetcher.fetch_restaurants(grid_cells=grid_cells)
+            restaurants = await fetcher.fetch_restaurants(
+                grid_cells=grid_cells,
+                skip_place_ids=skip_place_ids,
+            )
 
         for r in restaurants:
             r.freshness_date = datetime.now().isoformat()[:10]
+
+        # Merge fresh (skipped) restaurants back in
+        if skip_place_ids and existing_restaurants:
+            skipped = [r for r in existing_restaurants if (getattr(r, 'place_id', '') or '') in skip_place_ids]
+            print(f"Restoring {len(skipped)} skipped fresh restaurants to results...")
+            # Build lookup by place_id for dedup
+            by_id = {r.place_id: r for r in restaurants if getattr(r, 'place_id', '')}
+            for s in skipped:
+                if s.place_id not in by_id:
+                    restaurants.append(s)
+                    by_id[s.place_id] = s
 
         # Merge into existing CSV instead of overwriting
         if csv_path.exists() and restaurants:
@@ -270,12 +323,6 @@ async def async_step_fetch_restaurants(
         print("Falling back to CSV...")
         restaurants = storage.read('happy_hours.csv', Restaurant)
         print(f"Loaded {len(restaurants)} restaurants from CSV")
-        return restaurants
-    except Exception as e:
-        print(f"{RED}Error fetching from API: {e}{RESET}")
-        print("Falling back to CSV...")
-        restaurants = storage.read('happy_hours.csv', Restaurant)
-        print(f"Loaded {len(restaurants)} restaurants")
         return restaurants
 
 
@@ -375,6 +422,8 @@ async def run_pipeline_async(
     resume: bool = False,
     grid_cells: list = None,
     fetch_only: bool = False,
+    stale_days: int = 0,
+    invalidate_cache: bool = False,
 ):
     """Run the full async processing pipeline."""
     storage = CSVManager(DATA_DIR)
@@ -396,7 +445,12 @@ async def run_pipeline_async(
         restaurants = []
 
         if 'fetch' in steps_to_run:
-            restaurants = await async_step_fetch_restaurants(storage, grid_cells=grid_cells)
+            restaurants = await async_step_fetch_restaurants(
+                storage,
+                grid_cells=grid_cells,
+                stale_days=stale_days,
+                invalidate_cache=invalidate_cache,
+            )
             if fetch_only:
                 print(f"\n{GREEN}Fetch-only complete. {len(restaurants)} restaurants in CSV.{RESET}")
                 return restaurants
@@ -472,6 +526,17 @@ def main():
         action='store_true',
         help='Only fetch from Google Places, skip AI parsing (fast debug)'
     )
+    parser.add_argument(
+        '--stale-days',
+        type=int,
+        default=30,
+        help='Skip re-fetching Place Details for restaurants fresher than N days (default: 30)'
+    )
+    parser.add_argument(
+        '--invalidate-cache',
+        action='store_true',
+        help='Clear Google API cache before fetching'
+    )
 
     args = parser.parse_args()
 
@@ -522,11 +587,13 @@ def main():
             start_step='fetch',
             grid_cells=grid_cells,
             fetch_only=args.fetch_only,
+            stale_days=args.stale_days,
+            invalidate_cache=args.invalidate_cache,
         ))
     elif args.resume:
-        asyncio.run(run_pipeline_async(resume=True))
+        asyncio.run(run_pipeline_async(resume=True, stale_days=args.stale_days))
     elif args.step:
-        asyncio.run(run_pipeline_async(start_step=args.step))
+        asyncio.run(run_pipeline_async(start_step=args.step, stale_days=args.stale_days))
     else:
         parser.print_help()
 

@@ -1,9 +1,14 @@
 """
 Async Google Places API (New) v1 fetcher for high-concurrency restaurant data.
 Uses httpx and asyncio.Semaphore to parallelize Place Details calls.
+
+COST OPTIMIZATIONS:
+- Text Search uses IDs Only field mask (free tier, unlimited)
+- Place Details uses Pro tier (no editorialSummary)
+- Disk cache for Place Details to avoid repeat API calls
 """
 import asyncio
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set
 
 try:
     import httpx
@@ -33,6 +38,11 @@ from fetchers.grid import (
     TIER1_KEYWORDS,
 )
 
+try:
+    from fetchers.google_cache import GoogleAPICache
+except ImportError:
+    GoogleAPICache = None
+
 GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY", "")
 PLACES_API_BASE = "https://places.googleapis.com/v1"
 
@@ -49,11 +59,13 @@ class AsyncGooglePlacesFetcher:
         api_key: Optional[str] = None,
         client: Optional["httpx.AsyncClient"] = None,
         details_concurrency: int = PLACE_DETAILS_CONCURRENCY,
+        cache: Optional["GoogleAPICache"] = None,
     ):
         self.api_key = api_key or GOOGLE_PLACES_API_KEY
         self._client = client
         self._owned_client = client is None
         self.details_semaphore = asyncio.Semaphore(details_concurrency)
+        self.cache = cache
 
     @property
     def client(self) -> "httpx.AsyncClient":
@@ -69,14 +81,23 @@ class AsyncGooglePlacesFetcher:
         page_token: str = None,
         location_restriction: dict = None,
     ) -> tuple:
+        # Check cache first
+        if self.cache:
+            cached = self.cache.get_search(
+                keyword=keyword or "restaurant",
+                location=location,
+                radius=radius,
+                page_token=page_token,
+                location_restriction=location_restriction,
+            )
+            if cached is not None:
+                return cached.get("places", []), cached.get("nextPageToken")
+
         url = f"{PLACES_API_BASE}/places:searchText"
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": self.api_key,
-            "X-Goog-FieldMask": (
-                "places.id,places.displayName,places.formattedAddress,"
-                "places.types,places.primaryType,places.location,nextPageToken"
-            ),
+            "X-Goog-FieldMask": "places.id,nextPageToken",
         }
         body = {
             "textQuery": keyword or "restaurant",
@@ -100,6 +121,18 @@ class AsyncGooglePlacesFetcher:
             print(f"Text Search API Error: {response.status_code}")
             return [], None
         data = response.json()
+
+        # Cache result
+        if self.cache:
+            self.cache.set_search(
+                keyword=keyword or "restaurant",
+                location=location,
+                radius=radius,
+                page_token=page_token,
+                location_restriction=location_restriction,
+                result=data,
+            )
+
         return data.get('places', []), data.get('nextPageToken')
 
     async def _search_places_paginated(
@@ -134,6 +167,12 @@ class AsyncGooglePlacesFetcher:
         return all_places[:max_results]
 
     async def _get_place_details(self, place_id: str) -> Optional[Dict[str, Any]]:
+        # Check cache first
+        if self.cache:
+            cached = self.cache.get_details(place_id)
+            if cached is not None:
+                return cached
+
         url = f"{PLACES_API_BASE}/places/{place_id}"
         headers = {
             "Content-Type": "application/json",
@@ -141,7 +180,7 @@ class AsyncGooglePlacesFetcher:
             "X-Goog-FieldMask": (
                 "id,displayName,formattedAddress,types,nationalPhoneNumber,"
                 "websiteUri,regularOpeningHours,currentSecondaryOpeningHours,"
-                "rating,userRatingCount,priceLevel,location,googleMapsUri,editorialSummary"
+                "rating,userRatingCount,priceLevel,location,googleMapsUri"
             ),
         }
         async with self.details_semaphore:
@@ -149,7 +188,13 @@ class AsyncGooglePlacesFetcher:
         if response.status_code != 200:
             print(f"    API Error: {response.status_code}")
             return None
-        return response.json()
+        data = response.json()
+
+        # Cache result
+        if self.cache:
+            self.cache.set_details(place_id, data)
+
+        return data
 
     async def fetch_all_places(
         self,
@@ -182,17 +227,6 @@ class AsyncGooglePlacesFetcher:
                     all_places[pid] = place
             print(f"  Found {len(places)} places (total unique: {len(all_places)})")
 
-        if location and not location_restriction:
-            center_lat, center_lng = float(location.split(',')[0]), float(location.split(',')[1])
-            print(f"\nFiltering by distance ({radius}m radius)...")
-            places_list = list(all_places.values())
-            filtered = filter_by_distance(places_list, center_lat, center_lng, radius)
-            print(f"  Kept {len(filtered)}/{len(places_list)} places within {radius}m")
-            print(f"\n{'=' * 60}")
-            print(f"TOTAL PLACES WITHIN {radius}m: {len(filtered)}")
-            print(f"{'=' * 60}")
-            return filtered
-
         print(f"\n{'=' * 60}")
         print(f"TOTAL UNIQUE PLACES: {len(all_places)}")
         print(f"{'=' * 60}")
@@ -204,8 +238,8 @@ class AsyncGooglePlacesFetcher:
         keywords: List[str] = None,
     ) -> List[Dict]:
         """
-        Fetch all places for a single grid cell using locationRestriction.
-        Returns raw place summaries (with types) for deduplication and filtering.
+        Fetch all place IDs for a single grid cell using locationRestriction.
+        Returns minimal place objects (just id) since text search is IDs Only.
         """
         restriction = cell.to_location_restriction()
         all_places: Dict[str, Dict] = {}
@@ -230,7 +264,7 @@ class AsyncGooglePlacesFetcher:
         """
         Fetch places across an adaptive grid.
         Subdivides cells that hit the 60-result cap.
-        Applies type filtering to exclude non-bars.
+        NOTE: Type filtering now happens AFTER Place Details (ids-only search).
         """
         all_places: Dict[str, Dict] = {}
         cells_to_process = list(grid_cells)
@@ -276,20 +310,10 @@ class AsyncGooglePlacesFetcher:
                 if pid and pid not in all_places:
                     all_places[pid] = place
 
-        # Type filtering: exclude coffee shops, gas stations, etc.
-        filtered = []
-        excluded_count = 0
-        for place in all_places.values():
-            types = place.get('types', []) or []
-            if should_exclude_place(types):
-                excluded_count += 1
-                continue
-            filtered.append(place)
-
         print(f"\n{'='*60}")
-        print(f"Grid complete: {len(all_places)} raw, {excluded_count} excluded by type, {len(filtered)} kept")
+        print(f"Grid search complete: {len(all_places)} unique place IDs")
         print(f"{'='*60}")
-        return filtered
+        return list(all_places.values())
 
     async def fetch_restaurants(
         self,
@@ -297,6 +321,7 @@ class AsyncGooglePlacesFetcher:
         location: str = "32.762889,-117.119922",
         radius: int = 4000,
         max_results: int = 200,
+        skip_place_ids: Optional[Set[str]] = None,
     ) -> List[Restaurant]:
         if grid_cells:
             print(f"Fetching restaurants across {len(grid_cells)} grid cell(s)...\n")
@@ -305,6 +330,14 @@ class AsyncGooglePlacesFetcher:
             print(f"Fetching restaurants near {location}")
             print(f"Radius: {radius}m (~2.5 miles), Target: {max_results} places\n")
             all_places = await self.fetch_all_places(location, radius=radius)
+
+        # Remove skipped (fresh) place IDs
+        skip_place_ids = skip_place_ids or set()
+        if skip_place_ids:
+            before = len(all_places)
+            all_places = [p for p in all_places if p.get('id') not in skip_place_ids]
+            skipped = before - len(all_places)
+            print(f"\nSkipped {skipped} fresh places (stale-days filter)")
 
         if len(all_places) > max_results:
             print(f"\nLimiting to {max_results} places (found {len(all_places)})")
@@ -315,15 +348,20 @@ class AsyncGooglePlacesFetcher:
         # Fetch all details concurrently
         async def process_one(place_summary: Dict, idx: int) -> Optional[Restaurant]:
             place_id = place_summary.get('id')
-            name = place_summary.get('displayName', {}).get('text', 'Unknown')
             try:
-                print(f"[{idx}/{len(all_places)}] {name}...")
+                print(f"[{idx}/{len(all_places)}] {place_id}...")
             except UnicodeEncodeError:
-                print(f"[{idx}/{len(all_places)}] <Unicode name>...")
+                print(f"[{idx}/{len(all_places)}] <Unicode id>...")
 
             details = await self._get_place_details(place_id)
             if not details:
                 return None
+
+            # Exclude coffee shops, gas stations, etc. before conversion
+            place_types = details.get('types', []) or []
+            if should_exclude_place(place_types):
+                return None
+
             try:
                 return convert_to_restaurant(details)
             except Exception as e:
@@ -337,6 +375,15 @@ class AsyncGooglePlacesFetcher:
         results = await asyncio.gather(*tasks)
 
         restaurants = [r for r in results if r is not None]
+
+        # Apply post-details distance filtering (search is IDs Only, no location data)
+        if not grid_cells and location:
+            center_lat, center_lng = float(location.split(',')[0]), float(location.split(',')[1])
+            print(f"\nFiltering by distance ({radius}m radius)...")
+            before = len(restaurants)
+            restaurants = self._filter_restaurants_by_distance(restaurants, center_lat, center_lng, radius)
+            print(f"  Kept {len(restaurants)}/{before} places within {radius}m")
+
         hh_count = sum(1 for r in restaurants if r.happy_hour_times)
 
         print(f"\n{'='*60}")
@@ -345,6 +392,23 @@ class AsyncGooglePlacesFetcher:
         print(f"{'='*60}")
 
         return restaurants
+
+    @staticmethod
+    def _filter_restaurants_by_distance(
+        restaurants: List[Restaurant], center_lat: float, center_lng: float, max_distance: float
+    ) -> List[Restaurant]:
+        filtered = []
+        for r in restaurants:
+            if r.latitude and r.longitude:
+                dist = calculate_distance_meters(
+                    center_lat, center_lng, float(r.latitude), float(r.longitude)
+                )
+                if dist <= max_distance:
+                    filtered.append(r)
+            else:
+                # Keep places with missing coordinates (conservative)
+                filtered.append(r)
+        return filtered
 
     async def close(self):
         if self._owned_client and self._client is not None:
