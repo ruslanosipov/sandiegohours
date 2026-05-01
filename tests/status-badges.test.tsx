@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import HappyHourFinder from '../src/app/components/HappyHourFinder';
 import { HappyHourPlace } from '../src/types/happy-hour';
 
@@ -23,6 +23,10 @@ function createRestaurant(overrides: Partial<HappyHourPlace>): HappyHourPlace {
   };
 }
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -42,6 +46,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     ];
 
     const { container } = render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
 
     expect(screen.getByText('Happy Hour Now')).toBeInTheDocument();
 
@@ -58,6 +63,9 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    // Uncheck "Has happy hour" to show No-HH restaurants
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     const badge = screen.getByText('No Happy Hour');
     expect(badge).toBeInTheDocument();
@@ -73,6 +81,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
 
     expect(screen.getByText('Closed Today')).toBeInTheDocument();
   });
@@ -86,6 +95,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
 
     expect(screen.getByText('Happy Hour Later')).toBeInTheDocument();
   });
@@ -99,6 +109,7 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
 
     expect(screen.getByText('Happy Hour Ended')).toBeInTheDocument();
   });
@@ -120,6 +131,9 @@ describe('HappyHourFinder - Status Badges and Visual Indicators', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    // Uncheck "Has happy hour" so "No Data" is visible
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     expect(screen.getByRole('heading', { name: 'Active Now' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'None Today' })).toBeInTheDocument();

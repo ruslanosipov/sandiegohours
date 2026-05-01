@@ -21,6 +21,10 @@ const mockRestaurants: HappyHourPlace[] = [
   },
 ];
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Geolocation Flow', () => {
   let mockGetCurrentPosition: ReturnType<typeof vi.fn>;
 
@@ -156,5 +160,12 @@ describe('HappyHourFinder - Geolocation Flow', () => {
     await waitFor(() => {
       expect(screen.getByText(/timed out/i)).toBeInTheDocument();
     });
+  });
+
+  it('renders a pin icon inside the "Use my location" button', () => {
+    render(<HappyHourFinder restaurants={mockRestaurants} />);
+    const button = screen.getByText('Use my location');
+    const svg = button.querySelector('svg');
+    expect(svg).not.toBeNull();
   });
 });

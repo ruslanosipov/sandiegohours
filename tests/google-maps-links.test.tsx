@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import HappyHourFinder from '../src/app/components/HappyHourFinder';
 import { HappyHourPlace } from '../src/types/happy-hour';
 
@@ -35,6 +35,10 @@ const mockRestaurants: HappyHourPlace[] = [
   },
 ];
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Google Maps Address Links', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -47,6 +51,8 @@ describe('HappyHourFinder - Google Maps Address Links', () => {
 
   it('Given a restaurant has a google_maps_url, When the card renders, Then the address is a clickable link opening in a new tab', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     const link = screen.getByText('123 Main St, San Diego').closest('a');
     expect(link).not.toBeNull();
@@ -57,6 +63,8 @@ describe('HappyHourFinder - Google Maps Address Links', () => {
 
   it('Given a restaurant does not have a google_maps_url, When the card renders, Then the address is plain text without a link', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     const text = screen.getByText('456 Oak St, San Diego');
     expect(text.tagName.toLowerCase()).not.toBe('a');
@@ -65,6 +73,8 @@ describe('HappyHourFinder - Google Maps Address Links', () => {
 
   it('Given a restaurant with google_maps_url, When the link renders, Then it contains a map pin SVG icon', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     const link = screen.getByText('123 Main St, San Diego').closest('a');
     const svg = link?.querySelector('svg');

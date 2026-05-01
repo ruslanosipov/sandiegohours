@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import HappyHourFinder from '../src/app/components/HappyHourFinder';
 import { HappyHourPlace } from '../src/types/happy-hour';
@@ -21,6 +21,10 @@ function createRestaurant(overrides: Partial<HappyHourPlace> = {}): HappyHourPla
   };
 }
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Stats Display', () => {
   it('displays the total number of places in the directory', () => {
     const restaurants = [
@@ -31,6 +35,10 @@ describe('HappyHourFinder - Stats Display', () => {
     
     render(<HappyHourFinder restaurants={restaurants} />);
     
+    expect(screen.getByText(/Showing 0 places/i)).toBeInTheDocument();
+    // Uncheck Has happy hour to show all
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
+    switchToList();
     expect(screen.getByText(/Showing 3 places/i)).toBeInTheDocument();
   });
 
@@ -66,6 +74,9 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    // All have empty happy_hour_times by default -> hidden unless unchecked
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     expect(screen.getByText('The Corner Bar')).toBeInTheDocument();
     expect(screen.getByText('Downtown Tavern')).toBeInTheDocument();
@@ -77,6 +88,8 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     expect(screen.getByText('456 Broadway')).toBeInTheDocument();
   });
@@ -87,6 +100,8 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     // Rating is part of the document
     expect(screen.getByText(/4\.8/)).toBeInTheDocument();
@@ -102,6 +117,7 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
     
     // Happy hour indicator appears in card (badge or Happy Hour heading)
     const documentText = document.body.textContent || '';
@@ -116,6 +132,7 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
     
     // Happy hour info visible in document
     const textContent = document.body.textContent || '';
@@ -130,6 +147,8 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     // Price levels displayed as dollar signs
     expect(screen.getByText('$')).toBeInTheDocument();
@@ -143,6 +162,8 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     // Source info displayed
     const sourceElements = screen.getAllByText(/Website|Google Maps|Manual/);
@@ -155,6 +176,8 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     const phoneLink = screen.getByText('+1 619-555-1234');
     expect(phoneLink.tagName).toBe('A');
@@ -167,6 +190,8 @@ describe('HappyHourFinder - Restaurant Display', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     const websiteLink = screen.getByText('Website');
     expect(websiteLink.tagName).toBe('A');
@@ -182,6 +207,8 @@ describe('HappyHourFinder - Search Behavior', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     const searchInput = screen.getByPlaceholderText(/Restaurant name or address/);
     fireEvent.change(searchInput, { target: { value: 'Downtown' } });
@@ -197,6 +224,8 @@ describe('HappyHourFinder - Search Behavior', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     const searchInput = screen.getByPlaceholderText(/Restaurant name or address/);
     fireEvent.change(searchInput, { target: { value: 'Adams' } });
@@ -209,6 +238,8 @@ describe('HappyHourFinder - Search Behavior', () => {
     const restaurants = [createRestaurant()];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     const searchInput = screen.getByPlaceholderText(/Restaurant name or address/);
     fireEvent.change(searchInput, { target: { value: 'NonExistentXYZ' } });
@@ -218,7 +249,7 @@ describe('HappyHourFinder - Search Behavior', () => {
 });
 
 describe('HappyHourFinder - Happy Hour Filter', () => {
-  it('shows only places with happy hour when toggle is enabled', () => {
+  it('shows only places with happy hour when Has happy hour is checked', () => {
     // Use Sunday hours matching test date, so filter doesn't hide it
     const restaurants = [
       createRestaurant({ 
@@ -232,15 +263,13 @@ describe('HappyHourFinder - Happy Hour Filter', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
     
     // Select time within happy hour range so it stays visible
     const daySelect = screen.getByLabelText('Day');
     const timeSelect = screen.getByLabelText('Time');
     fireEvent.change(daySelect, { target: { value: 'Sunday' } });
     fireEvent.change(timeSelect, { target: { value: '16:00' } });
-    
-    const toggle = screen.getByLabelText(/Only show places with happy hour/);
-    fireEvent.click(toggle);
     
     expect(screen.getByText('Has HH')).toBeInTheDocument();
     expect(screen.queryByText('No HH')).not.toBeInTheDocument();
@@ -279,6 +308,7 @@ describe('HappyHourFinder - Day and Time Selection', () => {
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '16:00' } });
     
     // Should now show an active place
+    switchToList();
     expect(screen.getByText('Happy Hour Now')).toBeInTheDocument();
   });
 });
@@ -300,6 +330,7 @@ describe('HappyHourFinder - Edge Cases', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
     
     // Happy hour info visible in document
     const textContent = document.body.textContent || '';
@@ -313,6 +344,8 @@ describe('HappyHourFinder - Edge Cases', () => {
     ];
     
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     // Regular Hours expandable section present
     const regularHours = screen.queryByText('Regular Hours');

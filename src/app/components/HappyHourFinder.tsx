@@ -17,14 +17,15 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
   const [selectedDay, setSelectedDay] = useState<string>("Monday");
   const [selectedTime, setSelectedTime] = useState<string>("12:00");
-  const [showOnlyHappyHour, setShowOnlyHappyHour] = useState(false);
+  const [showHasHappyHour, setShowHasHappyHour] = useState(true);
+  const [showHappyHourNow, setShowHappyHourNow] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<'name' | 'distance'>('name');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
-  const [hasMountedMap, setHasMountedMap] = useState(false);
+  const [activeTab, setActiveTab] = useState<'list' | 'map'>('map');
+  const [hasMountedMap, setHasMountedMap] = useState(true);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -113,18 +114,16 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
       if (selectedNeighborhood && restaurant.neighborhood !== selectedNeighborhood) {
         return false;
       }
-      if (showOnlyHappyHour && !hasHH) return false;
-      if (hasHH) {
-        const isActive = isHappyHourActive(restaurant.happy_hour_times, selectedDateTime);
-        if (showOnlyHappyHour) return isActive;
-      }
-      return !showOnlyHappyHour || hasHH;
+      const isActive = hasHH && isHappyHourActive(restaurant.happy_hour_times, selectedDateTime);
+      if (showHasHappyHour && !hasHH) return false;
+      if (showHappyHourNow && !isActive) return false;
+      return true;
     });
     if (sortBy === 'distance' && userLocation) {
       filtered = sortByDistance(filtered, userLocation.lat, userLocation.lng);
     }
     return filtered;
-  }, [restaurants, selectedDay, selectedTime, showOnlyHappyHour, searchQuery, sortBy, userLocation, selectedDateTime, selectedNeighborhood]);
+  }, [restaurants, selectedDay, selectedTime, showHasHappyHour, showHappyHourNow, searchQuery, sortBy, userLocation, selectedDateTime, selectedNeighborhood]);
 
   const happyHourCount = restaurants.filter((r) => hasHappyHour(r)).length;
   const activeCount = useMemo(() => {
@@ -204,16 +203,26 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
               ))}
             </select>
           </div>
-          <div className="pb-0.5">
-            <label htmlFor="hh-only-toggle" className="flex items-center gap-2 cursor-pointer select-none">
+          <div className="pb-0.5 flex items-center gap-4">
+            <label htmlFor="hh-has-toggle" className="flex items-center gap-2 cursor-pointer select-none">
               <input
-                id="hh-only-toggle"
+                id="hh-has-toggle"
                 type="checkbox"
-                checked={showOnlyHappyHour}
-                onChange={(e) => setShowOnlyHappyHour(e.target.checked)}
+                checked={showHasHappyHour}
+                onChange={(e) => setShowHasHappyHour(e.target.checked)}
                 className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-600"
               />
-              <span className="text-sm text-gray-700">Only show places with happy hour</span>
+              <span className="text-sm text-gray-700">Has happy hour</span>
+            </label>
+            <label htmlFor="hh-now-toggle" className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                id="hh-now-toggle"
+                type="checkbox"
+                checked={showHappyHourNow}
+                onChange={(e) => setShowHappyHourNow(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-600"
+              />
+              <span className="text-sm text-gray-700">Happy hour now</span>
             </label>
           </div>
         </div>
@@ -253,13 +262,23 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
             <button
               onClick={handleGetLocation}
               disabled={locationLoading}
-              className="text-sm bg-emerald-600 text-white px-3 py-1.5 rounded-md hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm bg-emerald-600 text-white px-3 py-1.5 rounded-md hover:bg-emerald-700 disabled:opacity-50 transition-colors"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
               {locationLoading ? "Getting location..." : "Use my location"}
             </button>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-emerald-600 font-medium">Location active</span>
+              <span className="inline-flex items-center gap-1 text-sm text-emerald-600 font-medium">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Location active
+              </span>
               <button onClick={handleClearLocation} className="text-sm text-gray-400 hover:text-gray-600">Clear</button>
             </div>
           )}

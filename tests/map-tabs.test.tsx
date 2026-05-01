@@ -24,6 +24,10 @@ function createRestaurant(overrides: Partial<HappyHourPlace> = {}): HappyHourPla
   };
 }
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Tabs', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -40,18 +44,20 @@ describe('HappyHourFinder - Tabs', () => {
     expect(screen.getByRole('button', { name: 'Map' })).toBeInTheDocument();
   });
 
-  it('defaults to List tab being active', () => {
+  it('defaults to Map tab being active', () => {
     render(<HappyHourFinder restaurants={[createRestaurant({ restaurant_name: 'Alpha' })]} />);
-    expect(screen.getByText('Alpha')).toBeInTheDocument();
+    expect(screen.getByTestId('map-view')).not.toHaveClass('hidden');
+    expect(screen.getByTestId('list-view')).toHaveClass('hidden');
   });
 
   it('switches to Map tab when clicked', async () => {
     render(<HappyHourFinder restaurants={[createRestaurant()]} />);
-    const mapButton = screen.getByRole('button', { name: 'Map' });
-    fireEvent.click(mapButton);
-
+    fireEvent.click(screen.getByRole('button', { name: 'List' }));
     await waitFor(() => {
-      // Map view container should be visible
+      expect(screen.getByTestId('list-view')).not.toHaveClass('hidden');
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
+    await waitFor(() => {
       expect(screen.getByTestId('map-view')).not.toHaveClass('hidden');
       expect(screen.getByTestId('restaurant-map')).toBeInTheDocument();
     });
@@ -59,21 +65,21 @@ describe('HappyHourFinder - Tabs', () => {
 
   it('hides list and shows map when Map tab is active', async () => {
     render(<HappyHourFinder restaurants={[createRestaurant({ restaurant_name: 'Hidden In Map' })]} />);
-    expect(screen.getByTestId('list-view')).not.toHaveClass('hidden');
-    expect(screen.queryByTestId('map-view')).toBeNull();
+    // Restaurant has no HH data so hidden by default; uncheck filter to show it
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
+    expect(screen.getByTestId('list-view')).toHaveClass('hidden');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
+    fireEvent.click(screen.getByRole('button', { name: 'List' }));
 
     await waitFor(() => {
-      expect(screen.getByTestId('list-view')).toHaveClass('hidden');
-      expect(screen.getByTestId('map-view')).toBeInTheDocument();
+      expect(screen.getByTestId('list-view')).not.toHaveClass('hidden');
+      expect(screen.getByText('Hidden In Map')).toBeInTheDocument();
     });
   });
 
   it('returns to List tab when List button is clicked after Map', async () => {
     render(<HappyHourFinder restaurants={[createRestaurant({ restaurant_name: 'Back To List' })]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).not.toHaveClass('hidden');
     });
@@ -92,24 +98,17 @@ describe('HappyHourFinder - Tabs', () => {
       createRestaurant({ restaurant_name: 'No HH', happy_hour_times: '' }),
     ];
     render(<HappyHourFinder restaurants={restaurants} />);
+    expect(screen.getByTestId('map-view')).toBeInTheDocument();
 
-    const checkbox = screen.getByLabelText('Only show places with happy hour');
-    fireEvent.click(checkbox);
-
-    await waitFor(() => {
-      expect(screen.queryByText('No HH')).not.toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('map-view')).toBeInTheDocument();
-    });
-
-    // Switch back to list to verify filter still holds
     fireEvent.click(screen.getByRole('button', { name: 'List' }));
     await waitFor(() => {
+      expect(screen.getByText('Has HH')).toBeInTheDocument();
       expect(screen.queryByText('No HH')).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
+    await waitFor(() => {
+      expect(screen.getByText('No HH')).toBeInTheDocument();
     });
   });
 });

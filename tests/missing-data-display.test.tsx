@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import HappyHourFinder from '../src/app/components/HappyHourFinder';
 import { HappyHourPlace } from '../src/types/happy-hour';
 
@@ -20,6 +20,10 @@ function createRestaurant(overrides: Partial<HappyHourPlace> = {}): HappyHourPla
   };
 }
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Missing Data Display', () => {
   it('shows restaurant even when rating is missing', () => {
     const restaurants = [
@@ -31,6 +35,9 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    // Uncheck Has happy hour since default data has no happy_hour_times
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     expect(screen.getByText('No Rating Bar')).toBeInTheDocument();
     // Should not crash, should still display the card
@@ -46,6 +53,8 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     expect(screen.getByText('No Reviews')).toBeInTheDocument();
   });
@@ -59,6 +68,8 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     expect(screen.getByText('No Price')).toBeInTheDocument();
   });
@@ -81,6 +92,8 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     expect(screen.getByText('Minimal')).toBeInTheDocument();
     expect(screen.getByText('1 Min St')).toBeInTheDocument();
@@ -96,6 +109,8 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     // Rating should be visible
     expect(screen.getByText(/4\.8/)).toBeInTheDocument();
@@ -112,6 +127,8 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
     
     // Initially sorted by name, no distance shown
     expect(screen.getByText('Nearby')).toBeInTheDocument();
@@ -132,6 +149,8 @@ describe('HappyHourFinder - Missing Data Display', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
+    switchToList();
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
 
     expect(screen.getByText('Has Rating')).toBeInTheDocument();
     expect(screen.getByText('No Rating')).toBeInTheDocument();

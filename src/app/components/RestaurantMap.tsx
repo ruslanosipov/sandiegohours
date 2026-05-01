@@ -35,7 +35,7 @@ function clusterPoints(
   L: any,
   map: any,
   points: MapPoint[],
-  cellSize: number = 60
+  cellSize: number = 20
 ): ({ type: "cluster"; lat: number; lng: number; count: number; hasActive: boolean; points: MapPoint[] } | { type: "single"; point: MapPoint })[] {
   if (points.length === 0) return [];
 

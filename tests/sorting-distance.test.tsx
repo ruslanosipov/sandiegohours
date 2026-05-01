@@ -11,7 +11,7 @@ const mockRestaurants: HappyHourPlace[] = [
     address: '100 Main St',
     phone_number: '',
     website_url: '',
-    happy_hour_times: '',
+    happy_hour_times: 'Monday: 3:00 PM - 7:00 PM',
     regular_hours: '',
     rating: '4.0',
     review_count: '10',
@@ -26,7 +26,7 @@ const mockRestaurants: HappyHourPlace[] = [
     address: '900 Oak St',
     phone_number: '',
     website_url: '',
-    happy_hour_times: '',
+    happy_hour_times: 'Monday: 3:00 PM - 7:00 PM',
     regular_hours: '',
     rating: '4.0',
     review_count: '10',
@@ -37,6 +37,10 @@ const mockRestaurants: HappyHourPlace[] = [
     longitude: '-117.160',
   },
 ];
+
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
 
 describe('HappyHourFinder - Sorting by Distance', () => {
   let mockGetCurrentPosition: ReturnType<typeof vi.fn>;
@@ -66,6 +70,7 @@ describe('HappyHourFinder - Sorting by Distance', () => {
 
   it('Given the user has shared their location, When they select "Distance", Then restaurants are sorted from closest to farthest', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     // Trigger geolocation
     fireEvent.click(screen.getByText('Use my location'));
@@ -91,6 +96,7 @@ describe('HappyHourFinder - Sorting by Distance', () => {
 
   it('Given location is active and sorting by distance, When the user clears location, Then sort reverts to "Name"', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     fireEvent.click(screen.getByText('Use my location'));
     const successCallback = mockGetCurrentPosition.mock.calls[0][0];

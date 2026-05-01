@@ -61,6 +61,10 @@ const mockRestaurants: HappyHourPlace[] = [
   },
 ];
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder - Filter Combinations', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -71,50 +75,53 @@ describe('HappyHourFinder - Filter Combinations', () => {
     vi.useRealTimers();
   });
 
-  it('Given search "Sushi" and happy hour toggle enabled, When both filters are active, Then only "Sushi Monday" and "Sushi Palace" are shown (both have happy hours)', async () => {
+  it('Given search "Sushi" and Has happy hour checked, When both filters are active, Then only "Sushi Monday" and "Sushi Palace" are shown (both have happy hours)', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
     fireEvent.change(searchInput, { target: { value: 'Sushi' } });
 
-    const checkbox = screen.getByLabelText('Only show places with happy hour');
-    fireEvent.click(checkbox);
-
     await waitFor(() => {
       expect(screen.getByText('Sushi Monday')).toBeInTheDocument();
+      // Sushi Palace is active now (5 PM), so it stays
       expect(screen.getByText('Sushi Palace')).toBeInTheDocument();
       expect(screen.queryByText('Taco Tuesday')).not.toBeInTheDocument();
       expect(screen.queryByText('No HH Diner')).not.toBeInTheDocument();
     });
   });
 
-  it('Given day is set to Tuesday and happy hour toggle enabled, When filters are active, Then only "Taco Tuesday" is shown (active on Tuesday)', async () => {
+  it('Given day is set to Tuesday and Has happy hour checked, When filters are active, Then places WITH any happy hour data are shown', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     const daySelect = screen.getByLabelText('Day');
     fireEvent.change(daySelect, { target: { value: 'Tuesday' } });
 
-    const checkbox = screen.getByLabelText('Only show places with happy hour');
-    fireEvent.click(checkbox);
-
     await waitFor(() => {
-      expect(screen.queryByText('Sushi Monday')).not.toBeInTheDocument();
+      // Sushi Monday HAS happy hour data (Monday/Wednesday) → shown
+      expect(screen.getByText('Sushi Monday')).toBeInTheDocument();
+      // Taco Tuesday HAS happy hour data → shown
       expect(screen.getByText('Taco Tuesday')).toBeInTheDocument();
+      // No HH Diner has NO happy hour data → hidden
       expect(screen.queryByText('No HH Diner')).not.toBeInTheDocument();
-      expect(screen.queryByText('Sushi Palace')).not.toBeInTheDocument();
+      // Sushi Palace HAS happy hour data → shown
+      expect(screen.getByText('Sushi Palace')).toBeInTheDocument();
     });
   });
 
-  it('Given search "Sushi", day is Tuesday, and happy hour toggle enabled, When all three filters are active, Then zero places are shown and "No places found" appears', async () => {
+  it('Given search "Sushi", day is Tuesday, and Happy hour now checked, When all three filters are active, Then zero places are shown and "No places found" appears', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     fireEvent.change(screen.getByPlaceholderText('Restaurant name or address...'), {
       target: { value: 'Sushi' },
     });
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'Tuesday' } });
-    fireEvent.click(screen.getByLabelText('Only show places with happy hour'));
+    fireEvent.click(screen.getByLabelText('Happy hour now'));
 
     await waitFor(() => {
+      // Sushi Monday has no Tuesday HH, Sushi Palace has no Tuesday HH -> none shown
       expect(screen.queryByText('Sushi Monday')).not.toBeInTheDocument();
       expect(screen.queryByText('Sushi Palace')).not.toBeInTheDocument();
       expect(screen.getByText('No places found.')).toBeInTheDocument();
@@ -124,6 +131,7 @@ describe('HappyHourFinder - Filter Combinations', () => {
 
   it('Given search query is cleared after filtering, When input is emptied, Then all restaurants matching other active filters are shown again', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
     fireEvent.change(searchInput, { target: { value: 'Sushi' } });
@@ -135,15 +143,18 @@ describe('HappyHourFinder - Filter Combinations', () => {
     fireEvent.change(searchInput, { target: { value: '' } });
 
     await waitFor(() => {
+      // With Has happy hour still checked: Sushi Monday, Taco Tuesday, Sushi Palace shown
+      // No HH Diner hidden
       expect(screen.getByText('Sushi Monday')).toBeInTheDocument();
       expect(screen.getByText('Taco Tuesday')).toBeInTheDocument();
-      expect(screen.getByText('No HH Diner')).toBeInTheDocument();
+      expect(screen.queryByText('No HH Diner')).not.toBeInTheDocument();
       expect(screen.getByText('Sushi Palace')).toBeInTheDocument();
     });
   });
 
   it('Given search matches address but not name, When filtering, Then the restaurant is included in results', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
     fireEvent.change(searchInput, { target: { value: 'El Cajon' } });
@@ -156,12 +167,14 @@ describe('HappyHourFinder - Filter Combinations', () => {
 
   it('Given results count is displayed, When search query is active, Then the count text includes the search term', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
 
     fireEvent.change(screen.getByPlaceholderText('Restaurant name or address...'), {
       target: { value: 'Sushi' },
     });
 
     await waitFor(() => {
+      // Two sushi restaurants, both have happy hours
       expect(screen.getByText(/Showing 2 places/i)).toBeInTheDocument();
     });
   });

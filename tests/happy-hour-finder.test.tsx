@@ -60,6 +60,10 @@ const mockRestaurants: HappyHourPlace[] = [
   },
 ];
 
+function switchToList() {
+  fireEvent.click(screen.getByRole('button', { name: 'List' }));
+}
+
 describe('HappyHourFinder', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -76,11 +80,20 @@ describe('HappyHourFinder', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders all restaurants by default', () => {
+  it('defaults to showing only happy-hour restaurants and map view', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    expect(screen.getByTestId('map-view')).not.toHaveClass('hidden');
+    expect(screen.getByTestId('list-view')).toHaveClass('hidden');
+    expect(screen.getByLabelText('Has happy hour')).toBeChecked();
+    expect(screen.getByLabelText('Happy hour now')).not.toBeChecked();
+  });
+
+  it('renders happy-hour restaurants by default (Has happy hour checked)', () => {
+    render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
     expect(screen.getByText('The Rabbit Hole')).toBeInTheDocument();
-    expect(screen.getByText("Rudford's Restaurant")).toBeInTheDocument();
     expect(screen.getByText('Nozaru Ramen Bar')).toBeInTheDocument();
+    expect(screen.queryByText("Rudford's Restaurant")).not.toBeInTheDocument();
   });
 
   it('shows correct stats counts', () => {
@@ -88,11 +101,12 @@ describe('HappyHourFinder', () => {
     const statsText = document.body.textContent || '';
     expect(statsText).toContain('2 with Happy Hour');
     expect(statsText).toContain('2 Active Now');
-    expect(statsText).toContain('Showing 3 places');
+    expect(statsText).toContain('Showing 2 places');
   });
 
   it('filters by search query', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
     const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
 
     fireEvent.change(searchInput, { target: { value: 'Ramen' } });
@@ -105,39 +119,69 @@ describe('HappyHourFinder', () => {
 
   it('filters by address search query', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
     const searchInput = screen.getByPlaceholderText('Restaurant name or address...');
 
     fireEvent.change(searchInput, { target: { value: 'El Cajon' } });
 
     await waitFor(() => {
+      // Rudford's has no HH so hidden even though address matches
       expect(screen.queryByText('The Rabbit Hole')).not.toBeInTheDocument();
+      expect(screen.queryByText("Rudford's Restaurant")).not.toBeInTheDocument();
+      expect(screen.getByText('No places found.')).toBeInTheDocument();
+    });
+
+    // Uncheck Has happy hour to show Rudford's via address search
+    fireEvent.click(screen.getByLabelText('Has happy hour'));
+    await waitFor(() => {
       expect(screen.getByText("Rudford's Restaurant")).toBeInTheDocument();
     });
   });
 
-  it('toggles "Only show places with happy hour" checkbox', async () => {
+  it('toggles "Has happy hour" checkbox on and off', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    const checkbox = screen.getByLabelText('Only show places with happy hour');
+    switchToList();
+    const checkbox = screen.getByLabelText('Has happy hour');
 
-    expect(screen.getByText("Rudford's Restaurant")).toBeInTheDocument();
+    // Rudford's has no HH so hidden by default
+    expect(screen.getByText('The Rabbit Hole')).toBeInTheDocument();
+    expect(screen.queryByText("Rudford's Restaurant")).not.toBeInTheDocument();
 
-    fireEvent.click(checkbox);
-
-    await waitFor(() => {
-      expect(screen.queryByText("Rudford's Restaurant")).not.toBeInTheDocument();
-      expect(screen.getByText('The Rabbit Hole')).toBeInTheDocument();
-      expect(screen.getByText('Nozaru Ramen Bar')).toBeInTheDocument();
-    });
-
-    fireEvent.click(checkbox);
+    fireEvent.click(checkbox); // uncheck
 
     await waitFor(() => {
       expect(screen.getByText("Rudford's Restaurant")).toBeInTheDocument();
+    });
+
+    fireEvent.click(checkbox); // check again
+
+    await waitFor(() => {
+      expect(screen.queryByText("Rudford's Restaurant")).not.toBeInTheDocument();
+    });
+  });
+
+  it('toggles "Happy hour now" checkbox', async () => {
+    render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
+    const nowCheckbox = screen.getByLabelText('Happy hour now');
+
+    // Monday at 5 PM: both Rabbit Hole (4-6 PM) and Nozaru (4-6 PM) are active
+    expect(screen.getByText('The Rabbit Hole')).toBeInTheDocument();
+    expect(screen.getByText('Nozaru Ramen Bar')).toBeInTheDocument();
+
+    // Change time to 8 PM – neither is active
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '20:00' } });
+    fireEvent.click(nowCheckbox);
+
+    await waitFor(() => {
+      expect(screen.queryByText('The Rabbit Hole')).not.toBeInTheDocument();
+      expect(screen.queryByText('Nozaru Ramen Bar')).not.toBeInTheDocument();
     });
   });
 
   it('expands and collapses happy hour details via accordion button', async () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
     const rabbitHoleButton = screen.getAllByRole('button', { name: /Happy Hour/i })[0];
 
     // Use a non-Monday day to avoid matching the preview text shown on the collapsed button
@@ -158,13 +202,17 @@ describe('HappyHourFinder', () => {
 
   it('renders menu summary and cheapest items when available', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
+    switchToList();
     expect(screen.getByText('Happy Hour Deals')).toBeInTheDocument();
     expect(screen.getByText('$5 appetizers and $4 beers')).toBeInTheDocument();
   });
 
-  it('renders "Use my location" button', () => {
+  it('renders "Use my location" button with pin icon', () => {
     render(<HappyHourFinder restaurants={mockRestaurants} />);
-    expect(screen.getByText('Use my location')).toBeInTheDocument();
+    const button = screen.getByText('Use my location');
+    expect(button).toBeInTheDocument();
+    const svg = button.querySelector('svg');
+    expect(svg).not.toBeNull();
   });
 
   it('updates selected day and time via dropdowns', async () => {

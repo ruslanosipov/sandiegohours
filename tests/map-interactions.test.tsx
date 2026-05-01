@@ -2,113 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import HappyHourFinder from '../src/app/components/HappyHourFinder';
 import { HappyHourPlace } from '../src/types/happy-hour';
+import {
+  mockLayers,
+  mockMarkers,
+  clearMockState,
+  triggerEvent,
+} from './__mocks__/leaflet';
 
 const FIXED_DATE = new Date('2026-04-20T17:00:00'); // Monday 5 PM
-
-// Track all leaflet interactions for assertions
-const mockLayers: any[] = [];
-const mockMarkers: any[] = [];
-let mockMapZoom = 13;
-let eventHandlers: Map<string, Set<Function>> = new Map();
-
-function clearMockState() {
-  mockLayers.length = 0;
-  mockMarkers.length = 0;
-  mockMapZoom = 13;
-  eventHandlers = new Map();
-}
-
-function getHandlers(event: string): Set<Function> {
-  if (!eventHandlers.has(event)) eventHandlers.set(event, new Set());
-  return eventHandlers.get(event)!;
-}
-
-function triggerEvent(event: string) {
-  getHandlers(event).forEach((fn) => fn());
-}
-
-// Build the mock L object that dynamic import will receive
-function createMockL() {
-  const mockL = {
-    map: vi.fn((container: any) => {
-      const mapInstance = {
-        setView: vi.fn(() => mapInstance),
-        getZoom: vi.fn(() => mockMapZoom),
-        setZoom: vi.fn((z: number) => { mockMapZoom = z; }),
-        fitBounds: vi.fn(),
-        invalidateSize: vi.fn(),
-        remove: vi.fn(),
-        project: vi.fn((latLng: [number, number], zoom: number) => {
-          return { x: latLng[1] * 1000 * zoom, y: latLng[0] * 1000 * zoom };
-        }),
-        on: vi.fn((event: string, fn: Function) => {
-          getHandlers(event).add(fn);
-        }),
-        addLayer: vi.fn((layer: any) => {
-          mockLayers.push(layer);
-        }),
-        removeLayer: vi.fn((layer: any) => {
-          const idx = mockLayers.indexOf(layer);
-          if (idx > -1) mockLayers.splice(idx, 1);
-        }),
-      };
-      if (container) {
-        (container as any)._leaflet_id = 1;
-      }
-      return mapInstance;
-    }),
-    tileLayer: vi.fn(() => ({
-      addTo: vi.fn(),
-    })),
-    layerGroup: vi.fn(() => {
-      const group = {
-        addTo: vi.fn((map: any) => {
-          map.addLayer(group);
-          return group;
-        }),
-        clearLayers: vi.fn(() => {
-          mockMarkers.length = 0;
-        }),
-        addLayer: vi.fn((marker: any) => {
-          mockMarkers.push(marker);
-        }),
-      };
-      return group;
-    }),
-    marker: vi.fn((latLng: [number, number], options: any) => {
-      const marker = {
-        latLng,
-        options,
-        popupHtml: null as string | null,
-        clickHandler: null as Function | null,
-        bindPopup: vi.fn((html: string) => {
-          marker.popupHtml = html;
-          return marker;
-        }),
-        on: vi.fn((event: string, fn: Function) => {
-          if (event === 'click') marker.clickHandler = fn;
-        }),
-        addTo: vi.fn((map: any) => {
-          map.addLayer(marker);
-          return marker;
-        }),
-      };
-      return marker;
-    }),
-    divIcon: vi.fn((options: any) => options),
-  };
-  return mockL;
-}
-
-// Mock leaflet before any imports — attach to both default and namespace
-vi.mock('leaflet', async () => {
-  const mockL = createMockL();
-  return {
-    __esModule: true,
-    default: mockL,
-    ...mockL,
-  };
-});
 
 function createRestaurant(overrides: Partial<HappyHourPlace> = {}): HappyHourPlace {
   return {
@@ -138,7 +39,6 @@ describe('RestaurantMap - Time selector regression', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   it('updates marker statuses when time selector changes', async () => {
@@ -150,17 +50,16 @@ describe('RestaurantMap - Time selector regression', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
 
-    // At 5 PM, happy hour is active
-    const activeMarker = mockMarkers.find((m) =>
-      m.popupHtml?.includes('Active now')
-    );
-    expect(activeMarker).toBeTruthy();
+    await waitFor(() => {
+      const activeMarker = mockMarkers.find((m) =>
+        m.popupHtml?.includes('Active now')
+      );
+      expect(activeMarker).toBeTruthy();
+    });
 
     // Change time to 8 PM (after happy hour)
     const timeSelect = screen.getByLabelText('Time');
@@ -194,7 +93,6 @@ describe('RestaurantMap - Missing coordinates', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   it('skips restaurants without latitude or longitude', async () => {
@@ -203,6 +101,7 @@ describe('RestaurantMap - Missing coordinates', () => {
         restaurant_name: 'Has Location',
         latitude: '32.7157',
         longitude: '-117.1611',
+        happy_hour_times: 'Monday: 4:00 PM - 6:00 PM',
       }),
       createRestaurant({
         restaurant_name: 'No Location',
@@ -212,13 +111,13 @@ describe('RestaurantMap - Missing coordinates', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
 
-    expect(mockMarkers.length).toBe(1);
+    await waitFor(() => {
+      expect(mockMarkers.length).toBe(1);
+    }, { timeout: 3000 });
     expect(mockMarkers[0].popupHtml).toContain('Has Location');
   });
 
@@ -232,13 +131,13 @@ describe('RestaurantMap - Missing coordinates', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
 
-    expect(mockMarkers.length).toBe(0);
+    await waitFor(() => {
+      expect(mockMarkers.length).toBe(0);
+    });
   });
 });
 
@@ -248,7 +147,6 @@ describe('RestaurantMap - User location', () => {
     vi.setSystemTime(FIXED_DATE);
     clearMockState();
 
-    // jsdom has isSecureContext false by default, which blocks geolocation
     vi.stubGlobal('isSecureContext', true);
     vi.stubGlobal('navigator', {
       geolocation: {
@@ -264,14 +162,11 @@ describe('RestaurantMap - User location', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
-    vi.clearAllMocks();
   });
 
   it('shows user location marker when location is active', async () => {
     render(<HappyHourFinder restaurants={[createRestaurant()]} />);
 
-    // Open map first so it's initialized when geolocation resolves
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
@@ -297,11 +192,6 @@ describe('RestaurantMap - User location', () => {
       expect(screen.getByText('Location active')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-    await waitFor(() => {
-      expect(screen.getByTestId('map-view')).toBeInTheDocument();
-    });
-
     fireEvent.click(screen.getByText('Clear'));
 
     await waitFor(() => {
@@ -324,7 +214,6 @@ describe('RestaurantMap - Popup interactions', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   it('switches to list tab when "View details" is clicked', async () => {
@@ -337,7 +226,6 @@ describe('RestaurantMap - Popup interactions', () => {
 
     render(<HappyHourFinder restaurants={restaurants} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
@@ -365,18 +253,17 @@ describe('RestaurantMap - Edge cases', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   it('does not crash with zero restaurants', async () => {
     render(<HappyHourFinder restaurants={[]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
 
-    expect(mockMarkers.length).toBe(0);
+    await waitFor(() => {
+      expect(mockMarkers.length).toBe(0);
+    });
   });
 
   it('does not crash when all restaurants lack coordinates', async () => {
@@ -386,12 +273,12 @@ describe('RestaurantMap - Edge cases', () => {
     ];
 
     render(<HappyHourFinder restaurants={restaurants} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
-
     await waitFor(() => {
       expect(screen.getByTestId('map-view')).toBeInTheDocument();
     });
 
-    expect(mockMarkers.length).toBe(0);
+    await waitFor(() => {
+      expect(mockMarkers.length).toBe(0);
+    });
   });
 });
