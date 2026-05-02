@@ -160,6 +160,22 @@ body {
   font-size: 13px;
 }
 
-.marker-popup .popup-link:hover {
+.marker-popup .popup-link:hover,
+.marker-popup .popup-link:focus {
   color: #047857;
+}
+
+.marker-popup a.popup-link-navigate {
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.marker-popup .popup-link:hover,
+.marker-popup .popup-link:focus {
+  color: #047857;
+}
+
+.marker-popup a.popup-link-navigate {
+  display: inline-block;
+  margin-top: 2px;
 }

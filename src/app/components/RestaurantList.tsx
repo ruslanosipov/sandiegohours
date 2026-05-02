@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { HappyHourPlace } from "@/types/happy-hour";
 import { hasHappyHour, getHappyHourStatus, getHappyHourStatusLabel, isHappyHourActive, HappyHourStatus, normalizeHappyHourTimes, formatPriceLevel } from "@/lib/happy-hour-utils";
 import { formatDistance } from "@/lib/distance-utils";
@@ -68,9 +69,17 @@ export default function RestaurantList({ restaurants, selectedDateTime, selected
             <div className="p-6 flex flex-col flex-1">
               {/* Header: Name + Status */}
               <div className="flex items-start justify-between gap-3 mb-3">
-                <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight">
-                  {restaurant.restaurant_name}
-                </h3>
+                {restaurant.place_id ? (
+                  <Link href={`/places/${restaurant.place_id}`} className="group">
+                    <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight group-hover:text-emerald-700 transition-colors">
+                      {restaurant.restaurant_name}
+                    </h3>
+                  </Link>
+                ) : (
+                  <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight">
+                    {restaurant.restaurant_name}
+                  </h3>
+                )}
                 {hasHH && statusLabel.text && (
                   statusLabel.boxClass ? (
                     <span className={`text-xs whitespace-nowrap mt-0.5 px-2 py-1 rounded-md border ${statusLabel.boxClass} ${statusLabel.colorClass}`}>
