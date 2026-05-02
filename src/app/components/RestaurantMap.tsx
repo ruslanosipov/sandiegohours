@@ -121,10 +121,6 @@ function renderMarkers(
 
       const marker = L.marker([point.lat, point.lng], { icon });
 
-      const placeUrl = point.restaurant.place_id
-        ? `/places/${point.restaurant.place_id}`
-        : "";
-
       const popupHtml = `
         <div class="marker-popup">
           <h4>${escapeHtml(point.restaurant.restaurant_name)}</h4>
@@ -132,10 +128,7 @@ function renderMarkers(
             ${point.isActive ? "Active now" : hasHH ? "Not active now" : "No Happy Hour"}
           </span>
           ${point.restaurant.menu_summary ? `<div class="popup-deals">${escapeHtml(point.restaurant.menu_summary)}</div>` : ""}
-          ${placeUrl
-            ? `<a href="${placeUrl}" class="popup-link popup-link-navigate">View details &rarr;</a>`
-            : `<div class="popup-link" data-index="${point.index}">View details</div>`
-          }
+          <div class="popup-link" data-index="${point.index}">View details</div>
         </div>
       `;
 
@@ -304,16 +297,10 @@ export default function RestaurantMap({
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const link = target.closest(".popup-link") as HTMLElement | null;
-      if (!link) return;
-
-      // If it's a real link (has place_id), let default navigation happen
-      if (link.classList.contains("popup-link-navigate")) {
-        // Let the browser handle it naturally
-        return;
+      if (link) {
+        const index = parseInt(link.getAttribute("data-index") || "", 10);
+        if (!isNaN(index)) onMarkerClickRef.current(index);
       }
-
-      const index = parseInt(link.getAttribute("data-index") || "", 10);
-      if (!isNaN(index)) onMarkerClickRef.current(index);
     };
 
     container.addEventListener("click", handleClick);

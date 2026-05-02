@@ -59,22 +59,15 @@ All original sync APIs remain untouched for backward compatibility and testing.
 ```
 src/
   ├── app/
-  │   ├── page.tsx                         # Main page (server component)
-  │   ├── layout.tsx                       # Root layout (metadata, fonts, GA)
-  │   ├── places/[placeId]/page.tsx       # Individual place detail pages
-  │   ├── places/[placeId]/helpers.ts     # Place page formatting helpers
+  │   ├── page.tsx                  # Main page (server component)
   │   └── components/
-  │       └── HappyHourFinder.tsx         # Main UI component
+  │       └── HappyHourFinder.tsx   # Main UI component
   ├── lib/
-  │   ├── happy-hour-utils.ts             # Time parsing & status logic
-  │   ├── distance-utils.ts               # Haversine formula & sorting
-  │   ├── menu-parser.ts                  # Menu summary extraction
-  │   ├── menu-csv.ts                     # Menu CSV formatting
-  │   └── data-loader.ts                  # Shared CSV loader (home + places)
-  ├── data/
-  │   └── neighborhoods.ts                # Neighborhood geo lookup
+  │   ├── happy-hour-utils.ts       # Time parsing & status logic
+  │   ├── distance-utils.ts         # Haversine formula & sorting
+  │   └── menu-parser.ts            # Menu summary extraction
   └── types/
-      └── happy-hour.ts                   # TypeScript interfaces
+      └── happy-hour.ts             # TypeScript interfaces
 ```
 
 ## CSV Schema
@@ -234,54 +227,8 @@ happy-hour-finder/
 │   └── ai/                     # OpenRouter client
 ├── src/                        # Next.js frontend
 │   ├── app/
-│   │   ├── page.tsx                         # Main page (server component)
-│   │   ├── layout.tsx                       # Root layout (metadata, fonts, GA)
-│   │   ├── places/[placeId]/page.tsx         # Individual place detail pages
-│   │   ├── places/[placeId]/helpers.ts       # Place page formatting helpers
-│   │   └── components/
-│   │       └── HappyHourFinder.tsx           # Main UI component
 │   ├── lib/
-│   │   ├── happy-hour-utils.ts             # Time parsing & status logic
-│   │   ├── distance-utils.ts               # Haversine formula & sorting
-│   │   ├── menu-parser.ts                  # Menu summary extraction
-│   │   ├── menu-csv.ts                     # Menu CSV formatting
-│   │   └── data-loader.ts                  # Shared CSV loader (home + places)
-│   ├── data/
-│   │   └── neighborhoods.ts                # Neighborhood geo lookup
 │   └── types/
-│       └── happy-hour.ts                   # TypeScript interfaces
-├── tests/                      # Vitest tests
-├── public/
-│   ├── happy_hours.csv         # Main restaurant data
-│   ├── menu_data.csv           # Menu/parsing results
-│   └── manual_overrides.csv    # Manual corrections
-└── dist/                       # Built static site
-```
-happy-hour-finder/
-├── scripts/                    # Python data pipeline
-│   ├── orchestrator.py         # Main pipeline entry point
-│   ├── fetchers/               # API fetchers
-│   ├── processors/             # AI processors
-│   ├── storage/                # CSV management
-│   └── ai/                     # OpenRouter client
-├── src/                        # Next.js frontend
-│   ├── app/
-│   │   ├── page.tsx                         # Main page (server component)
-│   │   ├── layout.tsx                       # Root layout (metadata, fonts, GA)
-│   │   ├── places/[placeId]/page.tsx         # Individual place detail pages
-│   │   ├── places/[placeId]/helpers.ts       # Place page formatting helpers
-│   │   └── components/
-│   │       └── HappyHourFinder.tsx           # Main UI component
-│   ├── lib/
-│   │   ├── happy-hour-utils.ts             # Time parsing & status logic
-│   │   ├── distance-utils.ts               # Haversine formula & sorting
-│   │   ├── menu-parser.ts                  # Menu summary extraction
-│   │   ├── menu-csv.ts                     # Menu CSV formatting
-│   │   └── data-loader.ts                  # Shared CSV loader (home + places)
-│   ├── data/
-│   │   └── neighborhoods.ts                # Neighborhood geo lookup
-│   └── types/
-│       └── happy-hour.ts                   # TypeScript interfaces
 ├── tests/                      # Vitest tests
 ├── public/
 │   ├── happy_hours.csv         # Main restaurant data
@@ -294,27 +241,6 @@ happy-hour-finder/
 - Rating of 0 becomes empty string (falsy value bug in conversion)
 - Some restaurants have coordinates but no happy hour data
 - OpenRouter rate limits on free tier
-
-## Troubleshooting
-
-### Turbopack Cache Corruption
-If `npm run build` fails with `Another next build process is already running` even though no process is active, the Turbopack cache directory may be corrupted.
-
-**Symptoms:**
-- `npm run build` errors immediately with `"Another next build process is already running"`
-- No `.next/` folder exists in the project
-- A `next-panic-*.log` file exists in `%TEMP%` (%LOCALAPPDATA%/Temp)
-- The log references missing `.sst` files under `dist/dev/cache/turbopack/`
-
-**Root cause:** Turbopack tracks build state in `dist/dev/cache/turbopack`. If a previous build was interrupted, the cache metadata may reference SST files that no longer exist, leaving Next.js thinking another build is running.
-
-**Fix:** Delete the corrupted cache directories:
-```powershell
-Remove-Item -Recurse -Force "dist\dev" -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force ".next" -ErrorAction SilentlyContinue
-Remove-Item "$env:TEMP\next-panic-*" -ErrorAction SilentlyContinue
-npm run build
-```
 
 ## Future Ideas
 - User-contributed happy hour updates
