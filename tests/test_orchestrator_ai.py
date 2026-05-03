@@ -23,7 +23,9 @@ def test_menu_prompt_formatting():
     
     assert "Test Restaurant" in prompt
     assert "$5 beers, $1 wings" in prompt
-    assert "cheapest drink" in prompt
+    assert "happy hour" in prompt.lower()
+    assert "wine-by-the-glass" in prompt
+    assert "CHEAPEST qualifying happy-hour drink" in prompt
     assert "short_summary" in prompt
 
 
@@ -31,3 +33,19 @@ def test_menu_prompt_under_15_words():
     """Test menu prompt asks for short summary."""
     prompt = format_menu_prompt("Test", "content")
     assert "UNDER 15 words" in prompt
+
+
+def test_menu_prompt_includes_schedule_when_provided():
+    """Known happy hour times are injected for model context."""
+    prompt = format_menu_prompt(
+        "Bar",
+        "$6 drafts",
+        happy_hour_times="Monday: 4:00 PM - 6:00 PM",
+    )
+    assert "Monday: 4:00 PM - 6:00 PM" in prompt
+    assert "Known happy hour schedule" in prompt
+
+
+def test_menu_prompt_schedule_optional_empty():
+    prompt = format_menu_prompt("Bar", "content", happy_hour_times=None)
+    assert "Known happy hour schedule" not in prompt

@@ -9,6 +9,7 @@ from ai.prompts import format_menu_prompt
 from storage import Restaurant
 from fetchers.website import WebsiteFetcher
 from parsers.content_parsers import parse_menu_response
+from parsers.menu_text import focus_text_for_happy_hour_menu
 
 
 class MenuProcessor:
@@ -67,10 +68,16 @@ class MenuProcessor:
         if len(text) < 100:
             print(f"  Content too short ({len(text)} chars), likely error page")
             return False
-        
+
+        text = focus_text_for_happy_hour_menu(text)
+
         # Send to AI
         try:
-            prompt = format_menu_prompt(restaurant.restaurant_name, text)
+            prompt = format_menu_prompt(
+                restaurant.restaurant_name,
+                text,
+                happy_hour_times=restaurant.happy_hour_times or None,
+            )
             response = self.ai.complete(
                 prompt=prompt,
                 system="You are a menu parser. ONLY extract items explicitly listed in the text. DO NOT make up items. Return JSON only."

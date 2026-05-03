@@ -121,7 +121,7 @@ python scripts/orchestrator.py
 ### Pipeline Steps
 1. **fetch** - Get restaurants from Google Places API
 2. **parse_happy_hours** - AI website scraping for happy hours
-3. **parse_menus** - AI menu analysis
+3. **parse_menus** - AI menu analysis (cheapest **happy hour** drink/food only: prompts and a text pre-filter ignore general wine lists, brunch, etc.; image-only menus still need OCR/vision)
 4. **summary** - Generate report
 
 > Manual overrides from `public/manual_overrides.csv` are **not** applied by the
