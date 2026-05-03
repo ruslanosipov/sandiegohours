@@ -132,7 +132,34 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
     ).length;
   }, [sortedAndFilteredRestaurants, selectedDateTime]);
 
+  // Shared helper: update URL and scroll to card
+  const handlePlaceClick = useCallback((index: number) => {
+    const restaurant = sortedAndFilteredRestaurants[index];
+    if (restaurant?.place_id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('place', restaurant.place_id);
+      window.history.pushState({}, '', url);
+    }
+    setActiveTab('list');
+    setTimeout(() => {
+      const el = document.getElementById(`restaurant-card-${index}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-2', 'ring-emerald-400', 'transition-all');
+        setTimeout(() => {
+          el.classList.remove('ring-2', 'ring-emerald-400', 'transition-all');
+        }, 2500);
+      }
+    }, 200);
+  }, [sortedAndFilteredRestaurants]);
+
   const handleMarkerClick = useCallback((index: number) => {
+    const restaurant = sortedAndFilteredRestaurants[index];
+    if (restaurant?.place_id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('place', restaurant.place_id);
+      window.history.pushState({}, '', url);
+    }
     setActiveTab('list');
     setTimeout(() => {
       const el = document.getElementById(`restaurant-card-${index}`);
@@ -144,7 +171,45 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         }, 1500);
       }
     }, 150);
-  }, []);
+  }, [sortedAndFilteredRestaurants]);
+
+  // Scroll to card when ?place=xxx is in URL (initial load, back/forward nav, or manual URL change)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const scrollToPlace = () => {
+      const params = new URLSearchParams(window.location.search);
+      const placeId = params.get('place');
+      if (!placeId) return;
+
+      const index = sortedAndFilteredRestaurants.findIndex(
+        (r) => r.place_id === placeId
+      );
+      if (index === -1) return;
+
+      setActiveTab('list');
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`restaurant-card-${index}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-emerald-400', 'transition-all');
+          setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-emerald-400', 'transition-all');
+          }, 2500);
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    };
+
+    const cleanup = scrollToPlace();
+    const handlePopState = () => scrollToPlace();
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (cleanup) cleanup;
+    };
+  }, [sortedAndFilteredRestaurants]);
 
   const switchTab = useCallback((tab: 'list' | 'map') => {
     setActiveTab(tab);
@@ -240,7 +305,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
         <p className="text-sm text-gray-500">
           Showing {sortedAndFilteredRestaurants.length} {sortedAndFilteredRestaurants.length === 1 ? "place" : "places"}
           {sortedAndFilteredRestaurants.length > 0 && (
-            <> · {happyHourCount} with Happy Hour · <span className="text-emerald-600 font-bold">{activeCount} Active Now</span></>
+            <> &middot; {happyHourCount} with Happy Hour &middot; <span className="text-emerald-600 font-bold">{activeCount} Active Now</span></>
           )}
         </p>
 
@@ -321,6 +386,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
           restaurants={sortedAndFilteredRestaurants}
           selectedDateTime={selectedDateTime}
           selectedDay={selectedDay}
+          onPlaceClick={handlePlaceClick}
         />
       </div>
 

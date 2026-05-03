@@ -9,6 +9,7 @@ interface RestaurantListProps {
   restaurants: HappyHourPlace[];
   selectedDateTime: Date;
   selectedDay: string;
+  onPlaceClick?: (index: number) => void;
 }
 
 function formatSource(source: string): string {
@@ -37,7 +38,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-export default function RestaurantList({ restaurants, selectedDateTime, selectedDay }: RestaurantListProps) {
+export default function RestaurantList({ restaurants, selectedDateTime, selectedDay, onPlaceClick }: RestaurantListProps) {
   const [expandedHappyHours, setExpandedHappyHours] = useState<Set<string>>(new Set());
 
   if (restaurants.length === 0) {
@@ -68,9 +69,21 @@ export default function RestaurantList({ restaurants, selectedDateTime, selected
             <div className="p-6 flex flex-col flex-1">
               {/* Header: Name + Status */}
               <div className="flex items-start justify-between gap-3 mb-3">
-                <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight">
-                  {restaurant.restaurant_name}
-                </h3>
+                {restaurant.place_id ? (
+                  <button
+                    type="button"
+                    onClick={() => onPlaceClick?.(index)}
+                    className="group text-left"
+                  >
+                    <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight group-hover:text-emerald-700 transition-colors cursor-pointer">
+                      {restaurant.restaurant_name}
+                    </h3>
+                  </button>
+                ) : (
+                  <h3 className="font-montserrat text-xl font-bold text-gray-900 leading-tight">
+                    {restaurant.restaurant_name}
+                  </h3>
+                )}
                 {hasHH && statusLabel.text && (
                   statusLabel.boxClass ? (
                     <span className={`text-xs whitespace-nowrap mt-0.5 px-2 py-1 rounded-md border ${statusLabel.boxClass} ${statusLabel.colorClass}`}>

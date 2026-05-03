@@ -19,6 +19,7 @@ interface Restaurant {
   latitude?: string;
   longitude?: string;
   neighborhood?: string;
+  place_id?: string;
   google_maps_url?: string;
   generative_summary?: string;
   cheapest_drink?: string;
