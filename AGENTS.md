@@ -15,6 +15,7 @@ Next.js website displaying happy hours for restaurants/bars near 92116 (Normal H
 - **Data**: CSV files (happy_hours.csv, menu_data.csv)
 - **APIs**: Google Places API (New) v1 for restaurant data + happy hours
 - **AI**: OpenRouter for website parsing
+- **Browser**: Playwright (headless Chromium) for JS-rendered SPA fallback
 
 ## Architecture
 
@@ -91,6 +92,8 @@ Key fields:
 ```bash
 # Install dependencies
 npm install
+pip install -r requirements.txt
+python -m playwright install chromium   # one-time browser download for SPA scraping
 
 # Run tests
 npx vitest run              # TypeScript tests
@@ -172,6 +175,19 @@ python scripts/orchestrator.py
    - Run `npm run build` to update static site
 
 ## Common Issues
+
+### JS-Rendered SPA Sites (Wix / Squarespace / Webflow / Canva-embedded menus)
+Many bar/restaurant sites are built with JS-heavy site builders. Their static HTML is just a shell — the actual menu text is rendered client-side and often lives inside `<iframe>` HTML embeds (e.g. Wix's `filesusr.com/html/...` apps).
+
+**Solution (already implemented in `scripts/fetchers/website.py`):**
+- `AsyncWebsiteFetcher.afetch_clean()` automatically falls back to a headless Chromium render via Playwright when:
+  - the cleaned static HTML is shorter than `JS_RENDER_MIN_CLEANED_CHARS` (300), OR
+  - the raw HTML matches a known SPA generator (`SPA_GENERATOR_MARKERS`).
+- The renderer scrolls top-to-bottom (to trigger lazy loading) and collects `body.innerText` from the main frame **and every child frame**.
+- Rendered text is cached separately as `<key>.rendered.txt` next to the HTML cache.
+- `AsyncMenuProcessor` retries on `/home` and `/` if the priority-path URL (e.g. `/happyhour`) yields too little usable content (some sites use a graphic-only happy-hour page while the real menu lives on the home page).
+
+**Limitation:** Sites that publish their menu purely as PNG/JPG images (or via Canva embeds) cannot be parsed without OCR / vision LLM. The fallback above handles HTML iframes but not image-only menus.
 
 ### Node Build Process Already Running
 If you try to run `npx next build` while a build/dev server is already running, you may see:

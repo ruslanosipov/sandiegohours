@@ -56,12 +56,34 @@ class AsyncMenuProcessor:
 
         # Fetch and clean content
         text = await self.fetcher.afetch_clean(menu_url)
+
+        # Fallback: some sites' priority paths (e.g. /happyhour) are image-only
+        # graphic pages while the real menu content lives on the home page or
+        # at /home (common with Wix sites). If the chosen URL yields too little
+        # usable text, retry on the homepage variants.
+        MIN_USABLE = 300
+        if not text or len(text) < MIN_USABLE:
+            base = restaurant.website_url.rstrip('/')
+            for candidate in (f"{base}/home", f"{base}/"):
+                if candidate == menu_url or candidate.rstrip('/') == menu_url.rstrip('/'):
+                    continue
+                try:
+                    print(f"  Retrying on homepage: {candidate}")
+                except UnicodeEncodeError:
+                    print("  Retrying on homepage")
+                fallback = await self.fetcher.afetch_clean(candidate)
+                if fallback and len(fallback) > len(text or ""):
+                    text = fallback
+                    menu_url = candidate
+                    if len(text) >= MIN_USABLE:
+                        break
+
         if not text:
             print(f"  Failed to fetch content")
             return False
 
         try:
-            print(f"  Fetched {len(text)} chars of content")
+            print(f"  Fetched {len(text)} chars of content from {menu_url}")
         except UnicodeEncodeError:
             print("  Fetched content")
 

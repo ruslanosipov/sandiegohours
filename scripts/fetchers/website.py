@@ -15,6 +15,12 @@ try:
 except ImportError:
     _HAS_HTTPX = False
 
+try:
+    from playwright.async_api import async_playwright
+    _HAS_PLAYWRIGHT = True
+except ImportError:
+    _HAS_PLAYWRIGHT = False
+
 # Priority paths to check for happy hour info
 PRIORITY_PATHS = [
     '/happy-hour',
@@ -29,6 +35,21 @@ PRIORITY_PATHS = [
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
+
+# Generators of JS-heavy single-page sites whose useful content lives outside
+# the static HTML. When detected we fall back to a real browser render.
+SPA_GENERATOR_MARKERS = (
+    'wix.com website builder',
+    'squarespace',
+    'webflow',
+    'shopify',
+    'duda',
+    'weebly',
+)
+
+# Below this many *cleaned* characters, the static HTML almost certainly
+# rendered to a JS shell and we should retry with a browser.
+JS_RENDER_MIN_CLEANED_CHARS = 300
 
 
 class WebsiteFetcher:
@@ -139,6 +160,8 @@ if _HAS_HTTPX:
             cache_dir: Optional[Path] = None,
             client: Optional["httpx.AsyncClient"] = None,
             max_concurrent_fetches: int = 5,
+            enable_js_render: bool = True,
+            max_concurrent_renders: int = 2,
         ):
             self.delay = delay
             self.cache_dir = cache_dir
@@ -148,6 +171,12 @@ if _HAS_HTTPX:
             self._owned_client = client is None
             self._cache_lock = asyncio.Lock()
             self._fetch_semaphore = asyncio.Semaphore(max_concurrent_fetches)
+            # JS render state (lazy: browser only spun up if needed)
+            self._js_enabled = enable_js_render and _HAS_PLAYWRIGHT
+            self._render_semaphore = asyncio.Semaphore(max_concurrent_renders)
+            self._playwright = None
+            self._browser = None
+            self._browser_lock = asyncio.Lock()
 
         @property
         def client(self) -> "httpx.AsyncClient":
@@ -222,18 +251,156 @@ if _HAS_HTTPX:
             html = re.sub(r'\s+', ' ', html)
             return html.strip()[:8000]
 
-        async def afetch_clean(self, url: str) -> Optional[str]:
-            """Fetch and clean in one async step."""
-            html = await self.afetch(url)
-            if html:
-                return self.clean_html(html)
+        @staticmethod
+        def _looks_like_spa(html: str) -> bool:
+            """Detect known JS-heavy site builders in raw HTML."""
+            if not html:
+                return False
+            head = html[:5000].lower()
+            return any(marker in head for marker in SPA_GENERATOR_MARKERS)
+
+        async def _ensure_browser(self):
+            """Lazily start Playwright + browser on first use."""
+            if self._browser is not None:
+                return
+            async with self._browser_lock:
+                if self._browser is not None:
+                    return
+                self._playwright = await async_playwright().start()
+                self._browser = await self._playwright.chromium.launch(headless=True)
+
+        async def _render_js(self, url: str) -> Optional[str]:
+            """Render `url` in a real browser and return visible text (already cleaned).
+
+            Collects text from the main document AND every child frame (Wix and
+            similar SPAs frequently host menu sections inside HTML iframes).
+            """
+            if not self._js_enabled:
+                return None
+            try:
+                await self._ensure_browser()
+            except Exception as e:
+                print(f"  Playwright unavailable for {url}: {e}")
+                self._js_enabled = False
+                return None
+
+            async with self._render_semaphore:
+                context = None
+                try:
+                    context = await self._browser.new_context(
+                        user_agent=HEADERS['User-Agent'],
+                        viewport={"width": 1280, "height": 900},
+                    )
+                    page = await context.new_page()
+                    try:
+                        await page.goto(url, wait_until='networkidle', timeout=30000)
+                    except Exception:
+                        try:
+                            await page.goto(url, wait_until='domcontentloaded', timeout=30000)
+                        except Exception as e:
+                            print(f"  JS render navigation failed for {url}: {e}")
+                            return None
+
+                    # Trigger lazy-load by scrolling the page top-to-bottom.
+                    try:
+                        await page.evaluate(
+                            "() => new Promise(r => { let y=0; const id=setInterval(()=>{ "
+                            "window.scrollTo(0,y); y+=600; "
+                            "if(y>document.body.scrollHeight){clearInterval(id);r();}},120);})"
+                        )
+                        await page.wait_for_timeout(1500)
+                    except Exception:
+                        pass
+
+                    # Pull text from the main frame and every child frame.
+                    parts: list[str] = []
+                    for frame in page.frames:
+                        try:
+                            t = await frame.evaluate(
+                                '() => document.body ? document.body.innerText : ""'
+                            )
+                        except Exception:
+                            t = ""
+                        if t and t.strip():
+                            parts.append(t)
+                    text = "\n".join(parts)
+                    if not text:
+                        return None
+                    text = re.sub(r'\s+', ' ', text).strip()
+                    return text[:8000]
+                finally:
+                    if context is not None:
+                        try:
+                            await context.close()
+                        except Exception:
+                            pass
+
+        async def _read_render_cache(self, url: str) -> Optional[str]:
+            if not self.cache_dir:
+                return None
+            async with self._cache_lock:
+                p = self.cache_dir / f"{self._cache_key(url)}.rendered.txt"
+                if p.exists():
+                    try:
+                        return p.read_text(encoding='utf-8')
+                    except OSError:
+                        return None
             return None
+
+        async def _write_render_cache(self, url: str, text: str) -> None:
+            if not self.cache_dir or not text:
+                return
+            async with self._cache_lock:
+                p = self.cache_dir / f"{self._cache_key(url)}.rendered.txt"
+                try:
+                    p.write_text(text, encoding='utf-8')
+                except OSError:
+                    pass
+
+        async def afetch_clean(self, url: str) -> Optional[str]:
+            """Fetch + clean, falling back to a real browser for JS-rendered sites."""
+            cached_render = await self._read_render_cache(url)
+            if cached_render:
+                return cached_render
+
+            html = await self.afetch(url)
+            cleaned = self.clean_html(html) if html else ""
+
+            needs_render = self._js_enabled and (
+                not cleaned
+                or len(cleaned) < JS_RENDER_MIN_CLEANED_CHARS
+                or (html and self._looks_like_spa(html))
+            )
+            if needs_render:
+                try:
+                    short_name = url[:80]
+                    print(f"  JS render fallback: {short_name}")
+                except UnicodeEncodeError:
+                    print("  JS render fallback: <unicode url>")
+                rendered = await self._render_js(url)
+                if rendered and len(rendered) > len(cleaned):
+                    await self._write_render_cache(url, rendered)
+                    return rendered
+
+            return cleaned or None
 
         def _cache_key(self, url: str) -> str:
             import hashlib
             return hashlib.md5(url.encode()).hexdigest()[:16]
 
         async def close(self):
+            if self._browser is not None:
+                try:
+                    await self._browser.close()
+                except Exception:
+                    pass
+                self._browser = None
+            if self._playwright is not None:
+                try:
+                    await self._playwright.stop()
+                except Exception:
+                    pass
+                self._playwright = None
             if self._owned_client and self._client is not None:
                 await self._client.aclose()
                 self._client = None
