@@ -17,13 +17,9 @@ from pathlib import Path
 from typing import Optional
 
 from storage import CSVManager, Restaurant, ProcessingState
-from ai import OpenRouterClient
-from fetchers import WebsiteFetcher
-from fetchers.google_places import fetch_92116_restaurants
 from fetchers.google_places_async import AsyncGooglePlacesFetcher
 from fetchers.grid import generate_grid, GridCell, get_all_preset_names
 from fetchers.google_cache import GoogleAPICache
-from processors import HappyHourProcessor, MenuProcessor
 
 try:
     from ai.openrouter import AsyncOpenRouterClient
@@ -87,98 +83,6 @@ def print_step(step_name: str):
     print(f"\n{'='*60}")
     print(f"STEP: {step_name}")
     print(f"{'='*60}\n")
-
-
-# ---------------------------------------------------------------------------
-# Sync fallbacks (kept for compatibility / testing)
-# ---------------------------------------------------------------------------
-
-def step_fetch_restaurants(storage: CSVManager) -> list:
-    """Fetch restaurants from Google Places API or load from CSV."""
-    print_step("Fetch Restaurants from Google Places")
-    csv_path = DATA_DIR / 'happy_hours.csv'
-    if csv_path.exists():
-        print(f"Found existing {csv_path}")
-        print("Refreshing from Google Places API (using --full)...")
-
-    print("Fetching from Google Places API...")
-    try:
-        restaurants = fetch_92116_restaurants()
-        for r in restaurants:
-            r.freshness_date = datetime.now().isoformat()[:10]
-        storage.write('happy_hours.csv', restaurants)
-        print(f"Saved {len(restaurants)} restaurants to happy_hours.csv")
-        return restaurants
-    except Exception as e:
-        print(f"{RED}Error fetching from API: {e}{RESET}")
-        print("Falling back to CSV...")
-        restaurants = storage.read('happy_hours.csv', Restaurant)
-        print(f"Loaded {len(restaurants)} restaurants")
-        return restaurants
-
-
-def step_parse_happy_hours(restaurants: list, storage: CSVManager) -> list:
-    """Parse happy hours from websites."""
-    print_step("Parse Happy Hours from Websites")
-    to_process = [r for r in restaurants if not r.happy_hour_times]
-    print(f"Processing {len(to_process)} restaurants without happy hour data\n")
-
-    ai = OpenRouterClient(API_KEY)
-    fetcher = WebsiteFetcher(delay=1.0, cache_dir=CACHE_DIR / 'websites')
-    processor = HappyHourProcessor(ai, fetcher)
-
-    success_count = 0
-    for i, restaurant in enumerate(to_process, 1):
-        print(f"[{i}/{len(to_process)}] ", end="")
-        if processor.process(restaurant):
-            success_count += 1
-        print()
-
-    print(f"\n{GREEN}Success: {success_count}/{len(to_process)}{RESET}")
-    storage.write('happy_hours.csv', restaurants)
-    print(f"Saved to happy_hours.csv")
-    return restaurants
-
-
-def step_parse_menus(restaurants: list, storage: CSVManager) -> list:
-    """Parse menu data from websites."""
-    print_step("Parse Menus")
-    to_process = [r for r in restaurants if not r.menu_summary and r.website_url]
-    print(f"Processing {len(to_process)} restaurants without menu data\n")
-
-    ai = OpenRouterClient(API_KEY)
-    fetcher = WebsiteFetcher(delay=1.0, cache_dir=CACHE_DIR / 'websites')
-    processor = MenuProcessor(ai, fetcher)
-
-    success_count = 0
-    for i, restaurant in enumerate(to_process, 1):
-        print(f"[{i}/{len(to_process)}] ", end="")
-        if processor.process(restaurant):
-            success_count += 1
-        print()
-
-    print(f"\n{GREEN}Success: {success_count}/{len(to_process)}{RESET}")
-
-    menu_data = [
-        {
-            'restaurant_name': r.restaurant_name,
-            'cheapest_drink': r.cheapest_drink or '',
-            'cheapest_drink_price': str(r.cheapest_drink_price or ''),
-            'cheapest_food': r.cheapest_food or '',
-            'cheapest_food_price': str(r.cheapest_food_price or ''),
-            'menu_summary': r.menu_summary or ''
-        }
-        for r in restaurants if r.menu_summary
-    ]
-
-    if menu_data:
-        storage.write_dicts('menu_data.csv', menu_data, [
-            'restaurant_name', 'cheapest_drink', 'cheapest_drink_price',
-            'cheapest_food', 'cheapest_food_price', 'menu_summary'
-        ])
-        print(f"Saved {len(menu_data)} menu records to menu_data.csv")
-
-    return restaurants
 
 
 def step_generate_summary(restaurants: list):

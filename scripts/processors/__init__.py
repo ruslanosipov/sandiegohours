@@ -1,5 +1,4 @@
-"""Processors for happy hour data pipeline."""
+"""Processors module for AI extraction."""
 from .happy_hours import HappyHourProcessor
-from .menus import MenuProcessor
 
-__all__ = ['HappyHourProcessor', 'MenuProcessor']
+__all__ = ['HappyHourProcessor']

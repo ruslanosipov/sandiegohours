@@ -29,14 +29,12 @@ Google Places API → Python Pipeline → CSV Storage → Next.js Frontend
 ### Python Pipeline
 ```
 scripts/orchestrator.py
-  ├── fetchers/google_places.py           # Google Places API v1 (sync)
+  ├── fetchers/google_places.py           # Google Places API v1 (sync; scripts/tests, not used by orchestrator)
   ├── fetchers/google_places_async.py     # Parallel Place Details (async)
-  ├── fetchers/website.py                 # Website scraping with caching
-  ├── fetchers/website_fetcher.py         # (legacy alias)
-  ├── processors/happy_hours.py           # AI happy hour extraction (sync)
+  ├── fetchers/website.py                 # Website scraping with caching (sync + Async*)
+  ├── processors/happy_hours.py           # AI happy hour extraction (sync; tests)
   ├── processors/happy_hours_async.py    # Parallel AI extraction (async)
-  ├── processors/menus.py                 # AI menu/deals extraction (sync)
-  ├── processors/menus_async.py           # Parallel AI extraction (async)
+  ├── processors/menus_async.py           # Parallel menu extraction (async; orchestrator uses this only)
   ├── storage/csv_manager.py              # CSV read/write
   └── ai/openrouter.py                    # OpenRouter client (sync + async)
 ```
@@ -54,7 +52,7 @@ OPENROUTER_CONCURRENCY = 50
 WEBSITE_FETCH_DELAY = 0.0   # optional delay between site fetches
 ```
 
-All original sync APIs remain untouched for backward compatibility and testing.
+The orchestrator runs **only** the async pipeline. Sync helpers (`WebsiteFetcher`, `HappyHourProcessor`) remain for unit tests and direct import; there is no duplicate sync menu step in the orchestrator.
 
 ### Frontend
 ```
