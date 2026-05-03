@@ -74,13 +74,6 @@ jobs:
           cd scripts
           python orchestrator.py --step=parse_happy_hours
 
-      - name: Apply manual overrides
-        env:
-          PYTHONPATH: ${{ github.workspace }}/scripts
-        run: |
-          cd scripts
-          python orchestrator.py --step=overrides
-
       - name: Parse menus from websites
         env:
           PYTHONPATH: ${{ github.workspace }}/scripts

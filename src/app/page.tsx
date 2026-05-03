@@ -38,6 +38,32 @@ interface MenuData {
   menu_summary: string;
 }
 
+interface OverrideRow {
+  restaurant_name: string;
+  happy_hour_times?: string;
+  source?: string;
+  freshness_date?: string;
+}
+
+async function loadOverrides(): Promise<Map<string, OverrideRow>> {
+  const overridesPath = path.join(process.cwd(), 'public', 'manual_overrides.csv');
+  try {
+    const content = await fs.readFile(overridesPath, 'utf-8');
+    const rows = parse(content, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+    }) as OverrideRow[];
+    return new Map(
+      rows
+        .filter(r => r.restaurant_name)
+        .map(r => [r.restaurant_name, r])
+    );
+  } catch {
+    return new Map();
+  }
+}
+
 async function getRestaurants(): Promise<Restaurant[]> {
   const csvPath = path.join(process.cwd(), 'public', 'happy_hours.csv');
   const fileContent = await fs.readFile(csvPath, 'utf-8');
@@ -46,6 +72,19 @@ async function getRestaurants(): Promise<Restaurant[]> {
     columns: true,
     skip_empty_lines: true,
   }) as Restaurant[];
+
+  // Apply manual overrides (kept out of the upstream CSV so they survive re-fetches)
+  const overrides = await loadOverrides();
+  for (const restaurant of records) {
+    const override = overrides.get(restaurant.restaurant_name);
+    if (override?.happy_hour_times) {
+      restaurant.happy_hour_times = override.happy_hour_times;
+      restaurant.source = override.source || 'Manual Override';
+      if (override.freshness_date) {
+        restaurant.freshness_date = override.freshness_date;
+      }
+    }
+  }
 
   // Assign neighborhoods based on lat/lng
   for (const restaurant of records) {

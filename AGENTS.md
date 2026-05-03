@@ -118,9 +118,13 @@ python scripts/orchestrator.py
 ### Pipeline Steps
 1. **fetch** - Get restaurants from Google Places API
 2. **parse_happy_hours** - AI website scraping for happy hours
-3. **overrides** - Apply manual corrections from `public/manual_overrides.csv`
-4. **parse_menus** - AI menu analysis
-5. **summary** - Generate report
+3. **parse_menus** - AI menu analysis
+4. **summary** - Generate report
+
+> Manual overrides from `public/manual_overrides.csv` are **not** applied by the
+> Python pipeline. They're merged in at Next.js site-generation time inside
+> `src/app/page.tsx`, so they survive every fetch/refresh without mutating
+> `happy_hours.csv`. To add or change one, just edit the CSV and rebuild.
 
 ### Fetch Details
 - Uses Google Places API (New) v1 text search with pagination

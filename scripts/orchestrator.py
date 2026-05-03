@@ -117,38 +117,6 @@ def step_fetch_restaurants(storage: CSVManager) -> list:
         return restaurants
 
 
-def step_apply_overrides(restaurants: list, storage: CSVManager) -> list:
-    """Apply manual overrides from CSV."""
-    print_step("Apply Manual Overrides")
-    override_file = DATA_DIR / 'manual_overrides.csv'
-    if not override_file.exists():
-        print("No manual_overrides.csv found, skipping")
-        return restaurants
-
-    import csv
-    overrides = {}
-    with open(override_file, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            name = row.get('restaurant_name', '').strip()
-            if name:
-                overrides[name] = row
-
-    print(f"Loaded {len(overrides)} overrides")
-    applied = 0
-    for r in restaurants:
-        if r.restaurant_name in overrides:
-            o = overrides[r.restaurant_name]
-            if o.get('happy_hour_times'):
-                r.happy_hour_times = o['happy_hour_times']
-                r.source = 'Manual Override'
-                applied += 1
-                print(f"  Applied override for {r.restaurant_name}")
-
-    print(f"\n{GREEN}Applied {applied} overrides{RESET}")
-    return restaurants
-
-
 def step_parse_happy_hours(restaurants: list, storage: CSVManager) -> list:
     """Parse happy hours from websites."""
     print_step("Parse Happy Hours from Websites")
@@ -433,7 +401,7 @@ async def run_pipeline_async(
         print(f"{YELLOW}Resuming from step: {progress.step}{RESET}\n")
         start_step = progress.step
 
-    steps = ['fetch', 'parse_happy_hours', 'overrides', 'parse_menus', 'summary']
+    steps = ['fetch', 'parse_happy_hours', 'parse_menus', 'summary']
 
     try:
         start_idx = steps.index(start_step)
@@ -461,10 +429,6 @@ async def run_pipeline_async(
 
         if 'parse_happy_hours' in steps_to_run:
             restaurants = await async_step_parse_happy_hours(restaurants, storage)
-            save_progress(ProcessingState('overrides'))
-
-        if 'overrides' in steps_to_run:
-            restaurants = step_apply_overrides(restaurants, storage)
             save_progress(ProcessingState('parse_menus'))
 
         if 'parse_menus' in steps_to_run:
@@ -500,7 +464,7 @@ def main():
     )
     parser.add_argument(
         '--step',
-        choices=['fetch', 'overrides', 'parse_happy_hours', 'parse_menus', 'summary'],
+        choices=['fetch', 'parse_happy_hours', 'parse_menus', 'summary'],
         help='Start from specific step'
     )
     parser.add_argument(
