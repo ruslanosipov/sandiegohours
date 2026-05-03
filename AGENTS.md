@@ -169,6 +169,14 @@ python scripts/orchestrator.py
 
 ## Common Issues
 
+### Node Build Process Already Running
+If you try to run `npx next build` while a build/dev server is already running, you may see:
+```
+Another next build process is already running.
+```
+
+**Solution**: Wait for the build to complete — do NOT try to kill `node.exe` processes. If the build is truly stuck (not just slow), check `.next/build.lock` and delete it only if you're confident the process is dead. Then retry the build.
+
 ### Windows Console Unicode Encoding
 The Google Places API returns Unicode characters (thin spaces `\u2009`, narrow non-breaking spaces `\u202f`) in time strings. These cause `UnicodeEncodeError` when printing to Windows console.
 
