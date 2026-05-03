@@ -1,5 +1,4 @@
-restaurant_name,happy_hour_times,source,freshness_date
-Kairoa Brewing Company,Wednesday: 4:00 - 6:00 PM | Thursday: 4:00 - 6:00 PM | Friday: 4:00 - 6:00 PM | Saturday: 4:00 - 6:00 PM | Sunday: 4:00 - 6:00 PM | Monday: Closed | Tuesday: Closed,Manual,2026-04-19
-Cantina Mayahuel,Tuesday: 12:00 - 5:00 PM | Wednesday: 12:00 - 5:00 PM | Thursday: 12:00 - 5:00 PM | Friday: 12:00 - 5:00 PM | Saturday: Closed | Sunday: Closed | Monday: Closed,Manual,2026-04-19
-Bluefoot Bar and Lounge,Monday: 11:00 AM - 6:00 PM | Tuesday: 11:00 AM - 6:00 PM | Wednesday: 11:00 AM - 6:00 PM | Thursday: 11:00 AM - 6:00 PM | Friday: 11:00 AM - 6:00 PM,Manual,2026-05-02
-
+place_id,restaurant_name,happy_hour_times,source,freshness_date
+,Kairoa Brewing Company,Wednesday: 4:00 - 6:00 PM | Thursday: 4:00 - 6:00 PM | Friday: 4:00 - 6:00 PM | Saturday: 4:00 - 6:00 PM | Sunday: 4:00 - 6:00 PM | Monday: Closed | Tuesday: Closed,Manual,2026-04-19
+ChIJ-7SfPP5U2YARTAz72FdP5u0,Cantina Mayahuel,Tuesday: 12:00 - 5:00 PM | Wednesday: 12:00 - 5:00 PM | Thursday: 12:00 - 5:00 PM | Friday: 12:00 - 5:00 PM | Saturday: Closed | Sunday: Closed | Monday: Closed,Manual,2026-04-19
+ChIJR7LKEItU2YARrPqqz92AiEY,Bluefoot Bar and Lounge,Monday: 11:00 AM - 6:00 PM | Tuesday: 11:00 AM - 6:00 PM | Wednesday: 11:00 AM - 6:00 PM | Thursday: 11:00 AM - 6:00 PM | Friday: 11:00 AM - 6:00 PM,Manual,2026-05-02

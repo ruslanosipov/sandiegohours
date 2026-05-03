@@ -3,7 +3,7 @@ Async menu processor using AI to extract cheapest items.
 """
 import asyncio
 import re
-from typing import Optional
+from typing import Awaitable, Callable, Optional
 
 import os
 import sys
@@ -157,21 +157,47 @@ class AsyncMenuProcessor:
         restaurants: list,
         concurrency: int = 20,
         progress_callback=None,
+        per_task_timeout: Optional[float] = None,
+        checkpoint_every: int = 0,
+        checkpoint_callback: Optional[Callable[[int, int], Awaitable[None]]] = None,
     ) -> list:
         """Process multiple restaurants concurrently."""
         total = len(restaurants)
         semaphore = asyncio.Semaphore(concurrency)
         completed = 0
 
-        async def process_one(idx: int, restaurant: Restaurant) -> bool:
+        async def process_one(restaurant: Restaurant) -> bool:
             nonlocal completed
             async with semaphore:
-                result = await self.process(restaurant)
+                try:
+                    if per_task_timeout is not None and per_task_timeout > 0:
+                        result = await asyncio.wait_for(
+                            self.process(restaurant),
+                            timeout=per_task_timeout,
+                        )
+                    else:
+                        result = await self.process(restaurant)
+                except asyncio.TimeoutError:
+                    try:
+                        nm = restaurant.restaurant_name
+                    except UnicodeEncodeError:
+                        nm = "<Unicode name>"
+                    try:
+                        print(f"\n  Task timeout ({per_task_timeout}s): {nm}")
+                    except UnicodeEncodeError:
+                        print(f"\n  Task timeout ({per_task_timeout}s): <Unicode name>")
+                    result = False
                 completed += 1
                 if progress_callback:
                     progress_callback(completed, total)
+                if (
+                    checkpoint_every > 0
+                    and checkpoint_callback
+                    and completed % checkpoint_every == 0
+                ):
+                    await checkpoint_callback(completed, total)
                 return result
 
-        tasks = [process_one(i, r) for i, r in enumerate(restaurants)]
+        tasks = [process_one(r) for r in restaurants]
         await asyncio.gather(*tasks)
         return restaurants

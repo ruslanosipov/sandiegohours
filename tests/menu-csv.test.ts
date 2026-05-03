@@ -81,4 +81,13 @@ describe('parseMenuCSV', () => {
     expect(parsed.cheapest_food).toBe('$1 wings');
     expect(parsed.cheapest_food_price).toBe(1);
   });
+
+  it('parses place_id-prefixed CSV row', () => {
+    const csvLine = 'ChIJabc123,The Hangout,$5 bottled beer,5,$1 wings,1,summary here';
+    const parsed = parseMenuCSV(csvLine);
+    expect(parsed.place_id).toBe('ChIJabc123');
+    expect(parsed.restaurant_name).toBe('The Hangout');
+    expect(parsed.cheapest_drink).toBe('$5 bottled beer');
+    expect(parsed.cheapest_drink_price).toBe(5);
+  });
 });

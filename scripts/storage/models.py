@@ -40,6 +40,7 @@ class Restaurant:
 class MenuData:
     """Menu data extracted by AI."""
     restaurant_name: str
+    place_id: str = ""
     cheapest_drink: str = ""
     cheapest_drink_price: Optional[float] = None
     cheapest_food: str = ""

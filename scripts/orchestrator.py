@@ -54,6 +54,31 @@ OPENROUTER_CONCURRENCY = 30
 WEBSITE_FETCH_DELAY = 0.2
 WEBSITE_FETCH_CONCURRENCY = 5
 
+# Menu parsing: avoid hung sites blocking the batch; periodic CSV flush
+MENU_TASK_TIMEOUT_SEC = 240.0
+MENU_CHECKPOINT_EVERY = 25
+
+MENU_DATA_CSV_FIELDS = [
+    'place_id', 'restaurant_name', 'cheapest_drink', 'cheapest_drink_price',
+    'cheapest_food', 'cheapest_food_price', 'menu_summary',
+]
+
+
+def _menu_data_rows(restaurants: list) -> list:
+    """Rows for menu_data.csv from restaurants that have a menu_summary."""
+    return [
+        {
+            'place_id': getattr(r, 'place_id', '') or '',
+            'restaurant_name': r.restaurant_name,
+            'cheapest_drink': r.cheapest_drink or '',
+            'cheapest_drink_price': str(r.cheapest_drink_price or ''),
+            'cheapest_food': r.cheapest_food or '',
+            'cheapest_food_price': str(r.cheapest_food_price or ''),
+            'menu_summary': r.menu_summary or ''
+        }
+        for r in restaurants if r.menu_summary
+    ]
+
 # CLI colors
 GREEN = '\033[92m'
 YELLOW = '\033[93m'
@@ -254,32 +279,33 @@ async def async_step_parse_menus(restaurants: list, storage: CSVManager) -> list
     ) as fetcher:
         processor = AsyncMenuProcessor(ai, fetcher)
 
+        async def checkpoint(completed: int, total: int):
+            storage.write('happy_hours.csv', restaurants)
+            rows = _menu_data_rows(restaurants)
+            if rows:
+                storage.write_dicts('menu_data.csv', rows, MENU_DATA_CSV_FIELDS)
+            print(
+                f"\n{YELLOW}Checkpoint {completed}/{total}: "
+                f"happy_hours.csv saved ({len(rows)} menu summaries){RESET}",
+                flush=True,
+            )
+
         await processor.process_batch(
             to_process,
             concurrency=OPENROUTER_CONCURRENCY,
             progress_callback=lambda c, t: print(f"[{c}/{t}] processed", end="\r"),
+            per_task_timeout=MENU_TASK_TIMEOUT_SEC,
+            checkpoint_every=MENU_CHECKPOINT_EVERY,
+            checkpoint_callback=checkpoint,
         )
 
     success_count = sum(1 for r in to_process if r.menu_summary)
     print(f"\n{GREEN}Success: {success_count}/{len(to_process)}{RESET}")
 
-    menu_data = [
-        {
-            'restaurant_name': r.restaurant_name,
-            'cheapest_drink': r.cheapest_drink or '',
-            'cheapest_drink_price': str(r.cheapest_drink_price or ''),
-            'cheapest_food': r.cheapest_food or '',
-            'cheapest_food_price': str(r.cheapest_food_price or ''),
-            'menu_summary': r.menu_summary or ''
-        }
-        for r in restaurants if r.menu_summary
-    ]
-
+    storage.write('happy_hours.csv', restaurants)
+    menu_data = _menu_data_rows(restaurants)
     if menu_data:
-        storage.write_dicts('menu_data.csv', menu_data, [
-            'restaurant_name', 'cheapest_drink', 'cheapest_drink_price',
-            'cheapest_food', 'cheapest_food_price', 'menu_summary'
-        ])
+        storage.write_dicts('menu_data.csv', menu_data, MENU_DATA_CSV_FIELDS)
         print(f"Saved {len(menu_data)} menu records to menu_data.csv")
 
     return restaurants

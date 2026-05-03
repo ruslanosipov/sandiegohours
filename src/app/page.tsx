@@ -30,6 +30,7 @@ interface Restaurant {
 }
 
 interface MenuData {
+  place_id?: string;
   restaurant_name: string;
   cheapest_drink: string;
   cheapest_drink_price: string;
@@ -39,14 +40,23 @@ interface MenuData {
 }
 
 interface OverrideRow {
+  place_id?: string;
   restaurant_name: string;
   happy_hour_times?: string;
   source?: string;
   freshness_date?: string;
 }
 
-async function loadOverrides(): Promise<Map<string, OverrideRow>> {
+/** Lookup overrides by Google place_id first, then by restaurant_name. */
+async function loadOverrides(): Promise<{
+  byPlaceId: Map<string, OverrideRow>;
+  byName: Map<string, OverrideRow>;
+}> {
   const overridesPath = path.join(process.cwd(), 'public', 'manual_overrides.csv');
+  const maps = {
+    byPlaceId: new Map<string, OverrideRow>(),
+    byName: new Map<string, OverrideRow>(),
+  };
   try {
     const content = await fs.readFile(overridesPath, 'utf-8');
     const rows = parse(content, {
@@ -54,13 +64,19 @@ async function loadOverrides(): Promise<Map<string, OverrideRow>> {
       skip_empty_lines: true,
       trim: true,
     }) as OverrideRow[];
-    return new Map(
-      rows
-        .filter(r => r.restaurant_name)
-        .map(r => [r.restaurant_name, r])
-    );
+    for (const r of rows) {
+      if (!r.restaurant_name) {
+        continue;
+      }
+      maps.byName.set(r.restaurant_name, r);
+      const pid = r.place_id?.trim();
+      if (pid) {
+        maps.byPlaceId.set(pid, r);
+      }
+    }
+    return maps;
   } catch {
-    return new Map();
+    return maps;
   }
 }
 
@@ -76,7 +92,10 @@ async function getRestaurants(): Promise<Restaurant[]> {
   // Apply manual overrides (kept out of the upstream CSV so they survive re-fetches)
   const overrides = await loadOverrides();
   for (const restaurant of records) {
-    const override = overrides.get(restaurant.restaurant_name);
+    const pid = restaurant.place_id?.trim();
+    const override =
+      (pid && overrides.byPlaceId.get(pid)) ||
+      overrides.byName.get(restaurant.restaurant_name);
     if (override?.happy_hour_times) {
       restaurant.happy_hour_times = override.happy_hour_times;
       restaurant.source = override.source || 'Manual Override';
@@ -103,10 +122,21 @@ async function getRestaurants(): Promise<Restaurant[]> {
       skip_empty_lines: true,
     }) as MenuData[];
 
-    const menuMap = new Map(menuRecords.map(m => [m.restaurant_name, m]));
+    const menuByPlaceId = new Map<string, MenuData>();
+    const menuByName = new Map<string, MenuData>();
+    for (const m of menuRecords) {
+      menuByName.set(m.restaurant_name, m);
+      const mid = m.place_id?.trim();
+      if (mid) {
+        menuByPlaceId.set(mid, m);
+      }
+    }
 
     for (const restaurant of records) {
-      const menu = menuMap.get(restaurant.restaurant_name);
+      const pid = restaurant.place_id?.trim();
+      const menu =
+        (pid && menuByPlaceId.get(pid)) ||
+        menuByName.get(restaurant.restaurant_name);
       if (menu) {
         restaurant.cheapest_drink = menu.cheapest_drink || undefined;
         restaurant.cheapest_drink_price = menu.cheapest_drink_price ? parseFloat(menu.cheapest_drink_price) : undefined;

@@ -4,6 +4,8 @@
  */
 
 export interface MenuData {
+  /** Google Places place_id when row is keyed for merge (optional). */
+  place_id?: string;
   restaurant_name: string;
   cheapest_drink: string;
   cheapest_drink_price: number | null;
@@ -53,6 +55,7 @@ export function formatMenuCSV(data: MenuData): string {
   const summary = generateCheapestSummary(data);
   
   const fields = [
+    data.place_id || '',
     data.restaurant_name,
     data.cheapest_drink,
     data.cheapest_drink_price?.toString() || '',
@@ -89,14 +92,29 @@ export function parseMenuCSV(csvLine: string): MenuData {
     }
   }
   fields.push(current.trim());
-  
+
+  const isPlaceKeyed =
+    fields.length >= 7 && typeof fields[0] === 'string' && fields[0].startsWith('ChIJ');
+  if (isPlaceKeyed) {
+    return {
+      place_id: fields[0] || '',
+      restaurant_name: fields[1] || '',
+      cheapest_drink: fields[2] || '',
+      cheapest_drink_price: fields[3] ? parseFloat(fields[3]) : null,
+      cheapest_food: fields[4] || '',
+      cheapest_food_price: fields[5] ? parseFloat(fields[5]) : null,
+      all_drink_options: [],
+      all_food_options: [],
+    };
+  }
+
   return {
     restaurant_name: fields[0] || '',
     cheapest_drink: fields[1] || '',
     cheapest_drink_price: fields[2] ? parseFloat(fields[2]) : null,
     cheapest_food: fields[3] || '',
     cheapest_food_price: fields[4] ? parseFloat(fields[4]) : null,
-    all_drink_options: [], // Not stored in CSV, reconstructed from summary if needed
+    all_drink_options: [],
     all_food_options: [],
   };
 }
@@ -105,7 +123,7 @@ export function parseMenuCSV(csvLine: string): MenuData {
  * Get CSV header for menu data
  */
 export function getMenuCSVHeader(): string {
-  return 'restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,cheapest_options_summary';
+  return 'place_id,restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,cheapest_options_summary';
 }
 
 /**
@@ -116,7 +134,8 @@ export function updateMenuCSV(
   newData: MenuData
 ): Map<string, MenuData> {
   const updated = new Map(existingData);
-  updated.set(newData.restaurant_name, newData);
+  const key = (newData.place_id && newData.place_id.trim()) || newData.restaurant_name;
+  updated.set(key, newData);
   return updated;
 }
 
@@ -125,7 +144,8 @@ export function updateMenuCSV(
  */
 export function parseAIResponseToMenuData(
   restaurantName: string,
-  aiResponse: { drink?: { name: string; price: number }; food?: { name: string; price: number } }
+  aiResponse: { drink?: { name: string; price: number }; food?: { name: string; price: number } },
+  placeId?: string
 ): MenuData {
   const drinkOptions: string[] = [];
   const foodOptions: string[] = [];
@@ -139,6 +159,7 @@ export function parseAIResponseToMenuData(
   }
   
   return {
+    ...(placeId ? { place_id: placeId } : {}),
     restaurant_name: restaurantName,
     cheapest_drink: aiResponse.drink ? `$${aiResponse.drink.price} ${aiResponse.drink.name}` : '',
     cheapest_drink_price: aiResponse.drink?.price ?? null,
