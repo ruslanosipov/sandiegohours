@@ -27,6 +27,7 @@ interface Restaurant {
   cheapest_food?: string;
   cheapest_food_price?: number;
   menu_summary?: string;
+  menu_url?: string;
 }
 
 interface MenuData {
@@ -37,6 +38,7 @@ interface MenuData {
   cheapest_food: string;
   cheapest_food_price: string;
   menu_summary: string;
+  menu_url?: string;
 }
 
 interface OverrideRow {
@@ -143,6 +145,7 @@ async function getRestaurants(): Promise<Restaurant[]> {
         restaurant.cheapest_food = menu.cheapest_food || undefined;
         restaurant.cheapest_food_price = menu.cheapest_food_price ? parseFloat(menu.cheapest_food_price) : undefined;
         restaurant.menu_summary = menu.menu_summary || undefined;
+        restaurant.menu_url = menu.menu_url || undefined;
       }
     }
   } catch (error) {

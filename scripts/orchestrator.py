@@ -60,7 +60,7 @@ MENU_CHECKPOINT_EVERY = 25
 
 MENU_DATA_CSV_FIELDS = [
     'place_id', 'restaurant_name', 'cheapest_drink', 'cheapest_drink_price',
-    'cheapest_food', 'cheapest_food_price', 'menu_summary',
+    'cheapest_food', 'cheapest_food_price', 'menu_summary', 'menu_url',
 ]
 
 
@@ -74,7 +74,8 @@ def _menu_data_rows(restaurants: list) -> list:
             'cheapest_drink_price': str(r.cheapest_drink_price or ''),
             'cheapest_food': r.cheapest_food or '',
             'cheapest_food_price': str(r.cheapest_food_price or ''),
-            'menu_summary': r.menu_summary or ''
+            'menu_summary': r.menu_summary or '',
+            'menu_url': getattr(r, 'menu_url', '') or '',
         }
         for r in restaurants if r.menu_summary
     ]
