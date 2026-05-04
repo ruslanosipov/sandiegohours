@@ -54,6 +54,65 @@ SPA_GENERATOR_MARKERS = (
 # rendered to a JS shell and we should retry with a browser.
 JS_RENDER_MIN_CLEANED_CHARS = 300
 
+# Keywords used when crawling a homepage for happy-hour / specials links.
+_HH_LINK_KEYWORDS = re.compile(
+    r'happy.?hour|specials?|drink.?deal|hh\b|happy_hour',
+    re.IGNORECASE,
+)
+_HH_HREF_KEYWORDS = re.compile(
+    r'happy.?hour|happyhour|specials?|/hh\b|/hh/',
+    re.IGNORECASE,
+)
+# Match href="..." or href='...' inside an <a> tag.
+_HREF_RE = re.compile(r'<a\b[^>]+href=["\']([^"\'#?][^"\']*)["\']', re.IGNORECASE)
+# Match visible link text between <a ...> and </a>.
+_LINK_TEXT_RE = re.compile(r'<a\b[^>]*>(.*?)</a>', re.IGNORECASE | re.DOTALL)
+
+
+def extract_happy_hour_links(html: str, base_url: str) -> list[str]:
+    """Return same-origin links that look like happy-hour/specials pages.
+
+    Scans raw HTML for ``<a href=...>`` tags whose ``href`` path or visible
+    anchor text contains happy-hour / specials keywords.  Returns up to 5
+    absolute URLs, deduplicated and same-origin only.
+    """
+    if not html:
+        return []
+
+    parsed_base = urlparse(base_url)
+    base_origin = f"{parsed_base.scheme}://{parsed_base.netloc}"
+    seen: set[str] = set()
+    results: list[str] = []
+
+    # Walk every <a> tag in order so we respect document ordering.
+    for m in _LINK_TEXT_RE.finditer(html):
+        full_tag = m.group(0)
+        inner_text = re.sub(r'<[^>]+>', '', m.group(1)).strip()
+
+        href_m = re.search(r'href=["\']([^"\'#?][^"\']*)["\']', full_tag, re.IGNORECASE)
+        if not href_m:
+            continue
+        href = href_m.group(1).strip()
+
+        # Build absolute URL — keep only same-origin links.
+        abs_url = urljoin(base_url, href)
+        abs_parsed = urlparse(abs_url)
+        if abs_parsed.netloc != parsed_base.netloc:
+            continue
+        # Strip query / fragment so we don't create duplicate entries.
+        abs_url = f"{abs_parsed.scheme}://{abs_parsed.netloc}{abs_parsed.path}".rstrip('/')
+
+        if abs_url in seen:
+            continue
+
+        if _HH_HREF_KEYWORDS.search(abs_parsed.path) or _HH_LINK_KEYWORDS.search(inner_text):
+            seen.add(abs_url)
+            results.append(abs_url)
+            if len(results) >= 5:
+                break
+
+    return results
+
 
 class WebsiteFetcher:
     """Fetch and clean website content."""
@@ -65,14 +124,19 @@ class WebsiteFetcher:
             cache_dir.mkdir(parents=True, exist_ok=True)
 
     def find_menu_page(self, base_url: str) -> Optional[str]:
-        """Find happy hour or menu page by checking priority paths."""
+        """Find happy hour or menu page by checking priority paths.
+
+        First checks all PRIORITY_PATHS via HEAD requests.  If none return
+        HTTP 200, fetches the homepage and crawls it for same-origin links
+        whose href or anchor text contains happy-hour / specials keywords.
+        """
         if not base_url:
             return None
 
         # Ensure URL ends without slash for joining
         base_url = base_url.rstrip('/')
 
-        # Try priority paths first
+        # 1. Try priority paths first.
         for path in PRIORITY_PATHS:
             url = f"{base_url}{path}"
             try:
@@ -83,6 +147,24 @@ class WebsiteFetcher:
             except requests.RequestException:
                 pass
             time.sleep(0.5)
+
+        # 2. Crawl homepage for happy-hour / specials links.
+        try:
+            homepage_html = requests.get(
+                base_url, headers=HEADERS, timeout=30, allow_redirects=True
+            ).text
+            crawled = extract_happy_hour_links(homepage_html, base_url)
+            for url in crawled:
+                try:
+                    r = requests.head(url, headers=HEADERS, timeout=10,
+                                      allow_redirects=True)
+                    if r.status_code == 200:
+                        return url
+                except requests.RequestException:
+                    pass
+                time.sleep(0.3)
+        except requests.RequestException:
+            pass
 
         return base_url
 
@@ -188,13 +270,25 @@ if _HAS_HTTPX:
             return self._client
 
         async def afind_menu_page(self, base_url: str) -> Optional[str]:
-            """Check priority paths concurrently."""
+            """Find the best happy-hour/menu URL for a restaurant website.
+
+            Strategy:
+            1. Concurrently HEAD-check all PRIORITY_PATHS and fetch the
+               homepage HTML (to enable link-crawling).
+            2. Return the first priority path that responds with HTTP 200,
+               preserving the original ordering so more-specific paths (e.g.
+               /menus/happy-hour) beat generic ones.
+            3. If no priority path matched, scan the homepage HTML for
+               same-origin links whose href or anchor text contains
+               happy-hour / specials keywords, HEAD-check those concurrently,
+               and return the first live one.
+            4. Fall back to the base URL.
+            """
             if not base_url:
                 return None
             base_url = base_url.rstrip('/')
 
-            async def check(path: str) -> Optional[str]:
-                url = f"{base_url}{path}"
+            async def check(url: str) -> Optional[str]:
                 try:
                     r = await self.client.head(url, timeout=10)
                     if r.status_code == 200:
@@ -203,11 +297,30 @@ if _HAS_HTTPX:
                     pass
                 return None
 
-            tasks = [check(p) for p in PRIORITY_PATHS]
-            results = await asyncio.gather(*tasks)
-            for r in results:
-                if r:
-                    return r
+            # Launch priority-path checks AND homepage fetch in parallel.
+            priority_urls = [f"{base_url}{p}" for p in PRIORITY_PATHS]
+            homepage_task = asyncio.ensure_future(self.afetch(base_url, use_cache=True))
+            check_tasks = [asyncio.ensure_future(check(u)) for u in priority_urls]
+
+            priority_results, homepage_html = await asyncio.gather(
+                asyncio.gather(*check_tasks),
+                homepage_task,
+            )
+
+            # 1. Return first priority match (preserves PRIORITY_PATHS order).
+            for result in priority_results:
+                if result:
+                    return result
+
+            # 2. Crawl homepage for happy-hour/specials links.
+            if homepage_html:
+                crawled = extract_happy_hour_links(homepage_html, base_url)
+                if crawled:
+                    crawl_checks = await asyncio.gather(*[check(u) for u in crawled])
+                    for result in crawl_checks:
+                        if result:
+                            return result
+
             return base_url
 
         async def afetch(self, url: str, use_cache: bool = True) -> Optional[str]:
