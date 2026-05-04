@@ -207,11 +207,11 @@ class AsyncMenuProcessor:
                     print(f"  [OK] Food: {restaurant.cheapest_food}")
                 return True
             else:
-                # Text extraction found nothing. If the original menu URL was
-                # short (likely image-only), try vision extraction as a fallback.
+                # Text extraction found nothing. Try vision extraction as a
+                # fallback — always check the original priority URL for images,
+                # regardless of whether we retried on the homepage.
                 if (
                     not drink and not food
-                    and first_menu_url != menu_url
                     and hasattr(self.ai, 'acomplete_with_images')
                 ):
                     image_urls = await self.fetcher.afetch_menu_images(first_menu_url)

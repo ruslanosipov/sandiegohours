@@ -153,7 +153,8 @@ def test_extract_happy_hour_links_empty_html():
 @patch('scripts.fetchers.website.requests.get')
 def test_find_menu_page_crawl_fallback(mock_get, mock_head):
     """When all priority paths 404, crawl homepage links."""
-    num_priority = 10  # must match len(PRIORITY_PATHS)
+    from scripts.fetchers.website import PRIORITY_PATHS
+    num_priority = len(PRIORITY_PATHS)
     # All priority HEAD checks return 404.
     mock_head.side_effect = (
         [Mock(status_code=404)] * num_priority

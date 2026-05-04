@@ -27,6 +27,7 @@ PRIORITY_PATHS = [
     '/menu/happy-hour',
     '/happy-hour',
     '/happyhour',
+    '/happyhourpromo',
     '/hh',
     '/specials',
     '/menus',
