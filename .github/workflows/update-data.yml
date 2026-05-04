@@ -1,7 +1,9 @@
 name: Update Data & Deploy Site
 
 on:
-  workflow_dispatch:      # Manual trigger button only
+  schedule:
+    - cron: '0 10 * * 1'  # Every Monday at 2:00 AM PST (10:00 UTC)
+  workflow_dispatch:      # Manual trigger button
 
 permissions:
   contents: write
