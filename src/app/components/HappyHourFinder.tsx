@@ -97,7 +97,7 @@ export default function HappyHourFinder({ restaurants }: HappyHourFinderProps) {
     }
     const ids = new Set<string>();
     for (const [id, count] of counts) {
-      if (count >= 50) ids.add(id);
+      if (count >= 40) ids.add(id);
     }
     return ids;
   }, [restaurants]);
