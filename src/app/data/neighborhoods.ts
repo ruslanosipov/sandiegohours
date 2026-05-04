@@ -8,7 +8,7 @@ export interface Neighborhood {
 }
 
 export const NEIGHBORHOODS: Neighborhood[] = [
-  { id: 'north_park', label: 'North Park', south: 32.745, west: -117.135, north: 32.770, east: -117.115 },
+  { id: 'north_park', label: 'North Park', south: 32.745, west: -117.135, north: 32.755, east: -117.115 },
   { id: 'south_park', label: 'South Park', south: 32.720, west: -117.135, north: 32.745, east: -117.115 },
   { id: 'normal_heights', label: 'Normal Heights', south: 32.755, west: -117.135, north: 32.775, east: -117.115 },
   { id: 'hillcrest', label: 'Hillcrest', south: 32.735, west: -117.170, north: 32.760, east: -117.145 },

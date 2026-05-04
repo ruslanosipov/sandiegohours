@@ -74,6 +74,16 @@ export default function NeighborhoodBadgeBar({
             disabled={true}
           />
         ))}
+        <span className="text-xs text-gray-400 ml-1">
+          (these are neighborhoods I find myself in —{' '}
+          <a
+            href="mailto:ruslan+happyhours@rosipov.com"
+            className="underline hover:text-gray-600"
+          >
+            email me
+          </a>{' '}
+          if you want your neighborhood included)
+        </span>
       </div>
       {selectedId && (
         <button
