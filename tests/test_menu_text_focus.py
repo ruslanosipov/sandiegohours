@@ -80,3 +80,35 @@ def test_real_section_anchor_windows_properly():
     # The preamble (before the HH section) should be excluded from the window
     # (window starts up to pre_window=200 chars before the anchor)
     assert len(focused) < len(full_text)
+
+
+def test_page_subnav_with_prices_below_not_discarded():
+    """
+    Regression: some sites have an in-page sub-navigation like
+    "Happy Hour Weekday Lunch NZ Monday Slider Wednesday Throwback Thursday"
+    at the very top, followed immediately by real happy-hour pricing.
+    The nav-bar heuristic must NOT discard the pricing content.
+    """
+    # Dunedin-style page: sub-nav tabs at top look like a nav bar, but the
+    # happy hour prices appear right after.
+    subnav = (
+        "Happy Hour / Specials Happy Hour Weekday Lunch NZ Monday "
+        "Slider Wednesday Throwback Thursday Happy Hour Fish N Chips "
+        "Happy Hour Everyday 3pm - 6pm All Day Tuesdays "
+        "Happy Hour and Weekly Specials are available for dine in only "
+    )
+    prices = (
+        "$9 Eats NZ Onion Dip classic new zealand onion dip fresh house potato chips "
+        "$10 Eats Fish N Chips beer battered cod fatty fries house tartar sauce "
+        "$10 Cocktails Sangria Margarita Old Fashioned "
+        "$7 Drinks Any Draft Beer Select Wines "
+    )
+    full_text = subnav + prices
+
+    focused = focus_text_for_happy_hour_menu(full_text)
+
+    # All pricing content must survive.
+    assert "$9" in focused
+    assert "$10" in focused
+    assert "$7" in focused
+    assert "Draft Beer" in focused

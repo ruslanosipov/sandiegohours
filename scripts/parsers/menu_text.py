@@ -55,11 +55,26 @@ def _merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     return out
 
 
-def _is_nav_bar_anchor(full_text: str, match_start: int, scan: int = 120) -> bool:
-    """Return True if the anchor appears inside a navigation-bar cluster."""
+def _is_nav_bar_anchor(
+    full_text: str,
+    match_start: int,
+    scan: int = 120,
+    price_check_window: int = 600,
+) -> bool:
+    """Return True if the anchor appears inside a navigation-bar cluster.
+
+    Even when the surrounding text looks like a nav bar, we return False if
+    there is at least one price token ($N) within ``price_check_window``
+    characters *after* the anchor — that indicates real menu content, not
+    just a nav entry.
+    """
     n = len(full_text)
     region = full_text[max(0, match_start - scan): min(n, match_start + scan)]
-    return bool(_NAV_BAR_RE.search(region))
+    if not _NAV_BAR_RE.search(region):
+        return False
+    # Looks like nav — but only treat it as nav if there's no nearby price.
+    forward = full_text[match_start: min(n, match_start + price_check_window)]
+    return not bool(_PRICE_RE.search(forward))
 
 
 def focus_text_for_happy_hour_menu(
