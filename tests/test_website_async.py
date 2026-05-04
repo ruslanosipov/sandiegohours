@@ -116,3 +116,28 @@ class TestAfetchClean:
         out = await fetcher.afetch_clean(url)
         assert out == cached_text
         await fetcher.close()
+
+
+@pytest.mark.asyncio
+async def test_afind_menu_page_uses_site_specials_before_generic_menu():
+    fetcher = AsyncWebsiteFetcher(enable_js_render=False)
+
+    async def fake_head(url, timeout=10):
+        if url in {
+            "https://example.com/menu",
+            "https://example.com/get-specials",
+        }:
+            return type("Response", (), {"status_code": 200})()
+        return type("Response", (), {"status_code": 404})()
+
+    async def fake_fetch(url, use_cache=True):
+        assert url == "https://example.com"
+        return '<a href="/get-specials">Find Out About Our Specials!</a>'
+
+    fetcher.client.head = fake_head  # type: ignore[assignment]
+    fetcher.afetch = fake_fetch  # type: ignore[assignment]
+
+    result = await fetcher.afind_menu_page("https://example.com?utm_source=google")
+
+    assert result == "https://example.com/get-specials"
+    await fetcher.close()

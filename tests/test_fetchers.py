@@ -6,6 +6,7 @@ import pytest
 from unittest.mock import AsyncMock, Mock, patch
 from scripts.fetchers.website import (
     WebsiteFetcher,
+    extract_menu_images,
     extract_happy_hour_links,
     normalize_url,
 )
@@ -108,6 +109,20 @@ def test_extract_happy_hour_links_anchor_text():
     assert "https://example.com/drinks" in links
 
 
+def test_extract_happy_hour_links_data_href_button():
+    """JS-driven button links are returned when their text is relevant."""
+    html = '<button data-href="/weekly-specials">Weekly Specials</button>'
+    links = extract_happy_hour_links(html, "https://example.com")
+    assert "https://example.com/weekly-specials" in links
+
+
+def test_extract_happy_hour_links_allows_www_same_site():
+    """Bare and www host variants are treated as the same restaurant site."""
+    html = '<a href="https://www.example.com/happy-hour">Happy Hour</a>'
+    links = extract_happy_hour_links(html, "https://example.com")
+    assert links == ["https://www.example.com/happy-hour"]
+
+
 def test_extract_happy_hour_links_specials_text():
     """Links with 'specials' keyword in anchor text are returned."""
     html = '<a href="/weekly">Weekly Specials</a>'
@@ -146,6 +161,37 @@ def test_extract_happy_hour_links_empty_html():
 
 
 # ---------------------------------------------------------------------------
+# extract_menu_images
+# ---------------------------------------------------------------------------
+
+
+def test_extract_menu_images_finds_srcset_and_lazy_attrs():
+    html = (
+        '<picture><source srcset="/img/happy-hour-small.webp 400w, '
+        '/img/happy-hour-large.webp 1000w"></picture>'
+        '<img data-src="/img/menu.jpg" alt="Food menu">'
+    )
+    images = extract_menu_images(html, "https://example.com/happy-hour")
+    assert images == [
+        "https://example.com/img/happy-hour-small.webp",
+        "https://example.com/img/happy-hour-large.webp",
+        "https://example.com/img/menu.jpg",
+    ]
+
+
+def test_extract_menu_images_finds_contextual_background_image():
+    html = '<div class="happy-hour" style="background-image:url(/specials.png)">Deals</div>'
+    images = extract_menu_images(html, "https://example.com")
+    assert images == ["https://example.com/specials.png"]
+
+
+def test_extract_menu_images_ignores_unrelated_logo():
+    html = '<img src="/logo.png" alt="Company logo"><img src="/patio.jpg" alt="Patio">'
+    images = extract_menu_images(html, "https://example.com")
+    assert images == []
+
+
+# ---------------------------------------------------------------------------
 # find_menu_page crawl fallback (sync)
 # ---------------------------------------------------------------------------
 
@@ -153,29 +199,65 @@ def test_extract_happy_hour_links_empty_html():
 @patch('scripts.fetchers.website.requests.get')
 def test_find_menu_page_crawl_fallback(mock_get, mock_head):
     """When all priority paths 404, crawl homepage links."""
-    from scripts.fetchers.website import PRIORITY_PATHS
-    num_priority = len(PRIORITY_PATHS)
+    from scripts.fetchers.website import GENERIC_PRIORITY_PATHS, PRIORITY_PATHS
+    explicit_count = len([p for p in PRIORITY_PATHS if p not in GENERIC_PRIORITY_PATHS])
     # All priority HEAD checks return 404.
     mock_head.side_effect = (
-        [Mock(status_code=404)] * num_priority
+        [Mock(status_code=404)] * explicit_count
         + [Mock(status_code=200)]  # crawled link succeeds
     )
     mock_get.return_value = Mock(
-        text='<a href="/menus/happy-hour">Happy Hour</a>',
+        text='<a href="/weekly-specials">Weekly Specials</a>',
         status_code=200,
     )
 
     fetcher = WebsiteFetcher()
     result = fetcher.find_menu_page("https://example.com")
 
-    assert result == "https://example.com/menus/happy-hour"
+    assert result == "https://example.com/weekly-specials"
+
+
+@patch('scripts.fetchers.website.requests.head')
+@patch('scripts.fetchers.website.requests.get')
+def test_find_menu_page_crawl_beats_generic_menu(mock_get, mock_head):
+    """Site-authored specials links win over broad /menu paths."""
+    from scripts.fetchers.website import PRIORITY_PATHS, GENERIC_PRIORITY_PATHS
+    explicit_count = len([p for p in PRIORITY_PATHS if p not in GENERIC_PRIORITY_PATHS])
+
+    mock_head.side_effect = (
+        [Mock(status_code=404)] * explicit_count
+        + [Mock(status_code=200)]  # crawled /weekly-specials
+    )
+    mock_get.return_value = Mock(
+        text='<a href="/weekly-specials">Weekly Specials</a>',
+        status_code=200,
+    )
+
+    fetcher = WebsiteFetcher()
+    result = fetcher.find_menu_page("https://example.com")
+
+    assert result == "https://example.com/weekly-specials"
+
+
+@patch('scripts.fetchers.website.requests.head')
+def test_find_menu_page_strips_query_before_priority_paths(mock_head):
+    """Priority path probing appends after the path, not tracking query params."""
+    mock_head.return_value = Mock(status_code=200)
+
+    fetcher = WebsiteFetcher()
+    result = fetcher.find_menu_page("https://example.com/location?utm_source=gmb")
+
+    assert result == "https://example.com/location/menus/happy-hour"
+    called_url = mock_head.call_args[0][0]
+    assert called_url == "https://example.com/location/menus/happy-hour"
 
 
 @patch('scripts.fetchers.website.requests.head')
 @patch('scripts.fetchers.website.requests.get')
 def test_find_menu_page_fallback_to_base_when_crawl_empty(mock_get, mock_head):
     """Falls back to base URL when homepage has no relevant links."""
-    mock_head.return_value = Mock(status_code=404)
+    from scripts.fetchers.website import PRIORITY_PATHS
+    mock_head.side_effect = [Mock(status_code=404)] * len(PRIORITY_PATHS)
     mock_get.return_value = Mock(text='<a href="/contact">Contact</a>', status_code=200)
 
     fetcher = WebsiteFetcher()
@@ -193,11 +275,11 @@ async def test_afind_menu_page_crawl_fallback():
     """Async: when all priority paths 404, crawl homepage links."""
     from scripts.fetchers.website import AsyncWebsiteFetcher
 
-    homepage_html = '<a href="/menus/happy-hour">Happy Hour Deals</a>'
+    homepage_html = '<a href="/weekly-specials">Happy Hour Deals</a>'
 
     async def fake_head(url, timeout=10):
         # Priority paths all 404; crawled URL returns 200.
-        if url.endswith('/menus/happy-hour') and 'example.com' in url:
+        if url.endswith('/weekly-specials') and 'example.com' in url:
             return Mock(status_code=200)
         return Mock(status_code=404)
 
@@ -209,5 +291,5 @@ async def test_afind_menu_page_crawl_fallback():
     fetcher.afetch = fake_fetch  # type: ignore[assignment]
 
     result = await fetcher.afind_menu_page("https://example.com")
-    assert result == "https://example.com/menus/happy-hour"
+    assert result == "https://example.com/weekly-specials"
     await fetcher.close()
