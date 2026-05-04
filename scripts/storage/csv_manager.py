@@ -141,7 +141,8 @@ class CSVManager:
         preserved_legacy_count = len(legacy_by_name)
 
         AI_FIELDS = ('happy_hour_times', 'menu_summary', 'cheapest_drink',
-                     'cheapest_drink_price', 'cheapest_food', 'cheapest_food_price')
+                     'cheapest_drink_price', 'cheapest_food', 'cheapest_food_price',
+                     'menu_url')
 
         for new_r in new_restaurants:
             pid = getattr(new_r, 'place_id', '') or ''

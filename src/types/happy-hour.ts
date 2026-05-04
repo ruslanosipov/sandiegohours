@@ -24,6 +24,7 @@ export interface HappyHourPlace {
   cheapest_food?: string;
   cheapest_food_price?: number;
   menu_summary?: string;
+  menu_url?: string;
 }
 
 export interface ParsedHappyHour {

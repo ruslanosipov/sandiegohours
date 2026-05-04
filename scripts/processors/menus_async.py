@@ -113,6 +113,7 @@ class AsyncMenuProcessor:
                         restaurant.cheapest_food_price = food.get('price')
                     restaurant.menu_summary = result.get('short_summary', '') if (drink or food) else ''
                     if drink or food:
+                        restaurant.menu_url = first_menu_url
                         if drink:
                             print(f"  [OK] Drink (vision): {restaurant.cheapest_drink}")
                         if food:
@@ -199,6 +200,7 @@ class AsyncMenuProcessor:
             restaurant.menu_summary = result.get('short_summary', '') if (drink or food) else ''
 
             if drink or food:
+                restaurant.menu_url = menu_url
                 if drink:
                     print(f"  [OK] Drink: {restaurant.cheapest_drink}")
                 if food:
@@ -236,6 +238,7 @@ class AsyncMenuProcessor:
                                 restaurant.cheapest_food_price = v_food.get('price')
                             restaurant.menu_summary = v_result.get('short_summary', '') if (v_drink or v_food) else ''
                             if v_drink or v_food:
+                                restaurant.menu_url = first_menu_url
                                 if v_drink:
                                     print(f"  [OK] Drink (vision fallback): {restaurant.cheapest_drink}")
                                 if v_food:

@@ -182,7 +182,18 @@ export default function RestaurantList({ restaurants, selectedDateTime, selected
                   <h4 className="text-xs font-semibold text-emerald-800 uppercase tracking-wide mb-1">
                     Happy Hour Deals
                   </h4>
-                  <p className="text-sm text-emerald-900 font-medium">{restaurant.menu_summary}</p>
+                  {restaurant.menu_url ? (
+                    <a
+                      href={restaurant.menu_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-emerald-900 font-medium hover:text-emerald-700 hover:underline decoration-emerald-600 underline-offset-2 transition-colors"
+                    >
+                      {restaurant.menu_summary}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-emerald-900 font-medium">{restaurant.menu_summary}</p>
+                  )}
                 </div>
               )}
 

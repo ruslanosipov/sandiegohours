@@ -34,6 +34,7 @@ class Restaurant:
     cheapest_food: Optional[str] = None
     cheapest_food_price: Optional[float] = None
     menu_summary: Optional[str] = None
+    menu_url: Optional[str] = None
 
 
 @dataclass
@@ -46,6 +47,7 @@ class MenuData:
     cheapest_food: str = ""
     cheapest_food_price: Optional[float] = None
     menu_summary: str = ""
+    menu_url: str = ""
 
 
 @dataclass
