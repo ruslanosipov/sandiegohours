@@ -273,3 +273,23 @@ happy-hour-finder/
 - Photos of happy hour deals
 - "Add to Calendar" button
 - Push notifications when happy hour starts nearby
+
+## Cursor Cloud specific instructions
+
+### Environment
+- **Node.js 20** is installed via NodeSource APT repo. Use `node`/`npm` directly (no nvm).
+- **Python 3.12** is the system Python. Use `python3` (not `python`) for all Python commands.
+- No Docker, databases, or external services are required for development or testing.
+
+### Running services
+- `npm run dev` starts the Next.js dev server on `http://localhost:3000` (Turbopack). The app reads CSV data from `public/` at build/dev time — no API keys needed.
+- The Python data pipeline (`scripts/orchestrator.py`) requires `GOOGLE_PLACES_API_KEY` and `OPENROUTER_API_KEY` env vars and is **not** needed for frontend dev or testing.
+
+### Testing
+- **TypeScript**: `npx vitest run` — all tests are self-contained, no env vars needed.
+- **Python**: `PYTHONPATH=/workspace/scripts python3 -m pytest tests/ -v` — the `PYTHONPATH` must include `scripts/` or imports fail.
+- **Lint**: `npx eslint` — existing warnings/errors in the repo are pre-existing and not introduced by your changes.
+
+### Gotchas
+- The `python` command does not exist; always use `python3`.
+- ESLint has pre-existing errors (e.g., `no-explicit-any` in `RestaurantMap.tsx`, `set-state-in-effect` in `HappyHourFinder.tsx`). These are known and not regressions.
