@@ -1,10 +1,12 @@
 # San Diego Happy Hour Finder
 
-Find the best happy hours in Normal Heights, North Park & surrounding San Diego neighborhoods.
+Find happy hours in Normal Heights, North Park, and surrounding San Diego neighborhoods.
+
+Visit the site at [sandiegohours.com](https://sandiegohours.com).
 
 ## Features
 
-- 🍺 **271+ restaurants and bars** in the 92116 area
+- 🍺 **Hundreds of restaurants and bars** around central San Diego
 - 📍 **Distance-based sorting** using your location
 - ⏰ **Real-time happy hour status** - see what's active right now
 - 🔍 **Search** by restaurant name or address
@@ -15,7 +17,7 @@ Find the best happy hours in Normal Heights, North Park & surrounding San Diego 
 
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Data**: Google Places API (New) v1 + AI-powered website parsing
-- **Testing**: Vitest (153 tests)
+- **Testing**: Vitest
 
 ## Development
 
@@ -37,7 +39,7 @@ npm run build
 
 The project includes a Python-based data pipeline that:
 
-1. **Fetches restaurants** from Google Places API with pagination (gets 100+ results)
+1. **Fetches restaurants** from Google Places API with pagination
 2. **Extracts happy hours** from Google API or scrapes websites with AI
 3. **Parses menus** to find cheapest drink/food deals
 4. **Applies manual overrides** for human-verified data
