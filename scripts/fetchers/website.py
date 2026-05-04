@@ -384,6 +384,53 @@ if _HAS_HTTPX:
 
             return cleaned or None
 
+        async def afetch_menu_images(self, url: str) -> list:
+            """Return a list of image URLs that look like menu/happy-hour images.
+
+            Fetches the raw HTML (no JS render) and scans for <img> tags whose
+            ``src`` or ``alt`` attribute suggests a menu or happy-hour image.
+            Returns at most 3 candidate URLs so vision calls stay cheap.
+            """
+            html = await self.afetch(url, use_cache=True)
+            if not html:
+                return []
+
+            _MENU_IMG_RE = re.compile(
+                r'<img[^>]+(?:src|data-src)\s*=\s*["\']([^"\']+)["\'][^>]*>',
+                re.IGNORECASE,
+            )
+            _HH_ALT_RE = re.compile(
+                r'(?:happy.?hour|menu|specials?|hh)',
+                re.IGNORECASE,
+            )
+            _IMG_EXT_RE = re.compile(r'\.(png|jpe?g|webp|gif|avif)', re.IGNORECASE)
+
+            candidates = []
+            seen = set()
+            for m in _MENU_IMG_RE.finditer(html):
+                src = m.group(1).strip()
+                # Grab the surrounding tag to check the alt attribute
+                tag_start = max(0, m.start() - 20)
+                tag = html[tag_start: m.end() + 20]
+                alt_match = re.search(r'alt\s*=\s*["\']([^"\']*)["\']', tag, re.IGNORECASE)
+                alt = alt_match.group(1) if alt_match else ''
+
+                if not _IMG_EXT_RE.search(src):
+                    continue
+                if src in seen:
+                    continue
+                seen.add(src)
+
+                if _HH_ALT_RE.search(alt) or _HH_ALT_RE.search(src):
+                    # Make absolute URL
+                    if not src.startswith(('http://', 'https://')):
+                        src = urljoin(url, src)
+                    candidates.append(src)
+                    if len(candidates) >= 3:
+                        break
+
+            return candidates
+
         def _cache_key(self, url: str) -> str:
             import hashlib
             return hashlib.md5(url.encode()).hexdigest()[:16]

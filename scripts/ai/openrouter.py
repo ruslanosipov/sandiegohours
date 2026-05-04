@@ -170,6 +170,77 @@ if _HAS_HTTPX:
 
             raise Exception("Max retries exhausted")
 
+        async def acomplete_with_images(
+            self,
+            prompt: str,
+            image_urls: list,
+            system: str = None,
+            temperature: float = 0.1,
+            vision_model: str = None,
+        ) -> str:
+            """Send async completion request with image URLs (vision/multimodal).
+
+            Uses the specified ``vision_model`` (defaults to the instance model)
+            with an OpenAI-compatible multimodal content format.
+            """
+            model = vision_model or self.model
+
+            content = []
+            for url in image_urls:
+                content.append({"type": "image_url", "image_url": {"url": url}})
+            content.append({"type": "text", "text": prompt})
+
+            messages = []
+            if system:
+                messages.append({"role": "system", "content": system})
+            messages.append({"role": "user", "content": content})
+
+            async with self.semaphore:
+                for attempt in range(self.max_retries):
+                    try:
+                        response = await self.client.post(
+                            'https://openrouter.ai/api/v1/chat/completions',
+                            headers=self.headers,
+                            json={
+                                'model': model,
+                                'messages': messages,
+                                'temperature': temperature,
+                            },
+                        )
+
+                        if response.status_code == 429:
+                            wait = 2 ** (attempt + 1)
+                            print(f"  Rate limited, waiting {wait}s...")
+                            await asyncio.sleep(wait)
+                            continue
+
+                        response.raise_for_status()
+                        data = response.json()
+                        return data['choices'][0]['message']['content']
+
+                    except httpx.HTTPStatusError as e:
+                        err_msg = str(e) or type(e).__name__
+                        if e.response.status_code == 429:
+                            wait = 2 ** (attempt + 1)
+                            print(f"  Rate limited, waiting {wait}s...")
+                            await asyncio.sleep(wait)
+                            continue
+                        if attempt == self.max_retries - 1:
+                            raise Exception(f"OpenRouter API (vision) failed after {self.max_retries} retries: {err_msg}")
+                        wait = 2 ** (attempt + 1)
+                        print(f"  Request failed: {err_msg}, retrying in {wait}s...")
+                        await asyncio.sleep(wait)
+
+                    except httpx.RequestError as e:
+                        err_msg = str(e) or type(e).__name__
+                        if attempt == self.max_retries - 1:
+                            raise Exception(f"OpenRouter API (vision) failed after {self.max_retries} retries: {err_msg}")
+                        wait = 2 ** (attempt + 1)
+                        print(f"  Request failed: {err_msg}, retrying in {wait}s...")
+                        await asyncio.sleep(wait)
+
+            raise Exception("Max retries exhausted")
+
         async def close(self):
             if self._owned_client and self._client is not None:
                 await self._client.aclose()
