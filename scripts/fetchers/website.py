@@ -140,6 +140,31 @@ def _dedupe_urls(urls: list[str], limit: int) -> list[str]:
     return results
 
 
+def _image_dedupe_key(url: str) -> str:
+    """Deduplicate responsive variants that differ only by query params."""
+    parsed = urlparse(url)
+    return parsed._replace(query='', fragment='').geturl()
+
+
+def _looks_tiny_image_variant(raw_url: str, descriptor: str = "") -> bool:
+    """Filter obvious icon-size variants from site-builder responsive images."""
+    width_match = re.search(r'(?:^|\D)(\d+)w$', descriptor)
+    if width_match and int(width_match.group(1)) <= 120:
+        return True
+
+    path_size = re.search(r'/w_(\d+),h_(\d+)', raw_url)
+    if path_size and max(int(path_size.group(1)), int(path_size.group(2))) <= 120:
+        return True
+
+    query_size = re.search(r'(?:[?&](?:width|w)=(\d+)|[?&]format=(\d+)w)', raw_url)
+    if query_size:
+        size = int(query_size.group(1) or query_size.group(2))
+        if size <= 120:
+            return True
+
+    return False
+
+
 def extract_happy_hour_links(html: str, base_url: str) -> list[str]:
     """Return same-origin links that look like happy-hour/specials pages.
 
@@ -192,14 +217,19 @@ def extract_menu_images(html: str, base_url: str, max_images: int = 3) -> list[s
     parsed_base = urlparse(base_url)
     page_is_targeted = bool(_HH_PAGE_RE.search(urlparse(base_url).path))
     candidates: list[str] = []
+    seen_keys: set[str] = set()
 
-    def add_url(raw_url: str, context: str) -> None:
+    def add_url(raw_url: str, context: str, descriptor: str = "") -> None:
         raw_url = html_lib.unescape(raw_url or "").strip()
         if not raw_url or raw_url.startswith("data:"):
             return
         # srcset entries look like "image.jpg 1200w"; keep only the URL part.
-        raw_url = raw_url.split()[0].strip()
+        parts = raw_url.split()
+        raw_url = parts[0].strip()
+        descriptor = descriptor or (parts[1] if len(parts) > 1 else "")
         if not _IMAGE_EXT_RE.search(raw_url) or _IMAGE_SKIP_RE.search(raw_url):
+            return
+        if _looks_tiny_image_variant(raw_url, descriptor):
             return
         abs_url = urljoin(base_url, raw_url)
         parsed = urlparse(abs_url)
@@ -207,6 +237,10 @@ def extract_menu_images(html: str, base_url: str, max_images: int = 3) -> list[s
             # CDN-hosted images are common, but unrelated third-party images are not.
             if not _IMAGE_CONTEXT_RE.search(abs_url) and not _IMAGE_CONTEXT_RE.search(context):
                 return
+        key = _image_dedupe_key(abs_url)
+        if key in seen_keys:
+            return
+        seen_keys.add(key)
         context_blob = f"{context} {abs_url}"
         if not page_is_targeted and not _IMAGE_CONTEXT_RE.search(context_blob):
             return

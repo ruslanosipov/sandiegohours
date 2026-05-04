@@ -179,6 +179,25 @@ def test_extract_menu_images_finds_srcset_and_lazy_attrs():
     ]
 
 
+def test_extract_menu_images_deduplicates_resized_variants():
+    html = (
+        '<img src="https://images.squarespace-cdn.com/content/menu.png">'
+        '<img src="https://images.squarespace-cdn.com/content/menu.png?format=100w">'
+        '<img src="https://images.squarespace-cdn.com/content/menu.png?format=300w">'
+    )
+    images = extract_menu_images(html, "https://example.com/happy-hour")
+    assert images == ["https://images.squarespace-cdn.com/content/menu.png"]
+
+
+def test_extract_menu_images_ignores_small_layout_icons():
+    html = (
+        '<img src="https://static.wixstatic.com/media/happy-hour-icon.png/v1/fill/w_46,h_46/icon.png">'
+        '<img src="/happy-hour-menu.png" alt="Happy hour menu">'
+    )
+    images = extract_menu_images(html, "https://example.com")
+    assert images == ["https://example.com/happy-hour-menu.png"]
+
+
 def test_extract_menu_images_finds_contextual_background_image():
     html = '<div class="happy-hour" style="background-image:url(/specials.png)">Deals</div>'
     images = extract_menu_images(html, "https://example.com")
