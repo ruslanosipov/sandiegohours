@@ -48,6 +48,7 @@ MENU_PARSER_PROMPT = """Parse this happy hour menu from {restaurant_name}.
 SCOPE (most important):
 - Consider ONLY drink and food items that are clearly **happy hour / HH / happy-hour specials** pricing (same subsection, same labeled lines, or wording like "during happy hour", "HH price", "happy hour menu").
 - Do NOT pick the cheapest item on the whole page if it comes from: wine-by-the-glass or bottle lists, brunch/lunch/dinner menus, regular bar or dining menus, catering, or retail — unless that exact line is explicitly tied to happy hour / HH / specials-for-happy-hour.
+- EXCEPTION: If the text comes from a restaurant's dedicated happy hour page or menu section (indicated by a known happy hour schedule above, or by context like "HAPPY HOUR" appearing as a section heading in the text), then the drink and food items listed in that section ARE the happy hour items, even if the word "happy hour" doesn't appear on each individual price line.
 - If you cannot find any drink or food line that is clearly happy-hour-priced in the text, return null for that field (do NOT fall back to the cheapest wine or plate elsewhere on the page).
 
 CRITICAL RULES:
@@ -59,6 +60,7 @@ CRITICAL RULES:
 Extract drink and food items with prices ONLY if explicitly shown under the scope above. Look for:
 - Dollar amounts with items in happy hour context (e.g., "$6 HH beer", "$8 sliders during happy hour")
 - Sections titled Happy Hour, HH, or equivalent with listed prices
+- Items listed under a "HAPPY HOUR" navigation tab or page section on a restaurant website
 
 Return JSON in this exact format:
 {{
@@ -81,6 +83,42 @@ Rules:
 - Order by price: cheapest first
 - Use "and" before last item
 - If no qualifying items found, return null/empty"""
+
+
+MENU_IMAGE_PROMPT = """This is a happy hour menu image from {restaurant_name}.
+{schedule_block}
+Extract drink and food items with prices from this happy hour menu image.
+
+Return JSON in this exact format:
+{{
+  "drink": {{"name": "cheapest happy-hour drink with price", "price": 5.00}},
+  "food": {{"name": "cheapest happy-hour food with price", "price": 6.00}},
+  "short_summary": "$6 beers, $8 cocktails, $8 burgers and sliders"
+}}
+
+Rules:
+- Find the CHEAPEST qualifying happy-hour drink and CHEAPEST qualifying happy-hour food
+- Include 3-5 popular happy-hour items in short_summary
+- short_summary must be UNDER 15 words
+- Order by price: cheapest first
+- Use "and" before last item
+- If no items found, return null/empty"""
+
+
+def format_menu_image_prompt(
+    restaurant_name: str,
+    happy_hour_times: Optional[str] = None,
+) -> str:
+    """Format the menu image parser prompt for vision AI."""
+    schedule_block = ""
+    if happy_hour_times and str(happy_hour_times).strip():
+        schedule_block = (
+            f"Known happy hour schedule: {str(happy_hour_times).strip()}\n"
+        )
+    return MENU_IMAGE_PROMPT.format(
+        restaurant_name=restaurant_name,
+        schedule_block=schedule_block,
+    )
 
 
 def format_happy_hour_prompt(text: str) -> str:
