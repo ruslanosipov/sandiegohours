@@ -58,11 +58,28 @@ def test_find_menu_page_checks_priority_paths(mock_head):
     """Test find_menu_page checks priority paths."""
     # First path returns 200, others fail
     mock_head.side_effect = [
-        Mock(status_code=200),  # /happy-hour succeeds
+        Mock(status_code=200),  # /menus/happy-hour succeeds
     ]
     
     fetcher = WebsiteFetcher()
     result = fetcher.find_menu_page("http://example.com")
     
-    assert result == "http://example.com/happy-hour"
+    assert result == "http://example.com/menus/happy-hour"
     mock_head.assert_called_once()
+
+
+@patch('scripts.fetchers.website.requests.head')
+def test_find_menu_page_falls_through_to_happy_hour(mock_head):
+    """Test find_menu_page falls through to /happy-hour when /menus/happy-hour is 404."""
+    import requests as _requests
+    mock_head.side_effect = [
+        Mock(status_code=404),  # /menus/happy-hour fails
+        Mock(status_code=404),  # /menu/happy-hour fails
+        Mock(status_code=200),  # /happy-hour succeeds
+    ]
+
+    fetcher = WebsiteFetcher()
+    result = fetcher.find_menu_page("http://example.com")
+
+    assert result == "http://example.com/happy-hour"
+    assert mock_head.call_count == 3

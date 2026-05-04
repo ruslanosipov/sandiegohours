@@ -23,10 +23,13 @@ except ImportError:
 
 # Priority paths to check for happy hour info
 PRIORITY_PATHS = [
+    '/menus/happy-hour',
+    '/menu/happy-hour',
     '/happy-hour',
     '/happyhour',
     '/hh',
     '/specials',
+    '/menus',
     '/menu',
     '/drinks',
     '/bar',
