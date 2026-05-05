@@ -66,13 +66,47 @@ TIER2_KEYWORDS = [
     "thai restaurant", "burgers", "bbq", "pizza",
 ]
 
-# Types to exclude before Place Details (coffee shops, gas stations, etc.)
+# Generic "container" types that Google always appends to every place.
+# On their own they say nothing about whether the venue serves alcohol.
+_GENERIC_TYPES = {
+    "food", "point_of_interest", "establishment",
+}
+
+# Specific types that reliably indicate a non-happy-hour venue.
 EXCLUDED_TYPES = {
-    "cafe", "coffee_shop", "bakery", "gas_station",
-    "convenience_store", "supermarket", "grocery_store",
-    "pharmacy", "bank", "atm", "park", "school",
-    "hospital", "car_repair", "parking", "library",
+    # Coffee / tea / non-alcoholic beverage spots
+    "cafe", "coffee_shop",
+    # Dessert / sweets
+    "bakery", "ice_cream_shop", "dessert_shop", "dessert_restaurant",
+    "confectionery", "donut_shop", "candy_store",
+    # Fresh juice / health drinks
+    "juice_bar", "smoothie_shop",
+    # Bubble tea / boba (commonly no liquor license)
+    "bubble_tea_store",
+    # Fast food / quick-service chains unlikely to have happy hour
+    "fast_food_restaurant",
+    # Breakfast / brunch focused
+    "breakfast_restaurant", "brunch_restaurant",
+    # Non-food retail & services
+    "gas_station", "convenience_store", "supermarket", "grocery_store",
+    "pharmacy", "bank", "atm", "car_repair", "parking",
+    # Public amenities / institutions
+    "park", "school", "hospital", "library",
     "place_of_worship", "local_government_office", "museum",
+} | _GENERIC_TYPES
+
+# If a place has ANY of these types it is almost certainly happy-hour-capable,
+# even if it also has excluded types (e.g. "cafe" + "bar").
+HAPPY_HOUR_POSITIVE_TYPES = {
+    "bar", "restaurant", "night_club", "liquor_store",
+    "brewery", "winery", "distillery", "cocktail_bar",
+    "wine_bar", "sports_bar", "gastropub", "pub", "tavern",
+    "american_restaurant", "mexican_restaurant", "italian_restaurant",
+    "japanese_restaurant", "chinese_restaurant", "thai_restaurant",
+    "vietnamese_restaurant", "korean_restaurant", "seafood_restaurant",
+    "steak_house", "sushi_restaurant", "pizza_restaurant",
+    "mediterranean_restaurant", "indian_restaurant",
+    "barbecue_restaurant", "hamburger_restaurant", "ramen_restaurant",
 }
 
 # Neighborhood presets (south, west, north, east)
@@ -164,22 +198,36 @@ def get_keywords_for_cell(cell: GridCell, tier1_only: bool = False) -> List[str]
     return list(TIER1_KEYWORDS) + list(TIER2_KEYWORDS)
 
 
-def should_exclude_place(place_types: List[str]) -> bool:
+def should_exclude_place(place_types: List[str], has_happy_hours: bool = False) -> bool:
     """
-    Check if a place should be excluded based on its types.
-    Returns True if the place has ONLY excluded types (no bar, restaurant, etc.)
+    Return True if the place is definitely not a happy-hour venue.
+
+    Logic:
+    1. If the place already has Google-confirmed happy hours, always keep it.
+    2. If any type signals a happy-hour-capable venue (bar, restaurant, etc.), keep it.
+    3. If every remaining type is either a known excluded type or a generic
+       Google metadata type (food, point_of_interest, establishment), exclude it.
+
+    This correctly handles venues like Starbucks whose Google types are
+    ["cafe", "coffee_shop", "food", "point_of_interest", "establishment"] — none
+    of those are positive types and all are in EXCLUDED_TYPES, so it is excluded.
+    Meanwhile "Bar & Grill" typed as ["cafe", "bar", "food", ...] is kept because
+    "bar" is a positive type.
     """
+    if has_happy_hours:
+        return False  # Always keep places with confirmed happy hours
+
     if not place_types:
         return False  # Be conservative if no types
 
     place_type_set = set(t.lower() for t in place_types)
 
-    # If any type is not in the excluded set, keep it
-    if not place_type_set.issubset(EXCLUDED_TYPES):
+    # Keep anything that looks like a real bar/restaurant
+    if place_type_set & HAPPY_HOUR_POSITIVE_TYPES:
         return False
 
-    # All types are excluded
-    return True
+    # Exclude if every type is in the excluded set (including generic metadata types)
+    return place_type_set.issubset(EXCLUDED_TYPES)
 
 
 def get_all_preset_names() -> List[str]:
