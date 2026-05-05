@@ -357,9 +357,15 @@ class AsyncGooglePlacesFetcher:
             if not details:
                 return None
 
-            # Exclude coffee shops, gas stations, etc. before conversion
+            # Exclude coffee shops, gas stations, etc. before conversion.
+            # Preserve places that Google already confirmed have happy hours.
             place_types = details.get('types', []) or []
-            if should_exclude_place(place_types):
+            sec_hours = details.get('currentSecondaryOpeningHours', []) or []
+            has_happy_hours = any(
+                e.get('secondaryHoursType', '').upper() == 'HAPPY_HOUR'
+                for e in sec_hours
+            )
+            if should_exclude_place(place_types, has_happy_hours=has_happy_hours):
                 return None
 
             try:

@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from storage import Restaurant
+from fetchers.grid import should_exclude_place
 
 GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY", "")
 
@@ -395,6 +396,18 @@ def fetch_92116_restaurants(api_key: str = None, max_results: int = 200) -> List
 
         details = get_place_details_new(place_id, api_key)
         if not details:
+            continue
+
+        # Exclude coffee shops, gas stations, etc.
+        # Preserve places that Google already confirmed have happy hours.
+        place_types = details.get('types', []) or []
+        sec_hours = details.get('currentSecondaryOpeningHours', []) or []
+        has_happy_hours = any(
+            e.get('secondaryHoursType', '').upper() == 'HAPPY_HOUR'
+            for e in sec_hours
+        )
+        if should_exclude_place(place_types, has_happy_hours=has_happy_hours):
+            print(f"    [skip] excluded by type: {place_types}")
             continue
 
         try:

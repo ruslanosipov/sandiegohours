@@ -16,6 +16,8 @@ from scripts.fetchers.grid import (
     TIER1_KEYWORDS,
     TIER2_KEYWORDS,
     DEFAULT_BBOX,
+    HAPPY_HOUR_POSITIVE_TYPES,
+    EXCLUDED_TYPES,
 )
 
 
@@ -155,7 +157,7 @@ class TestShouldExcludePlace:
         assert should_exclude_place(["bar", "restaurant"]) is False
 
     def test_keep_mixed(self):
-        # cafe + restaurant should NOT be excluded (has non-excluded type)
+        # cafe + restaurant should NOT be excluded (has positive type)
         assert should_exclude_place(["cafe", "restaurant"]) is False
 
     def test_empty_types(self):
@@ -167,3 +169,52 @@ class TestShouldExcludePlace:
     def test_case_insensitive(self):
         assert should_exclude_place(["CAFE", "BAKERY"]) is True
         assert should_exclude_place(["BAR", "CAFE"]) is False
+
+    # --- New: Google generic metadata types ---
+
+    def test_exclude_starbucks_style_types(self):
+        # Google returns food/point_of_interest/establishment for every venue;
+        # Starbucks has no positive type so it should be excluded.
+        starbucks_types = ["cafe", "coffee_shop", "food", "point_of_interest", "establishment"]
+        assert should_exclude_place(starbucks_types) is True
+
+    def test_keep_bar_with_generic_types(self):
+        # A bar that also has generic Google metadata types must not be excluded.
+        bar_types = ["bar", "food", "point_of_interest", "establishment"]
+        assert should_exclude_place(bar_types) is False
+
+    def test_keep_restaurant_with_generic_types(self):
+        restaurant_types = ["restaurant", "food", "point_of_interest", "establishment"]
+        assert should_exclude_place(restaurant_types) is False
+
+    def test_exclude_ice_cream_shop(self):
+        assert should_exclude_place(["ice_cream_shop", "food", "establishment"]) is True
+
+    def test_exclude_juice_bar(self):
+        assert should_exclude_place(["juice_bar", "food", "point_of_interest"]) is True
+
+    def test_exclude_fast_food(self):
+        assert should_exclude_place(["fast_food_restaurant", "food", "establishment"]) is True
+
+    def test_keep_fast_food_with_bar(self):
+        # Hypothetical: a fast-food/bar hybrid — the bar type saves it
+        assert should_exclude_place(["fast_food_restaurant", "bar", "food"]) is False
+
+    # --- New: has_happy_hours bypass ---
+
+    def test_happy_hours_bypass_overrides_exclusion(self):
+        # Even a pure coffee shop is kept if Google says it has happy hours
+        assert should_exclude_place(["cafe", "coffee_shop", "food"], has_happy_hours=True) is False
+
+    def test_happy_hours_false_still_excludes(self):
+        assert should_exclude_place(["cafe", "coffee_shop", "food"], has_happy_hours=False) is True
+
+    def test_happy_hour_positive_types_set_is_non_empty(self):
+        assert len(HAPPY_HOUR_POSITIVE_TYPES) > 0
+        assert "bar" in HAPPY_HOUR_POSITIVE_TYPES
+        assert "restaurant" in HAPPY_HOUR_POSITIVE_TYPES
+
+    def test_generic_types_are_in_excluded_types(self):
+        assert "food" in EXCLUDED_TYPES
+        assert "point_of_interest" in EXCLUDED_TYPES
+        assert "establishment" in EXCLUDED_TYPES
