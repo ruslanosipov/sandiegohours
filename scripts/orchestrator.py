@@ -208,10 +208,18 @@ async def async_step_fetch_restaurants(
                     restaurants.append(s)
                     by_id[s.place_id] = s
 
-        # Merge into existing CSV instead of overwriting
+        # Merge into existing CSV instead of overwriting.
+        # When stale_days=0 (full re-fetch) every place was visited by the API,
+        # so anything not returned is genuinely gone or now excluded — prune it.
+        full_refresh = stale_days == 0
         if csv_path.exists() and restaurants:
             print(f"\nMerging {len(restaurants)} fetched restaurants into existing CSV...")
-            restaurants = storage.merge_by_place_id('happy_hours.csv', restaurants, Restaurant)
+            if full_refresh:
+                print("  (full refresh: stale/excluded entries will be pruned)")
+            restaurants = storage.merge_by_place_id(
+                'happy_hours.csv', restaurants, Restaurant,
+                prune_to_new=full_refresh,
+            )
         else:
             storage.write('happy_hours.csv', restaurants)
             print(f"Saved {len(restaurants)} restaurants to happy_hours.csv")
@@ -389,24 +397,30 @@ def main():
         description='Happy Hour Data Pipeline Orchestrator'
     )
     parser.add_argument(
-        '--full',
-        action='store_true',
-        help='Run full pipeline from start (full adaptive grid)'
+        '--area',
+        choices=get_all_preset_names(),
+        help='Fetch a single neighborhood preset (repeatable via shell loop; see --areas)'
+    )
+    parser.add_argument(
+        '--areas',
+        nargs='+',
+        choices=get_all_preset_names(),
+        metavar='AREA',
+        help=(
+            'Fetch one or more neighborhood presets in sequence, e.g. '
+            '--areas north_park hillcrest gaslamp. '
+            f'Available: {", ".join(get_all_preset_names())}'
+        )
     )
     parser.add_argument(
         '--step',
         choices=['fetch', 'parse_happy_hours', 'parse_menus', 'summary'],
-        help='Start from specific step'
+        help='Start from specific step (skips fetch)'
     )
     parser.add_argument(
         '--resume',
         action='store_true',
         help='Resume from last saved progress'
-    )
-    parser.add_argument(
-        '--area',
-        choices=get_all_preset_names(),
-        help='Run on a specific neighborhood preset (fast debug)'
     )
     parser.add_argument(
         '--cell',
@@ -419,7 +433,7 @@ def main():
     parser.add_argument(
         '--fetch-only',
         action='store_true',
-        help='Only fetch from Google Places, skip AI parsing (fast debug)'
+        help='Only fetch from Google Places, skip AI parsing'
     )
     parser.add_argument(
         '--stale-days',
@@ -435,15 +449,19 @@ def main():
 
     args = parser.parse_args()
 
+    # --areas accepts multiple presets; --area is a single-preset alias
+    area_list = args.areas or ([args.area] if args.area else None)
+
     # Build grid_cells from CLI flags
     grid_cells = None
-    if args.area:
-        grid_cells = generate_grid(preset=args.area)
-        print(f"Using neighborhood preset: {args.area}")
+    if area_list:
+        grid_cells = []
+        for a in area_list:
+            grid_cells.extend(generate_grid(preset=a))
+        print(f"Using neighborhood preset(s): {', '.join(area_list)}")
     elif args.cell:
         try:
             lat, lng = args.cell.split(',')
-            # Create a small ~1.5x1.5 mile cell around the point
             lat_f = float(lat)
             lng_f = float(lng)
             cell = GridCell(
@@ -473,11 +491,8 @@ def main():
         except ValueError:
             print(f"{RED}Error: --bbox must be south,west,north,east{RESET}")
             sys.exit(1)
-    elif args.full:
-        grid_cells = generate_grid()
-        print("Using full adaptive grid")
 
-    if args.full or args.area or args.cell or args.bbox:
+    if grid_cells is not None or args.cell or args.bbox:
         asyncio.run(run_pipeline_async(
             start_step='fetch',
             grid_cells=grid_cells,

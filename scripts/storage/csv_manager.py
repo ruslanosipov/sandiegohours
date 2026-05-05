@@ -110,6 +110,7 @@ class CSVManager:
         filename: str,
         new_restaurants: List[Any],
         model_class: Type[T],
+        prune_to_new: bool = False,
     ) -> List[T]:
         """
         Merge new restaurants into existing CSV by place_id.
@@ -119,6 +120,10 @@ class CSVManager:
 
         Fallback: entries without place_id are matched by restaurant_name to prevent
         data loss during migration from old schema (no place_id) to new schema.
+
+        If prune_to_new=True, any existing entry whose place_id is NOT in the
+        new_restaurants list is dropped (used when a full re-fetch should clean
+        out stale / filtered-out places like coffee shops).
 
         Returns the merged list.
         """
@@ -186,6 +191,23 @@ class CSVManager:
                 else:
                     merged_by_id[id(new_r)] = new_r
                 added_count += 1
+
+        if prune_to_new:
+            # Keep only entries that were part of the new fetch (plus newly-added ones).
+            # This removes stale entries like coffee shops that the type filter now rejects.
+            new_ids = {getattr(r, 'place_id', '') or '' for r in new_restaurants}
+            pruned_count = 0
+            keep_by_id: Dict[str, Any] = {}
+            for pid, r in merged_by_id.items():
+                # Always keep entries that were just added/updated from the new fetch.
+                # Drop entries that are only in the existing CSV and not returned by the API.
+                if pid in new_ids or isinstance(pid, int):  # int keys are id()-keyed legacy
+                    keep_by_id[pid] = r
+                else:
+                    pruned_count += 1
+            merged_by_id = keep_by_id
+            if pruned_count:
+                print(f"  CSV prune: removed {pruned_count} stale/excluded entries")
 
         merged = list(merged_by_id.values()) + list(merged_legacy.values())
         self.write(filename, merged)
