@@ -105,6 +105,28 @@ Rules:
 - If no items found, return null/empty"""
 
 
+HAPPY_HOUR_IMAGE_PROMPT = """This image is from {restaurant_name}'s website.
+
+Extract ONLY explicit happy hour schedule times from the image.
+- Happy hours are discount periods, not regular opening hours.
+- Look for "happy hour", "HH", "specials", drink specials, or appetizer specials with times.
+- If an image only lists regular business hours or a normal menu, return no happy hours.
+
+Return JSON in this exact format:
+{{
+  "happy_hours": [
+    {{"day": "Monday", "times": "3:00 PM - 6:00 PM"}},
+    {{"day": "Tuesday", "times": "3:00 PM - 6:00 PM"}}
+  ],
+  "confidence": "high"
+}}
+
+Confidence can be "high", "medium", "low", or "none".
+Use "Closed" for days with no happy hour only when the image explicitly says so.
+
+If no happy hour info found, return empty happy_hours array and confidence "none"."""
+
+
 def format_menu_image_prompt(
     restaurant_name: str,
     happy_hour_times: Optional[str] = None,
@@ -119,6 +141,11 @@ def format_menu_image_prompt(
         restaurant_name=restaurant_name,
         schedule_block=schedule_block,
     )
+
+
+def format_happy_hour_image_prompt(restaurant_name: str) -> str:
+    """Format the happy hour schedule image parser prompt."""
+    return HAPPY_HOUR_IMAGE_PROMPT.format(restaurant_name=restaurant_name)
 
 
 def format_happy_hour_prompt(text: str) -> str:

@@ -2,6 +2,7 @@
 Website fetching and content extraction.
 """
 import asyncio
+import html as html_lib
 import re
 import requests
 import time
@@ -35,6 +36,7 @@ PRIORITY_PATHS = [
     '/drinks',
     '/bar',
 ]
+GENERIC_PRIORITY_PATHS = {'/menus', '/menu', '/drinks', '/bar'}
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -57,17 +59,110 @@ JS_RENDER_MIN_CLEANED_CHARS = 300
 
 # Keywords used when crawling a homepage for happy-hour / specials links.
 _HH_LINK_KEYWORDS = re.compile(
-    r'happy.?hour|specials?|drink.?deal|hh\b|happy_hour',
+    r'happy.?hour|specials?|drink.?deal|drink.?special|weekly.?special|'
+    r'daily.?special|hh\b|happy_hour',
     re.IGNORECASE,
 )
 _HH_HREF_KEYWORDS = re.compile(
     r'happy.?hour|happyhour|specials?|/hh\b|/hh/',
     re.IGNORECASE,
 )
-# Match href="..." or href='...' inside an <a> tag.
-_HREF_RE = re.compile(r'<a\b[^>]+href=["\']([^"\'#?][^"\']*)["\']', re.IGNORECASE)
-# Match visible link text between <a ...> and </a>.
-_LINK_TEXT_RE = re.compile(r'<a\b[^>]*>(.*?)</a>', re.IGNORECASE | re.DOTALL)
+_HH_PAGE_RE = re.compile(r'happy.?hour|happyhour|specials?|/hh\b|/hh/', re.IGNORECASE)
+_IMAGE_CONTEXT_RE = re.compile(
+    r'happy.?hour|happyhour|specials?|menu|drinks?|cocktails?|beer|wine|food|hh\b',
+    re.IGNORECASE,
+)
+_IMAGE_EXT_RE = re.compile(r'\.(?:png|jpe?g|webp|gif|avif)(?:[?#]|$)', re.IGNORECASE)
+_IMAGE_SKIP_RE = re.compile(
+    r'logo|icon|favicon|avatar|spinner|placeholder|transparent|tracking|pixel',
+    re.IGNORECASE,
+)
+# Match clickable tags that can carry a link target.
+_CLICKABLE_TAG_RE = re.compile(
+    r'<a\b[^>]*>.*?</a>|<(?:button|div|span)\b[^>]*(?:data-href|data-url)\s*='
+    r'["\'][^"\']+["\'][^>]*>.*?</(?:button|div|span)>',
+    re.IGNORECASE | re.DOTALL,
+)
+_URL_ATTR_RE = re.compile(
+    r'(?:href|data-href|data-url)\s*=\s*["\']([^"\'#?][^"\']*)["\']',
+    re.IGNORECASE,
+)
+
+
+def _strip_query_fragment(url: str) -> str:
+    """Return a URL suitable for path probing."""
+    parsed = urlparse(url)
+    return parsed._replace(query='', fragment='').geturl().rstrip('/')
+
+
+def _path_candidate(base_url: str, path: str) -> str:
+    """Append a probe path without accidentally appending after query params."""
+    return f"{_strip_query_fragment(base_url)}{path}"
+
+
+def homepage_fallback_urls(base_url: str) -> list[str]:
+    """Return homepage-style URLs for retrying short or image-only pages."""
+    if not base_url:
+        return []
+    base = _strip_query_fragment(base_url)
+    return [f"{base}/home", f"{base}/"]
+
+
+def _same_site(candidate_netloc: str, base_netloc: str) -> bool:
+    """Treat bare and www hosts as the same restaurant site."""
+    return candidate_netloc.lower().removeprefix('www.') == base_netloc.lower().removeprefix('www.')
+
+
+def _looks_like_image_cdn(candidate_netloc: str, base_netloc: str) -> bool:
+    """Allow common restaurant site-builder CDNs to host menu images."""
+    host = candidate_netloc.lower().removeprefix('www.')
+    base = base_netloc.lower().removeprefix('www.')
+    return (
+        host == base
+        or host.endswith('.squarespace-cdn.com')
+        or host.endswith('.wixstatic.com')
+        or host.endswith('.webflow.com')
+        or host.endswith('.cloudinary.com')
+        or host.endswith('.imgix.net')
+    )
+
+
+def _dedupe_urls(urls: list[str], limit: int) -> list[str]:
+    seen: set[str] = set()
+    results: list[str] = []
+    for url in urls:
+        if url in seen:
+            continue
+        seen.add(url)
+        results.append(url)
+        if len(results) >= limit:
+            break
+    return results
+
+
+def _image_dedupe_key(url: str) -> str:
+    """Deduplicate responsive variants that differ only by query params."""
+    parsed = urlparse(url)
+    return parsed._replace(query='', fragment='').geturl()
+
+
+def _looks_tiny_image_variant(raw_url: str, descriptor: str = "") -> bool:
+    """Filter obvious icon-size variants from site-builder responsive images."""
+    width_match = re.search(r'(?:^|\D)(\d+)w$', descriptor)
+    if width_match and int(width_match.group(1)) <= 120:
+        return True
+
+    path_size = re.search(r'/w_(\d+),h_(\d+)', raw_url)
+    if path_size and max(int(path_size.group(1)), int(path_size.group(2))) <= 120:
+        return True
+
+    query_size = re.search(r'(?:[?&](?:width|w)=(\d+)|[?&]format=(\d+)w)', raw_url)
+    if query_size:
+        size = int(query_size.group(1) or query_size.group(2))
+        if size <= 120:
+            return True
+
+    return False
 
 
 def extract_happy_hour_links(html: str, base_url: str) -> list[str]:
@@ -81,16 +176,15 @@ def extract_happy_hour_links(html: str, base_url: str) -> list[str]:
         return []
 
     parsed_base = urlparse(base_url)
-    base_origin = f"{parsed_base.scheme}://{parsed_base.netloc}"
     seen: set[str] = set()
     results: list[str] = []
 
-    # Walk every <a> tag in order so we respect document ordering.
-    for m in _LINK_TEXT_RE.finditer(html):
+    # Walk clickable tags in order so we respect document ordering.
+    for m in _CLICKABLE_TAG_RE.finditer(html):
         full_tag = m.group(0)
-        inner_text = re.sub(r'<[^>]+>', '', m.group(1)).strip()
+        inner_text = re.sub(r'<[^>]+>', ' ', full_tag).strip()
 
-        href_m = re.search(r'href=["\']([^"\'#?][^"\']*)["\']', full_tag, re.IGNORECASE)
+        href_m = _URL_ATTR_RE.search(full_tag)
         if not href_m:
             continue
         href = href_m.group(1).strip()
@@ -98,7 +192,7 @@ def extract_happy_hour_links(html: str, base_url: str) -> list[str]:
         # Build absolute URL — keep only same-origin links.
         abs_url = urljoin(base_url, href)
         abs_parsed = urlparse(abs_url)
-        if abs_parsed.netloc != parsed_base.netloc:
+        if not _same_site(abs_parsed.netloc, parsed_base.netloc):
             continue
         # Strip query / fragment so we don't create duplicate entries.
         abs_url = f"{abs_parsed.scheme}://{abs_parsed.netloc}{abs_parsed.path}".rstrip('/')
@@ -113,6 +207,71 @@ def extract_happy_hour_links(html: str, base_url: str) -> list[str]:
                 break
 
     return results
+
+
+def extract_menu_images(html: str, base_url: str, max_images: int = 3) -> list[str]:
+    """Return candidate menu / happy-hour image URLs from common HTML patterns."""
+    if not html:
+        return []
+
+    parsed_base = urlparse(base_url)
+    page_is_targeted = bool(_HH_PAGE_RE.search(urlparse(base_url).path))
+    candidates: list[str] = []
+    seen_keys: set[str] = set()
+
+    def add_url(raw_url: str, context: str, descriptor: str = "") -> None:
+        raw_url = html_lib.unescape(raw_url or "").strip()
+        if not raw_url or raw_url.startswith("data:"):
+            return
+        # srcset entries look like "image.jpg 1200w"; keep only the URL part.
+        parts = raw_url.split()
+        raw_url = parts[0].strip()
+        descriptor = descriptor or (parts[1] if len(parts) > 1 else "")
+        if not _IMAGE_EXT_RE.search(raw_url) or _IMAGE_SKIP_RE.search(raw_url):
+            return
+        if _looks_tiny_image_variant(raw_url, descriptor):
+            return
+        abs_url = urljoin(base_url, raw_url)
+        parsed = urlparse(abs_url)
+        if parsed.netloc and not _looks_like_image_cdn(parsed.netloc, parsed_base.netloc):
+            # CDN-hosted images are common, but unrelated third-party images are not.
+            if not _IMAGE_CONTEXT_RE.search(abs_url) and not _IMAGE_CONTEXT_RE.search(context):
+                return
+        key = _image_dedupe_key(abs_url)
+        if key in seen_keys:
+            return
+        seen_keys.add(key)
+        context_blob = f"{context} {abs_url}"
+        if not page_is_targeted and not _IMAGE_CONTEXT_RE.search(context_blob):
+            return
+        candidates.append(abs_url)
+
+    tag_re = re.compile(r'<(?:img|source|meta)\b[^>]*>', re.IGNORECASE | re.DOTALL)
+    attr_re = re.compile(
+        r'(?:src|data-src|data-lazy-src|data-original|content)\s*=\s*["\']([^"\']+)["\']',
+        re.IGNORECASE,
+    )
+    srcset_re = re.compile(r'(?:srcset|data-srcset)\s*=\s*["\']([^"\']+)["\']', re.IGNORECASE)
+    bg_re = re.compile(r'url\(["\']?([^)"\']+)["\']?\)', re.IGNORECASE)
+
+    for m in tag_re.finditer(html):
+        tag = m.group(0)
+        tag_start = max(0, m.start() - 160)
+        tag_end = min(len(html), m.end() + 160)
+        context = re.sub(r'<[^>]+>', ' ', html[tag_start:tag_end])
+        for attr in attr_re.finditer(tag):
+            add_url(attr.group(1), context)
+        for attr in srcset_re.finditer(tag):
+            for part in attr.group(1).split(','):
+                add_url(part.strip(), context)
+
+    for m in bg_re.finditer(html):
+        start = max(0, m.start() - 160)
+        end = min(len(html), m.end() + 160)
+        context = re.sub(r'<[^>]+>', ' ', html[start:end])
+        add_url(m.group(1), context)
+
+    return _dedupe_urls(candidates, max_images)
 
 
 class WebsiteFetcher:
@@ -134,12 +293,16 @@ class WebsiteFetcher:
         if not base_url:
             return None
 
-        # Ensure URL ends without slash for joining
-        base_url = base_url.rstrip('/')
+        # Ensure URL ends without slash for joining, and discard tracking
+        # params so probe paths are appended to the path, not the query string.
+        base_url = _strip_query_fragment(base_url)
 
-        # 1. Try priority paths first.
-        for path in PRIORITY_PATHS:
-            url = f"{base_url}{path}"
+        explicit_paths = [p for p in PRIORITY_PATHS if p not in GENERIC_PRIORITY_PATHS]
+        generic_paths = [p for p in PRIORITY_PATHS if p in GENERIC_PRIORITY_PATHS]
+
+        # 1. Try explicit happy-hour / specials paths first.
+        for path in explicit_paths:
+            url = _path_candidate(base_url, path)
             try:
                 response = requests.head(url, headers=HEADERS, timeout=10,
                                         allow_redirects=True)
@@ -166,6 +329,19 @@ class WebsiteFetcher:
                 time.sleep(0.3)
         except requests.RequestException:
             pass
+
+        # 3. Fall back to broad menu/drinks pages only after site-authored
+        # happy-hour / specials links have had a chance to win.
+        for path in generic_paths:
+            url = _path_candidate(base_url, path)
+            try:
+                response = requests.head(url, headers=HEADERS, timeout=10,
+                                        allow_redirects=True)
+                if response.status_code == 200:
+                    return url
+            except requests.RequestException:
+                pass
+            time.sleep(0.5)
 
         return base_url
 
@@ -274,20 +450,19 @@ if _HAS_HTTPX:
             """Find the best happy-hour/menu URL for a restaurant website.
 
             Strategy:
-            1. Concurrently HEAD-check all PRIORITY_PATHS and fetch the
-               homepage HTML (to enable link-crawling).
-            2. Return the first priority path that responds with HTTP 200,
-               preserving the original ordering so more-specific paths (e.g.
-               /menus/happy-hour) beat generic ones.
-            3. If no priority path matched, scan the homepage HTML for
+            1. Concurrently HEAD-check explicit happy-hour/specials paths and
+               fetch the homepage HTML (to enable link-crawling).
+            2. Return the first explicit priority path that responds with HTTP
+               200, preserving the original ordering.
+            3. If no explicit priority path matched, scan the homepage HTML for
                same-origin links whose href or anchor text contains
                happy-hour / specials keywords, HEAD-check those concurrently,
                and return the first live one.
-            4. Fall back to the base URL.
+            4. Try broad menu/drinks pages, then fall back to the base URL.
             """
             if not base_url:
                 return None
-            base_url = base_url.rstrip('/')
+            base_url = _strip_query_fragment(base_url)
 
             async def check(url: str) -> Optional[str]:
                 try:
@@ -298,8 +473,11 @@ if _HAS_HTTPX:
                     pass
                 return None
 
-            # Launch priority-path checks AND homepage fetch in parallel.
-            priority_urls = [f"{base_url}{p}" for p in PRIORITY_PATHS]
+            explicit_paths = [p for p in PRIORITY_PATHS if p not in GENERIC_PRIORITY_PATHS]
+            generic_paths = [p for p in PRIORITY_PATHS if p in GENERIC_PRIORITY_PATHS]
+
+            # Launch explicit priority-path checks AND homepage fetch in parallel.
+            priority_urls = [_path_candidate(base_url, p) for p in explicit_paths]
             homepage_task = asyncio.ensure_future(self.afetch(base_url, use_cache=True))
             check_tasks = [asyncio.ensure_future(check(u)) for u in priority_urls]
 
@@ -308,7 +486,7 @@ if _HAS_HTTPX:
                 homepage_task,
             )
 
-            # 1. Return first priority match (preserves PRIORITY_PATHS order).
+            # 1. Return first explicit priority match.
             for result in priority_results:
                 if result:
                     return result
@@ -321,6 +499,15 @@ if _HAS_HTTPX:
                     for result in crawl_checks:
                         if result:
                             return result
+
+            # 3. Broad menu/drinks pages are useful, but should not beat a
+            # restaurant-authored happy-hour/specials link.
+            generic_results = await asyncio.gather(
+                *[check(_path_candidate(base_url, p)) for p in generic_paths]
+            )
+            for result in generic_results:
+                if result:
+                    return result
 
             return base_url
 
@@ -504,49 +691,15 @@ if _HAS_HTTPX:
         async def afetch_menu_images(self, url: str) -> list:
             """Return a list of image URLs that look like menu/happy-hour images.
 
-            Fetches the raw HTML (no JS render) and scans for <img> tags whose
-            ``src`` or ``alt`` attribute suggests a menu or happy-hour image.
-            Returns at most 3 candidate URLs so vision calls stay cheap.
+            Fetches raw HTML (no JS render) and scans common image patterns:
+            ``img``/``source`` attributes, Open Graph image tags, srcsets, and
+            CSS background URLs. Returns at most 3 candidates so vision calls
+            stay cheap.
             """
             html = await self.afetch(url, use_cache=True)
             if not html:
                 return []
-
-            _MENU_IMG_RE = re.compile(
-                r'<img[^>]+(?:src|data-src)\s*=\s*["\']([^"\']+)["\'][^>]*>',
-                re.IGNORECASE,
-            )
-            _HH_ALT_RE = re.compile(
-                r'(?:happy.?hour|menu|specials?|hh)',
-                re.IGNORECASE,
-            )
-            _IMG_EXT_RE = re.compile(r'\.(png|jpe?g|webp|gif|avif)', re.IGNORECASE)
-
-            candidates = []
-            seen = set()
-            for m in _MENU_IMG_RE.finditer(html):
-                src = m.group(1).strip()
-                # Grab the surrounding tag to check the alt attribute
-                tag_start = max(0, m.start() - 20)
-                tag = html[tag_start: m.end() + 20]
-                alt_match = re.search(r'alt\s*=\s*["\']([^"\']*)["\']', tag, re.IGNORECASE)
-                alt = alt_match.group(1) if alt_match else ''
-
-                if not _IMG_EXT_RE.search(src):
-                    continue
-                if src in seen:
-                    continue
-                seen.add(src)
-
-                if _HH_ALT_RE.search(alt) or _HH_ALT_RE.search(src):
-                    # Make absolute URL
-                    if not src.startswith(('http://', 'https://')):
-                        src = urljoin(url, src)
-                    candidates.append(src)
-                    if len(candidates) >= 3:
-                        break
-
-            return candidates
+            return extract_menu_images(html, url)
 
         def _cache_key(self, url: str) -> str:
             import hashlib

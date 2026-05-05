@@ -87,6 +87,29 @@ async def test_menu_processor_retries_home_when_first_url_too_short():
 
 
 @pytest.mark.asyncio
+async def test_menu_processor_retries_home_without_tracking_query():
+    menu_json = (
+        '{"drink": {"name": "$5 beer draft", "price": 5.0}, '
+        '"food": null, "short_summary": "beer draft $5"}'
+    )
+    ai = MockOpenRouter(menu_json)
+    fetcher = FakeFetcherShortThenHome()
+    processor = AsyncMenuProcessor(ai, fetcher)
+
+    r = Restaurant(
+        restaurant_name="Example Bar",
+        address="123 St",
+        website_url="https://example.com?utm_source=google",
+    )
+
+    ok = await processor.process(r)
+
+    assert ok is True
+    assert "https://example.com/home" in fetcher.afetch_clean_urls
+    assert all("?utm_source=google/home" not in url for url in fetcher.afetch_clean_urls)
+
+
+@pytest.mark.asyncio
 async def test_menu_processor_skips_home_when_first_fetch_usable():
     menu_json = (
         '{"drink": {"name": "$5 beer draft", "price": 5.0}, '

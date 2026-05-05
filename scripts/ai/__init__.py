@@ -6,11 +6,17 @@ try:
 except ImportError:
     AsyncOpenRouterClient = None  # type: ignore
 
-from .prompts import format_happy_hour_prompt, format_menu_prompt, format_menu_image_prompt
+from .prompts import (
+    format_happy_hour_image_prompt,
+    format_happy_hour_prompt,
+    format_menu_prompt,
+    format_menu_image_prompt,
+)
 
 __all__ = [
     'OpenRouterClient',
     'AsyncOpenRouterClient',
+    'format_happy_hour_image_prompt',
     'format_happy_hour_prompt',
     'format_menu_prompt',
     'format_menu_image_prompt',

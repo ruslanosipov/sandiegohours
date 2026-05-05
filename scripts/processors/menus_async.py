@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from ai import AsyncOpenRouterClient
 from ai.prompts import format_menu_prompt, format_menu_image_prompt
 from storage import Restaurant
-from fetchers.website import AsyncWebsiteFetcher
+from fetchers.website import AsyncWebsiteFetcher, homepage_fallback_urls
 from parsers.content_parsers import parse_menu_response
 from parsers.menu_text import focus_text_for_happy_hour_menu
 
@@ -71,8 +71,7 @@ class AsyncMenuProcessor:
         # usable text, retry on the homepage variants.
         MIN_USABLE = 300
         if not text or len(text) < MIN_USABLE:
-            base = restaurant.website_url.rstrip('/')
-            for candidate in (f"{base}/home", f"{base}/"):
+            for candidate in homepage_fallback_urls(restaurant.website_url):
                 if candidate == menu_url or candidate.rstrip('/') == menu_url.rstrip('/'):
                     continue
                 try:

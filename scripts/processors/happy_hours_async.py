@@ -10,10 +10,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from ai import AsyncOpenRouterClient
-from ai.prompts import format_happy_hour_prompt
+from ai.prompts import format_happy_hour_image_prompt, format_happy_hour_prompt
 from storage import Restaurant
-from fetchers.website import AsyncWebsiteFetcher
+from fetchers.website import AsyncWebsiteFetcher, homepage_fallback_urls
 from parsers.content_parsers import parse_happy_hour_response, format_happy_hour_times
+
+
+_MIN_USABLE_TEXT = 300
 
 
 class AsyncHappyHourProcessor:
@@ -48,6 +51,7 @@ class AsyncHappyHourProcessor:
 
         # Find menu/happy hour page (checks priority paths concurrently)
         menu_url = await self.fetcher.afind_menu_page(restaurant.website_url)
+        first_menu_url = menu_url
         try:
             print(f"  URL: {menu_url}")
         except UnicodeEncodeError:
@@ -55,12 +59,29 @@ class AsyncHappyHourProcessor:
 
         # Fetch and clean content
         text = await self.fetcher.afetch_clean(menu_url)
+        if not text or len(text) < _MIN_USABLE_TEXT:
+            for candidate in homepage_fallback_urls(restaurant.website_url):
+                if candidate == menu_url or candidate.rstrip('/') == menu_url.rstrip('/'):
+                    continue
+                try:
+                    print(f"  Retrying on homepage: {candidate}")
+                except UnicodeEncodeError:
+                    print("  Retrying on homepage")
+                fallback = await self.fetcher.afetch_clean(candidate)
+                if fallback and len(fallback) > len(text or ""):
+                    text = fallback
+                    menu_url = candidate
+                    if len(text) >= _MIN_USABLE_TEXT:
+                        break
+
         if not text:
+            if await self._try_vision_schedule(restaurant, first_menu_url):
+                return True
             print(f"  Failed to fetch content")
             return False
 
         try:
-            print(f"  Fetched {len(text)} chars of content")
+            print(f"  Fetched {len(text)} chars of content from {menu_url}")
         except UnicodeEncodeError:
             print("  Fetched content")
 
@@ -78,6 +99,8 @@ class AsyncHappyHourProcessor:
             # Check confidence level
             confidence = result.get('confidence', 'low')
             if confidence in ['low', 'none']:
+                if await self._try_vision_schedule(restaurant, first_menu_url):
+                    return True
                 print(f"  Low confidence ({confidence}), skipping")
                 return False
 
@@ -96,6 +119,39 @@ class AsyncHappyHourProcessor:
 
         except Exception as e:
             print(f"  AI error: {e}")
+            return False
+
+    async def _try_vision_schedule(self, restaurant: Restaurant, url: str) -> bool:
+        """Try extracting a happy-hour schedule from menu/special image URLs."""
+        if not url or not hasattr(self.ai, 'acomplete_with_images'):
+            return False
+
+        image_urls = await self.fetcher.afetch_menu_images(url)
+        if not image_urls:
+            return False
+
+        try:
+            print(f"  Trying vision schedule extraction from {len(image_urls)} image(s)")
+            response = await self.ai.acomplete_with_images(
+                prompt=format_happy_hour_image_prompt(restaurant.restaurant_name),
+                image_urls=image_urls,
+                system="You are a happy hour schedule parser. Extract structured data from images. Return JSON only.",
+            )
+            result = parse_happy_hour_response(response)
+            confidence = result.get('confidence', 'low')
+            if confidence in ['low', 'none'] or not result['happy_hours']:
+                print(f"  Vision schedule low confidence ({confidence}), skipping")
+                return False
+
+            restaurant.happy_hour_times = format_happy_hour_times(result['happy_hours'])
+            restaurant.source = f'Website image (AI parsed, {confidence} confidence)'
+            try:
+                print(f"  [OK] Found from image: {restaurant.happy_hour_times[:60]}...")
+            except UnicodeEncodeError:
+                print("  [OK] Found happy hours from image")
+            return True
+        except Exception as e:
+            print(f"  Vision schedule extraction failed: {e}")
             return False
 
     async def process_batch(
