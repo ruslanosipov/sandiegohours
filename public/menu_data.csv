@@ -1,6 +1,7 @@
 place_id,restaurant_name,cheapest_drink,cheapest_drink_price,cheapest_food,cheapest_food_price,menu_summary,menu_url
 ChIJubb3CJT_24ARgT4M9ifLXDg,O'Brien's,select beers,6.0,sliders,8.0,"$6 beers, $8 cocktails, and $8 burgers/sliders.",https://obrienspub.net/menus/happy-hour
 ChIJPTJ8EAD_24AR_deMVC9COQc,Hinotez Bar,Sake,6.0,Yakitori,3.0,"$3 Yakitori, $6 Sake, $8 Cocktails, $8 Burgers",https://sandiegoyakyudori.com/page/hinotez-bar/menus/happy-hour
+ChIJNaLeSOv_24ARuBxQu2igcLs,Cross Street Chicken and Beer (Convoy-Kearny Mesa),Draft Beer,6.0,Fries,6.0,"$6 beers, $8 cocktails, $8 burgers and sliders",http://www.crossstreetcnb.com/menus/happy-hour
 ChIJQdwYHpP_24ARJBqrpJdICww,Applebee's Grill + Bar,,,1/2 price appetizers,,1/2 price appetizers,
 ChIJiyRJSdb_24AR9M7qe8dZGBs,Flama Llama,chicha morada,5.0,fried yucca,6.5,"maracuya margarita, yuzu mojito, lychee llama, chicha morada, sapporo, mojo pork fries, pork tacos, fried yucca, plátanos",
 ChIJ1e-OzlGr3oARYTTjoW85evc,Ju-ichi,Sapporo,6.0,Edamame,5.0,"$5 edamame, $6 beers, $8 cocktails, $8 sushi",https://juichi11sd.com/happy-hour-%26-drink-menu
@@ -24,6 +25,7 @@ ChIJiZyktJb_24ARGvio1_6UEGI,spicy city,Draft Beer,6.0,Spicy City Fries,7.0,"$6 d
 ChIJK58Y05X_24AR45C19reFVHQ,Thang Thang,Soju,5.0,Tteokbokki,6.0,"$5 Soju, $6 Tteokbokki, $8 Kimchi Fried Rice",https://thangthanggo.site
 ChIJ_evRl5b_24AR5SjqZIn2jfM,China Max Dumpling House,Domestic Beer,6.0,Pork Belly Sliders,8.0,"$6 beers, $8 cocktails, sliders, and dumplings",https://chinamaxdumplinghouse.site
 ChIJRQGLXQD_24ARB1aODP2b-G8,ZHENGXIN Chicken Steak,Beer,6.0,Burger,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",http://www.zhengxinchickensteak.com
+ChIJCX3vHuv_24ARc9wy0S0W8u4,Liuyishou Hot Pot (San Diego),Domestic Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",https://www.liuyishouna.com/sandiego/menus/happy-hour
 ChIJXXigW3r_24ARKD0CuU4JtYQ,Gaslamp Bartending School,Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, and $8 burgers/sliders",http://www.gaslampbartendingschool.com
 ChIJq9t0DMD_24AR7w-elpLB7yc,Tokyo Central San Diego,Sapporo,6.0,Edamame,4.0,"$4 Edamame, $6 Sapporo, $8 cocktails, burgers, and sliders.",http://tokyocentral.com/happyhour
 ChIJByc7B5f_24ARZmJHKNPNJuk,Common Theory,beer,6.0,sliders,8.0,"$6 beers, $8 cocktails, and $8 sliders",https://commontheorysd.com
@@ -125,6 +127,7 @@ ChIJ0evc4IZU2YARUD_TPOQ1JKE,Station Tavern,,,BEER BRATS,8.0,"$6 beers, $8 cockta
 ChIJe2Ao-0lV2YARdjWWg2okxhs,Fernside,ROCKET FROM THE CRYPT,6.0,PARTY BURGERS,8.0,"$6 beers, $8 cocktails, burgers, sliders, and fries",
 ChIJo3g7GotU2YAR0ew6fl4knLc,Modern Times Flavordome,select beers,6.0,sliders,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",https://moderntimes.pub/northpark/bar
 ChIJNdOaPYtU2YAR0jOK-CT-3Gk,One Door North,The High Country,10.0,,,The High Country cocktail,
+ChIJ9-z374ZU2YARK8hPYQyLYzM,The Rose Wine Bar,House Wine,7.0,Truffle Fries,8.0,"$7 house wine, $8 cocktails, $8 truffle fries and sliders",http://therosewinebar.com
 ChIJIfAEdClT2YARz6RNAnuH9D0,Harland - South Park,Domestic Beer,6.0,Burger,8.0,"$6 beers, $8 cocktails, burgers, and sliders",https://harlandbeer.com
 ChIJ6f8LQWpT2YARVYFmzW1F7Rk,Enoteca Buona Forchetta,Buona Forchetta Draft Beers,5.0,Calamari Half Portion,8.0,"Buona Forchetta Draft Beers $5, Calamari Half Portion $8",
 ChIJ87hDL4tU2YAR48AcFXInFsE,Dunedin New Zealand Eats,Any Draft Beer,7.0,NZ Onion Dip,9.0,"$9 NZ Onion Dip, $10 Fish N' Chips, $7 Draft Beer and Cocktails",https://dunedinsd.com/menus/happy-hour
@@ -315,6 +318,7 @@ ChIJIe5QHfhT2YARBBW5Un5WFEM,Gaslamp Breakfast Company,Domestic Beer,6.0,Sliders,
 ChIJP3i4i1lT2YARRLPY1oEO6Ns,Lionfish Modern Coastal Cuisine – San Diego,Pale Ale Ale Smith ‘.394’ San Diego,6.0,Oysters Kumiai Baja Oysters,1.5,"$1.50 oysters, $6 beer, $8 hand rolls, $9 plates, $10 cocktails",https://lionfishsd.com/menu/happy-hour
 ChIJYaRcf8hT2YAROb1Niwxt0YM,STK Steakhouse,,,oysters on the half shell,3.0,"$3 bites including oysters, crab fritters, Lil’ BRGs, wagyu meatballs, short rib quesadillas and A5 wagyu tacos.",
 ChIJoYUyrVBT2YARVqj1DbMGikY,Morton's The Steakhouse,Beer,6.0,Burger,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",https://www.mortons.com/specials
+ChIJYU69NPJT2YARit6HjcmqiYM,The Melt,,,Fries,6.0,"$6 fries, $8 burgers, sliders, and cocktails",https://www.themelt.com
 ChIJvUNRtVlT2YARKqXIDiFn000,Greystone Prime Steakhouse & Seafood,HOUSE RED,8.0,OYSTERS,1.5,"Oysters, bottled beer, house red and white wine, calamari, fries, tacos",https://www.greystonesteakhouse.com/menus/happy-hour
 ChIJ-9qrDVpT2YARSpU3hHdbN4s,Fleming’s Prime Steakhouse & Wine Bar,hand-crafted cocktails,9.0,,,$9 hand-crafted cocktails,
 ChIJ-9b7R1hT2YARKR5uvzEj9Ns,Asti Ristorante,House Wine,7.0,Bruschetta,8.0,"$7 house wine, $8 bruschetta, and $10 calamari",http://astisandiego.com/menus/happy-hour
@@ -380,6 +384,8 @@ ChIJawXUY9Oq3oARwgiRZMM2XFY,The Waffle Spot,Draft Beers,5.0,Sliders,8.0,"$5 draf
 ChIJvR05Y-qq3oARXlqbLuZysrE,Tio Leo's Mexican Restaurant,Domestic Drafts,6.0,Chips & Salsa,3.0,"$3 chips & salsa, $6 beers, $8 cocktails, burgers, and sliders",http://www.tioleos.com
 ChIJawXUY9Oq3oARS1WMAtfOJrQ,The Amigo Cantina,Domestic Bottles,5.0,Flautas,8.0,"$5 beers, $8 cocktails, $8 flautas, quesadillas, and nachos",
 ChIJoy4-sgOr3oAR_F7ZFi0d9PU,Cafe 88,Domestic Beer,6.0,Edamame,5.0,"$5 edamame, $6 beers, $8 cocktails, and sliders",https://linktr.ee/haileyelizabethh
+ChIJC_6f3Xyr3oARpWfrYyZ0woI,The Remy,Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, burgers and sliders",https://www.theremysd.com
+ChIJrWF7z8Gq3oARpQ_CMj7mNfs,J&T Thai Street Food,Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",https://www.jtthaistreetfood.com/menu
 ChIJy54NVStV2YARJocmSjOLKpw,CRUST KITCHEN,Domestic Beer,6.0,Garlic Knots,7.0,"$6 beers, $7 garlic knots, $8 cocktails and sliders",https://crustkitchenn.site
 ChIJgyd6cOeq3oARZz-U8rhior4,Barra Barra,Margarita,6.0,Tacos,5.0,"$5 tacos, $6 margaritas, $7 nachos, and $8 quesadillas",http://www.barrabarrasaloon.com/menus
 ChIJD1lzid2q3oARpX8yCaF7AZo,Casa de Reyes,Domestic Beer,6.0,Chips & Salsa,5.0,"$5 chips, $6 beers, $8 cocktails, burgers, and sliders",http://casadereyesrestaurant.com/specials
@@ -408,6 +414,7 @@ ChIJxbxshXFT2YARs-qWAZI_vcU,Romanissimo Cucina Italiana,Crodino Spritz,7.0,Fries
 ChIJPc3plXtT2YAR22PQdaBtKoI,Catcher's Fish House,Domestic Beer,6.0,Shrimp,8.0,"$6 beers, $8 shrimp, $8 wings, $8 sliders",https://catchersfishhouse.com/menu
 ChIJbcuLPvRT2YARZ6y2t7sAlLc,Blue Water Seafood Market & Grill,Green Tea Shots,6.0,,,"Specialty Cocktails $11, Green Tea Shots $6",https://bluewaterseafoodsandiego.com/san-diego-ocean-beach-blue-water-seafood-food-menu
 ChIJv_G88WlT2YARP952q0MTtH8,Roma Mia,beer,6.0,sliders,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",https://romamiasd.com/menu
+ChIJoy_mD1hT2YARSPraPnnT7pw,Operacaffe,House Wine,7.0,Margherita Pizza,12.0,"$7 house wine, $12 pizzas, $14 sliders, and $14 calamari",http://operacaffe.com
 ChIJX92NdlhT2YARBqvku8E5wZo,The Melting Pot of San Diego,$6 select wines by the glass,6.0,50% OFF Cheese & Chocolate Fondue,,"50% off cheese and chocolate fondue, $6 select wines",https://www.meltingpot.com/san-diego-gaslamp-ca/specials
 ChIJC6FlH6hU2YARkfhWCkHvffg,Bronze Bird,draft beers,4.0,special small bites,3.0,"$5 wine and cocktails, $4 draft beers, and $3 small bites",https://www.marriott.com/en-us/hotels/sanwi-the-westin-san-diego-gaslamp-quarter/dining/?scid=feed67b0-9a2f-4de1-8df6-114544116108/menus/happy-hour
 ChIJcTw_Z1hT2YARSlHHs8-bgrc,American Comedy Co. San Diego,$5 Happy hour!,5.0,Free pizza w/any drink purchase,,$5 Happy hour and free pizza,https://americancomedyco.com/products/gaslamp-open-mic-5-happy-hour-live-tue
@@ -432,6 +439,12 @@ ChIJiZB7QdtU2YARBz7sv-2hm7w,Better Buzz Coffee Hillcrest,Happy Hour Cold Brew,3.
 ChIJD4Jaca5U2YARKlOHLKq6dCs,Lofty Coffee Co.,Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders.",https://loftycoffee.com/pages/little-italy-cafe-and-bakery/happy-hour
 ChIJ9buCH6dU2YARJLVMNtwHrqA,Achilles Coffee Roasters @ The Rey,Beer,6.0,Burgers,8.0,"$6 beers, $8 cocktails, burgers and sliders",http://achillescoffeeroasters.com/pages/specialty-coffee-roaster
 ChIJBUOisDuq3oARubmW1MpnA-Y,Newbreak Coffee & Cafe,House Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",https://mymenuweb.com/us/restaurants/1175667/menus/happy-hour
+ChIJbaG8EldT2YARaL4itPvNGYY,Lani Coffee,iced coffee,3.5,muffin,3.0,"$3.50 iced coffee, $3.00 muffins, $5.00 pastries",https://www.lanicoffeesd.com/our-menu
+ChIJO9Oow5tT2YAR0HkHLYL-oq0,F Street Café,,,Chips,2.0,"Sandwiches, coffees, pastries, and chips.",http://www.fstreetcafe.com/menu
+ChIJVbThvFlT2YARDVk3Xg-swBk,Spill the Beans Coffee and Bagels,Loose Leaf Tea,5.0,,,Happy hour specials on drinks and teas.,https://www.spillthebeanssd.com/menu
+ChIJrbU3VYlT2YARfAHGSEfNR0Q,Chiefy Cafe,House Wine,6.0,Hummus,6.0,"$6 wine, hummus, and $8 sliders",https://chiefycafe.com/specials
+ChIJa09OTFpT2YARLISFAEHFzd8,Subway,,,"6"" Deli Faves",5.0,"6"" Deli Faves, $5 beers, $8 cocktails, $8 burgers",https://restaurants.subway.com/united-states/ca/san-diego/611-k-street
+ChIJI2ayXVpT2YARvdU8zl_N0_g,Gaslamp Quarter,$3 Tequila Shots,3.0,$2 Tacos,2.0,"$2 Tacos, $3 Tequila Shots, $4 Domestic Beers, $5 Margaritas",http://www.gaslamp.org/specials
 ,Madi,Beer,6.0,Sliders,8.0,"$6 beers, $8 cocktails, and $8 sliders",http://brunchlikemadi.com/menu
 ,Bleu Bohème,Beer,6.0,Burger,8.0,"$6 beers, $8 cocktails, $8 burgers and sliders",http://www.bleuboheme.com/specials
 ,Lazy Dog Restaurant & Bar,House Beer,5.0,Crispy Fries,5.0,"$5 beers, $5 fries, $7 appetizers, $8 cocktails, $9 burgers",https://lazydogrestaurants.com/pages/san-diego-ca-mission-valley/happy-hour
